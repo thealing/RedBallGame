@@ -35,13 +35,13 @@ function init() {
 	context.textBaseline = "middle";
 	mousePosition = new Vector(0, 0);
 	mouseIsDown = false;
-	function onMouseDown(screenX, screenY) {
+	function onMouseDown() {
 		mouseDownPosition = mousePosition.clone();
 		mouseIsDown = true;
 		mouseLongPressTimeout = setTimeout(onLongClick, 500, mousePosition);
 		onTouchDown(mousePosition);
 	};
-	function onMouseUp(screenX, screenY) {
+	function onMouseUp() {
 		if (Vector.distance(mouseDownPosition, mousePosition) <= 20) {
 			onClick(mouseDownPosition);
 		}
@@ -62,22 +62,25 @@ function init() {
 		mousePosition.x = x;
 		mousePosition.y = y;
 	};
-	// canvas.addEventListener("mousedown", (e) => onMouseDown(e.clientX, e.clientY));
-	// canvas.addEventListener("mouseup", (e) => onMouseUp(e.clientX, e.clientY));
-	// canvas.addEventListener("mouseout", (e) => onMouseUp(e.clientX, e.clientY));
+	// canvas.addEventListener("mousedown", (e) => onMouseDown());
+	// canvas.addEventListener("mouseup", (e) => onMouseUp());
+	// canvas.addEventListener("mouseout", (e) => onMouseUp());
 	// canvas.addEventListener("mousemove", (e) => onMouseMove(e.clientX, e.clientY));
 	canvas.addEventListener("touchstart", (e) => {
 		const touch = e.touches[0];
-		onMouseDown(touch.clientX, touch.clientY)
+		onMouseMove(touch.pageX, touch.pageY);
+		onMouseDown();
 	});
 	canvas.addEventListener("touchend", (e) => {
-		const touch = e.touches[0];
-		onMouseUp(touch.clientX, touch.clientY)
+		onMouseUp();
+	});
+	canvas.addEventListener("touchcancel", (e) => {
+		onMouseUp();
 	});
 	canvas.addEventListener("touchmove", (e) => {
 		e.preventDefault();
 		const touch = e.touches[0];
-		onMouseMove(touch.clientX, touch.clientY)
+		onMouseMove(touch.pageX, touch.pageY);
 	});
 	createInputPopup();
 	images = {};
