@@ -66,9 +66,6 @@ function init() {
 	canvas.addEventListener("mouseup", (e) => onMouseUp(e.clientX, e.clientY));
 	canvas.addEventListener("mouseout", (e) => onMouseUp(e.clientX, e.clientY));
 	canvas.addEventListener("mousemove", (e) => onMouseMove(e.clientX, e.clientY));
-	canvas.addEventListener("touchstart", (e) => onMouseDown(e.touches[0].clientX, e.touches[0].clientY));
-	canvas.addEventListener("touchend", (e) => onMouseUp(e.touches[0].clientX, e.touches[0].clientY));
-	canvas.addEventListener("touchcancel", (e) => onMouseUp(e.touches[0].clientX, e.touches[0].clientY));
 	canvas.addEventListener("touchmove", (e) => onMouseMove(e.touches[0].clientX, e.touches[0].clientY));
 	createInputPopup();
 	images = {};
