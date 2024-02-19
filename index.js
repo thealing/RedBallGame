@@ -67,17 +67,10 @@ function init() {
 	// canvas.addEventListener("mouseout", (e) => onMouseUp(e.clientX, e.clientY));
 	// canvas.addEventListener("mousemove", (e) => onMouseMove(e.clientX, e.clientY));
 	canvas.addEventListener("touchstart", (e) => {
-		e.preventDefault();
 		const touch = e.touches[0];
 		onMouseDown(touch.clientX, touch.clientY)
 	});
 	canvas.addEventListener("touchend", (e) => {
-		e.preventDefault();
-		const touch = e.touches[0];
-		onMouseUp(touch.clientX, touch.clientY)
-	});
-	canvas.addEventListener("touchcancel", (e) => {
-		e.preventDefault();
 		const touch = e.touches[0];
 		onMouseUp(touch.clientX, touch.clientY)
 	});
