@@ -66,10 +66,26 @@ function init() {
 	// canvas.addEventListener("mouseup", (e) => onMouseUp(e.clientX, e.clientY));
 	// canvas.addEventListener("mouseout", (e) => onMouseUp(e.clientX, e.clientY));
 	// canvas.addEventListener("mousemove", (e) => onMouseMove(e.clientX, e.clientY));
-	canvas.addEventListener("touchstart", (e) => onMouseDown(e.touches[0].clientX, e.touches[0].clientY));
-	canvas.addEventListener("touchend", (e) => onMouseUp(e.touches[0].clientX, e.touches[0].clientY));
-	canvas.addEventListener("touchcancel", (e) => onMouseUp(e.touches[0].clientX, e.touches[0].clientY));
-	canvas.addEventListener("touchmove", (e) => onMouseMove(e.touches[0].clientX, e.touches[0].clientY));
+	canvas.addEventListener("touchstart", (e) => {
+		e.preventDefault();
+		const touch = e.touches[0];
+		onMouseDown(touch.clientX, touch.clientY)
+	});
+	canvas.addEventListener("touchend", (e) => {
+		e.preventDefault();
+		const touch = e.touches[0];
+		onMouseUp(touch.clientX, touch.clientY)
+	});
+	canvas.addEventListener("touchcancel", (e) => {
+		e.preventDefault();
+		const touch = e.touches[0];
+		onMouseUp(touch.clientX, touch.clientY)
+	});
+	canvas.addEventListener("touchmove", (e) => {
+		e.preventDefault();
+		const touch = e.touches[0];
+		onMouseMove(touch.clientX, touch.clientY)
+	});
 	createInputPopup();
 	images = {};
 	scenes = {};
