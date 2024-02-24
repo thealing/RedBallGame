@@ -14,12 +14,14 @@ var mousePosition;
 var mouseDownPosition;
 var mouseIsDown;
 var mouseLongPressTimeout;
+var clicksCanceled;
 var playerData;
 var gameData;
+var gameInput;
 
 init();
 
-function init() {
+async function init() {
 	document.body.style.margin = 0;
 	document.body.style.display = "flex";
 	document.body.style.justifyContent = "center";
@@ -39,10 +41,11 @@ function init() {
 		mouseDownPosition = mousePosition.clone();
 		mouseIsDown = true;
 		mouseLongPressTimeout = setTimeout(onLongClick, 500, mousePosition);
+		clicksCanceled = false;
 		onTouchDown(mousePosition);
 	};
 	function onMouseUp() {
-		if (Vector.distance(mouseDownPosition, mousePosition) <= 20) {
+		if (!clicksCanceled && mouseDownPosition && Vector.distance(mouseDownPosition, mousePosition) <= 20) {
 			onClick(mouseDownPosition);
 		}
 		clearTimeout(mouseLongPressTimeout);
@@ -62,19 +65,53 @@ function init() {
 		mousePosition.x = x;
 		mousePosition.y = y;
 	};
-	// canvas.addEventListener("mousedown", (e) => onMouseDown());
-	// canvas.addEventListener("mouseup", (e) => onMouseUp());
-	// canvas.addEventListener("mouseout", (e) => onMouseUp());
-	// canvas.addEventListener("mousemove", (e) => onMouseMove(e.clientX, e.clientY));
+	document.addEventListener("keydown", (e) => {
+		switch (e.key) {
+			case "a": {
+				gameInput.backward = true;
+				break;
+			}
+			case "d": {
+				gameInput.forward = true;
+				break;
+			}
+			case "w": {
+				gameInput.jump = true;
+				break;
+			}
+		}
+	});
+	document.addEventListener("keyup", (e) => {
+		switch (e.key) {
+			case "a": {
+				gameInput.backward = false;
+				break;
+			}
+			case "d": {
+				gameInput.forward = false;
+				break;
+			}
+			case "w": {
+				gameInput.jump = false;
+				break;
+			}
+		}
+	});
+	canvas.addEventListener("mousedown", (e) => onMouseDown());
+	canvas.addEventListener("mouseup", (e) => onMouseUp());
+	canvas.addEventListener("mouseout", (e) => onMouseUp());
+	canvas.addEventListener("mousemove", (e) => onMouseMove(e.pageX, e.pageY));
 	canvas.addEventListener("touchstart", (e) => {
 		const touch = e.touches[0];
 		onMouseMove(touch.pageX, touch.pageY);
 		onMouseDown();
 	});
 	canvas.addEventListener("touchend", (e) => {
+		e.preventDefault();
 		onMouseUp();
 	});
 	canvas.addEventListener("touchcancel", (e) => {
+		e.preventDefault();
 		onMouseUp();
 	});
 	canvas.addEventListener("touchmove", (e) => {
@@ -89,6 +126,7 @@ function init() {
 	createScenes();
 	initPlayerData();
 	initGameData();
+	initGameInput();
 	changeScene(scenes.menu);
 	setInterval(update, DELTA_TIME * 1000);
 	requestAnimationFrame(render);
@@ -173,13 +211,22 @@ function initGameData() {
 	gameData = {
 		paused: false,
 		currentLevel: playerData.draftLevels[0],
+		onLevelExit: null
+	};
+}
+
+function initGameInput() {
+	gameInput = {
+		forward: false,
+		backward: false,
+		jump: false
 	};
 }
 
 function createScenes() {
 	scenes.menu = new MenuScene();
 	scenes.editor = new EditorScene();
-	scenes.adventure = new AdventureScene();
+	scenes.play = new PlayScene();
 }
 
 function generateRandomId() {
@@ -232,16 +279,30 @@ function showInputPopup(text, callback) {
 	};
 }
 
+function drawCircle(position, radius) {
+	context.beginPath();
+	context.arc(position.x, position.y, radius, 0, Math.PI * 2);
+	context.fill();
+	context.closePath();
+}
+
 function drawSegment(start, end) {
 	context.beginPath();
 	context.moveTo(start.x, start.y);
 	context.lineTo(end.x, end.y);
 	context.stroke();
+	context.closePath();
 }
 
 function drawPolyline(polyline) {
 	if (polyline.length < 2) {
 		return;
+	}
+	context.lineCap = "round";
+	context.lineJoin = "round";
+	if (polyline.width) {
+		context.lineWidth = polyline.width;
+		context.strokeStyle = polyline.color;
 	}
 	context.beginPath();
 	context.moveTo(polyline[0].x, polyline[0].y);
@@ -249,6 +310,7 @@ function drawPolyline(polyline) {
 		context.lineTo(polyline[i].x, polyline[i].y);
 	}
 	context.stroke();
+	context.closePath();
 }
 
 function drawImage(image, position, angle) {
@@ -277,17 +339,21 @@ function loadImages() {
 	images.new_level = loadImage("images/new_level.png", 300, 100);
 	images.delete_level = loadImage("images/delete_level.png", 100, 100);
 	images.edit_level = loadImage("images/edit_level.png", 100, 100);
+	images.play_level = loadImage("images/play_level.png", 100, 100);
 	images.ball_normal = loadImage("images/ball_normal.png", 64, 64);
 	images.goal = loadImage("images/goal.png", 64, 64);
+	images.ground_texture = loadImage("images/ground_texture.png", 64, 64);
 	images.ui = {};
 	images.ui.buttons = [
 		{
 			frame: loadImage("images/ui/button_0_frame.png", 80, 80),
+			disabled: loadImage("images/ui/button_0_disabled.png", 80, 80),
 			selected: loadImage("images/ui/button_0_selected.png", 80, 80),
 			pressed: loadImage("images/ui/button_0_pressed.png", 80, 80),
 		}, 
 		{
 			frame: loadImage("images/ui/button_1_frame.png", 160, 80),
+			disabled: loadImage("images/ui/button_1_disabled.png", 160, 80),
 			selected: loadImage("images/ui/button_1_selected.png", 160, 80),
 			pressed: loadImage("images/ui/button_1_pressed.png", 160, 80),
 		}
@@ -297,4 +363,11 @@ function loadImages() {
 	images.ui.icon_eraser = loadImage("images/ui/icon_eraser.png", 70, 70);
 	images.ui.icon_zoom_in = loadImage("images/ui/icon_zoom_in.png", 70, 70);
 	images.ui.icon_zoom_out = loadImage("images/ui/icon_zoom_out.png", 70, 70);
+	images.ui.arrow = {};
+	images.ui.arrow.left = loadImage("images/ui/arrow_left.png", 120, 120);
+	images.ui.arrow.left_pressed = loadImage("images/ui/arrow_left_pressed.png", 120, 120);
+	images.ui.arrow.right = loadImage("images/ui/arrow_right.png", 120, 120);
+	images.ui.arrow.right_pressed = loadImage("images/ui/arrow_right_pressed.png", 120, 120);
+	images.ui.arrow.up = loadImage("images/ui/arrow_up.png", 120, 120);
+	images.ui.arrow.up_pressed = loadImage("images/ui/arrow_up_pressed.png", 120, 120);
 }
