@@ -15,6 +15,7 @@ var mouseDownPosition;
 var mouseIsDown;
 var mouseLongPressTimeout;
 var clicksCanceled;
+var pressedKeys;
 var playerData;
 var gameData;
 var gameInput;
@@ -37,6 +38,7 @@ async function init() {
 	context.textBaseline = "middle";
 	mousePosition = new Vector(0, 0);
 	mouseIsDown = false;
+	pressedKeys = new Set();
 	function onMouseDown() {
 		mouseDownPosition = mousePosition.clone();
 		mouseIsDown = true;
@@ -66,33 +68,41 @@ async function init() {
 		mousePosition.y = y;
 	};
 	document.addEventListener("keydown", (e) => {
+		if (pressedKeys.has(e.key)) {
+			return;
+		}
+		pressedKeys.add(e.key);
 		switch (e.key) {
 			case "a": {
-				gameInput.backward = true;
+				gameInput.backward++;
 				break;
 			}
 			case "d": {
-				gameInput.forward = true;
+				gameInput.forward++;
 				break;
 			}
 			case "w": {
-				gameInput.jump = true;
+				gameInput.jump++;
 				break;
 			}
 		}
 	});
 	document.addEventListener("keyup", (e) => {
+		if (!pressedKeys.has(e.key)) {
+			return;
+		}
+		pressedKeys.delete(e.key)
 		switch (e.key) {
 			case "a": {
-				gameInput.backward = false;
+				gameInput.backward--;
 				break;
 			}
 			case "d": {
-				gameInput.forward = false;
+				gameInput.forward--;
 				break;
 			}
 			case "w": {
-				gameInput.jump = false;
+				gameInput.jump--;
 				break;
 			}
 		}
@@ -102,6 +112,7 @@ async function init() {
 	canvas.addEventListener("mouseout", (e) => onMouseUp());
 	canvas.addEventListener("mousemove", (e) => onMouseMove(e.pageX, e.pageY));
 	canvas.addEventListener("touchstart", (e) => {
+		e.preventDefault();
 		const touch = e.touches[0];
 		onMouseMove(touch.pageX, touch.pageY);
 		onMouseDown();
@@ -217,9 +228,9 @@ function initGameData() {
 
 function initGameInput() {
 	gameInput = {
-		forward: false,
-		backward: false,
-		jump: false
+		forward: 0,
+		backward: 0,
+		jump: 0
 	};
 }
 
@@ -342,7 +353,6 @@ function loadImages() {
 	images.play_level = loadImage("images/play_level.png", 100, 100);
 	images.ball_normal = loadImage("images/ball_normal.png", 64, 64);
 	images.goal = loadImage("images/goal.png", 64, 64);
-	images.ground_texture = loadImage("images/ground_texture.png", 64, 64);
 	images.ui = {};
 	images.ui.buttons = [
 		{

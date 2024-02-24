@@ -603,6 +603,27 @@ class PlayScene extends Scene {
 		super.enter();
 		this.setAnchorToCenter();
 		this.zoom = 0.75;
+		this.backwardButton = {
+			position: new Vector(80, 520),
+			halfSize: new Vector(60, 60),
+			renderProc: () => {
+				drawImage(gameInput.backward ? images.ui.arrow.left_pressed : images.ui.arrow.left, new Vector(0, 0), 0);
+			}
+		}
+		this.forwardButton = {
+			position: new Vector(200, 520),
+			halfSize: new Vector(60, 60),
+			renderProc: () => {
+				drawImage(gameInput.forward ? images.ui.arrow.right_pressed : images.ui.arrow.right, new Vector(0, 0), 0);
+			}
+		}
+		this.jumpButton = {
+			position: new Vector(944, 520),
+			halfSize: new Vector(60, 60),
+			renderProc: () => {
+				drawImage(gameInput.jump ? images.ui.arrow.up_pressed : images.ui.arrow.up, new Vector(0, 0), 0);
+			}
+		}
 		this.buttons = [
 			{
 				position: new Vector(90, 670),
@@ -622,28 +643,13 @@ class PlayScene extends Scene {
 				text: "RESTART",
 				font: "30px Arial"
 			},
-			{
-				position: new Vector(80, 520),
-				halfSize: new Vector(60, 60),
-				renderProc: () => {
-					drawImage(gameInput.backward ? images.ui.arrow.left_pressed : images.ui.arrow.left, new Vector(0, 0), 0);
-				}
-			},
-			{
-				position: new Vector(200, 520),
-				halfSize: new Vector(60, 60),
-				renderProc: () => {
-					drawImage(gameInput.forward ? images.ui.arrow.right_pressed : images.ui.arrow.right, new Vector(0, 0), 0);
-				}
-			},
-			{
-				position: new Vector(944, 520),
-				halfSize: new Vector(60, 60),
-				renderProc: () => {
-					drawImage(gameInput.jump ? images.ui.arrow.up_pressed : images.ui.arrow.up, new Vector(0, 0), 0);
-				}
-			}
+			this.backwardButton,
+			this.forwardButton,
+			this.jumpButton
 		];
+		gameInput.forward = 0;
+		gameInput.backward = 0;
+		gameInput.jump = 0;
 		this.initLevel();
 	}
 	
@@ -750,6 +756,34 @@ class PlayScene extends Scene {
 		this.started = true;
 		if (this.ended) {
 			this.initLevel();
+		}
+	}
+
+	onTouchDown(position) {
+		super.onTouchDown(position);
+		this.updateTouchGameInput(position, 1);
+	}
+
+	onTouchUp(position) {
+		super.onTouchUp(position);
+		this.updateTouchGameInput(position, -1);
+	}
+
+	onTouchMove(position, delta) {
+		super.onTouchMove(position, delta);
+		this.updateTouchGameInput(Vector.subtract(position, delta), -1);
+		this.updateTouchGameInput(position, 1);
+	}
+
+	updateTouchGameInput(position, add) {
+		if (testPointRect(position, Vector.subtract(this.backwardButton.position, this.backwardButton.halfSize), Vector.add(this.backwardButton.position, this.backwardButton.halfSize))) {
+			gameInput.backward += add;
+		}
+		if (testPointRect(position, Vector.subtract(this.forwardButton.position, this.forwardButton.halfSize), Vector.add(this.forwardButton.position, this.forwardButton.halfSize))) {
+			gameInput.forward += add;
+		}
+		if (testPointRect(position, Vector.subtract(this.jumpButton.position, this.jumpButton.halfSize), Vector.add(this.jumpButton.position, this.jumpButton.halfSize))) {
+			gameInput.jump += add;
 		}
 	}
 }
