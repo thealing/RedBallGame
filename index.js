@@ -88,7 +88,6 @@ async function init() {
 		onMouseMove(touch.pageX, touch.pageY);
 		onMouseDown();
 		for (const touch of e.changedTouches) {
-			console.log("set", touch.identifier);
 			touchPositions.set(touch.identifier, screenToCanvasPosition(touch.pageX, touch.pageY));
 		}
 	});
@@ -96,16 +95,20 @@ async function init() {
 		e.preventDefault();
 		onMouseUp();
 		for (const touch of e.changedTouches) {
-			console.log("del", touch.identifier);
 			touchPositions.delete(touch.identifier);
+		}
+		for (const touch of e.touches) {
+			touchPositions.set(touch.identifier, screenToCanvasPosition(touch.pageX, touch.pageY));
 		}
 	});
 	canvas.addEventListener("touchcancel", (e) => {
 		e.preventDefault();
 		onMouseUp();
 		for (const touch of e.changedTouches) {
-			console.log("del", touch.identifier);
 			touchPositions.delete(touch.identifier);
+		}
+		for (const touch of e.touches) {
+			touchPositions.set(touch.identifier, screenToCanvasPosition(touch.pageX, touch.pageY));
 		}
 	});
 	canvas.addEventListener("touchmove", (e) => {
@@ -113,7 +116,6 @@ async function init() {
 		const touch = e.touches[0];
 		onMouseMove(touch.pageX, touch.pageY);
 		for (const touch of e.changedTouches) {
-			console.log("set", touch.identifier);
 			touchPositions.set(touch.identifier, screenToCanvasPosition(touch.pageX, touch.pageY));
 		}
 	});
