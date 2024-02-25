@@ -31,7 +31,7 @@ class Scene {
 
 	onTouchDown(position) {
 		this.uiTouched = false;
-		for (var button of this.buttons) {
+		for (let button of this.buttons) {
 			if (testPointRect(position, Vector.subtract(button.position, button.halfSize), Vector.add(button.position, button.halfSize))) {
 				if (!button.disabled) {
 					if (button.toggled != undefined) {
@@ -75,7 +75,7 @@ class Scene {
 	}
 	
 	renderButtons() {
-		for (var button of this.buttons) {
+		for (let button of this.buttons) {
 			if (button.hidden) {
 				continue;
 			}
@@ -162,7 +162,7 @@ class MenuScene extends Scene {
 		context.lineCap = "flat";
 		context.save();
 		context.translate(0, this.draftLevelsOffset);
-		for (var i = 0; i < playerData.draftLevels.length; i++) {
+		for (let i = 0; i < playerData.draftLevels.length; i++) {
 			if (i == this.selectedDraftLevel) {
 				context.fillStyle = "darkgray";
 				context.fillRect(0, i * 100 + 1, 512, 100 - 1);
@@ -177,7 +177,7 @@ class MenuScene extends Scene {
 		context.restore();
 		context.save();
 		context.translate(0, this.publishedLevelsOffset);
-		for (var i = 0; i < playerData.publishedLevels.length; i++) {
+		for (let i = 0; i < playerData.publishedLevels.length; i++) {
 			if (i == this.selectedPublishedLevel) {
 				context.fillStyle = "darkgray";
 				context.fillRect(512, i * 100 + 1, 1024, 100 - 1);
@@ -244,7 +244,7 @@ class MenuScene extends Scene {
 					player: new Vector(-100, 0),
 					goal: new Vector(100, 0),
 					terrain: [],
-					objects: [],
+					gadgets: [],
 					verified: false
 				});
 				this.selectedDraftLevel = playerData.draftLevels.length - 1;
@@ -306,22 +306,31 @@ class EditorScene extends Scene {
 		{
 			index: 0,
 			deadly: false,
-			color: "#FAD7A0",
-			friction: 0.5,
-			frictionStatic: 0,
+			color: "LawnGreen",
+			friction: 50,
+			frictionStatic: 50,
 			restitution: 0.0
 		},
 		{
 			index: 1,
 			deadly: true,
-			color: "#D35400",
-			friction: 0,
-			restitution: 0.0
+			color: "Maroon",
+			friction: 50,
+			frictionStatic: 50,
+			restitution: 0
+		}
+	];
+
+	static gadgetTypes = [
+		{
+			index: 0,
+			class: Box
 		}
 	];
 
 	constructor() {
 		super();
+		EditorScene.gadgetTypes[0].icon = images.ui.icon_box;
 	}
 	
 	enter() {
@@ -370,7 +379,19 @@ class EditorScene extends Scene {
 				icon: images.ui.icon_eraser
 			},
 			{
-				position: new Vector(400, 60),
+				position: new Vector(360, 60),
+				halfSize: new Vector(40, 40),
+				toggled: false,
+				autoToggle: true,
+				mode: "gadgets",
+				onPress: () => {
+					this.currentMode = "gadgets";
+				},
+				type: 0,
+				icon: images.ui.icon_gadgets
+			},
+			{
+				position: new Vector(500, 60),
 				halfSize: new Vector(40, 40),
 				onHold: () => {
 					this.zoom *= 1 + DELTA_TIME;
@@ -379,7 +400,7 @@ class EditorScene extends Scene {
 				icon: images.ui.icon_zoom_in
 			},
 			{
-				position: new Vector(500, 60),
+				position: new Vector(600, 60),
 				halfSize: new Vector(40, 40),
 				onHold: () => {
 					this.zoom /= 1 + DELTA_TIME;
@@ -440,9 +461,24 @@ class EditorScene extends Scene {
 				terrainType: i
 			});
 		}
+		for (let i = 0; i < EditorScene.gadgetTypes.length; i++) {
+			this.buttons.push({
+				position: new Vector(60 + 100 * i, 560),
+				halfSize: new Vector(40, 40),
+				toggled: false,
+				hidden: true,
+				onPress: () => {
+					this.currentGadgetType = i;
+				},
+				type: 0,
+				icon: EditorScene.gadgetTypes[i].icon,
+				gadgetType: i
+			});
+		}
 		this.buttonPressed = null;
 		this.currentMode = "navigate";
 		this.currentTerrainType = 0;
+		this.currentGadgetType = 0;
 		this.draggedObject = null;
 		this.currentPolyline = null;
 	}
@@ -453,14 +489,19 @@ class EditorScene extends Scene {
 	}
 
 	update() {
-		for (var i = 0; i < EditorScene.terrainTypes.length; i++) {
+		for (let i = 0; i < EditorScene.terrainTypes.length; i++) {
 			const terrainSelectorButton = this.buttons.find((button) => button.terrainType == i);
 			terrainSelectorButton.toggled = this.currentTerrainType == i;
 			terrainSelectorButton.hidden = this.currentMode != "draw";
 		}
+		for (let i = 0; i < EditorScene.gadgetTypes.length; i++) {
+			const gadgetSelectorButton = this.buttons.find((button) => button.gadgetType == i);
+			gadgetSelectorButton.toggled = this.currentGadgetType == i;
+			gadgetSelectorButton.hidden = this.currentMode != "gadgets";
+		}
 		this.buttons.find((button) => button.text == "PUBLISH").disabled = !this.level.verified;
 		this.updateButtons();
-		for (var button of this.buttons) {
+		for (let button of this.buttons) {
 			if (button.mode) {
 				button.toggled = this.currentMode == button.mode;
 			}
@@ -480,6 +521,9 @@ class EditorScene extends Scene {
 		}
 		if (this.currentPolyline) {
 			drawPolyline(this.currentPolyline);
+		}
+		for (const gadget of this.level.gadgets) {
+			gadget.render();
 		}
 		drawImage(images.ball_normal, this.level.player, 0);
 		drawImage(images.goal, this.level.goal, 0);
@@ -507,7 +551,18 @@ class EditorScene extends Scene {
 						this.draggedObject = this.level.goal;
 					}
 					else {
-						this.draggedObject = this.origin;
+						let draggedGadget = null;
+						for (const gadget of this.level.gadgets) {
+							if (gadget.testPoint(worldPosition)) {
+								draggedGadget = gadget;
+							}
+						}
+						if (draggedGadget) {
+							this.draggedObject = draggedGadget;
+						}
+						else {
+							this.draggedObject = this.origin;
+						}
 					}
 					break;
 				}
@@ -546,8 +601,8 @@ class EditorScene extends Scene {
 				break;
 			}
 			case "erase": {
-				var i = 0;
-				for (var polygon of this.level.terrain) {
+				let i = 0;
+				for (let polygon of this.level.terrain) {
 					if (!polygon.erasing) {
 						this.level.terrain[i] = polygon;
 						i++;
@@ -569,7 +624,12 @@ class EditorScene extends Scene {
 		switch (this.currentMode) {
 			case "navigate": {
 				if (this.draggedObject) {
-					this.draggedObject.add(worldDelta);
+					if (this.draggedObject instanceof Gadget) {
+						this.draggedObject.drag(Vector.subtract(worldPosition, worldDelta), worldDelta);
+					}
+					else {
+						this.draggedObject.add(worldDelta);
+					}
 				}
 				break;
 			}
@@ -589,14 +649,24 @@ class EditorScene extends Scene {
 			}
 		}
 	}
+
+	onClick(position) {
+		super.onClick(position);
+		const worldPosition = this.screenToWorldPosition(position);
+		if (!this.uiTouched) {
+			if (this.currentMode == "gadgets") {
+				this.level.gadgets.push(new EditorScene.gadgetTypes[this.currentGadgetType].class(worldPosition));
+				this.level.verified = false;
+			}
+		}
+	}
 }
 
 class PlayScene extends Scene {
 	constructor() {
 		super();
 		this.physics = Matter.Engine.create();
-		this.physics.gravity.scale = 1;
-		this.physics.gravity.y = 500;
+		this.physics.gravity.y = 700000;
 	}
 
 	enter() {
@@ -656,17 +726,20 @@ class PlayScene extends Scene {
 		const lvl = gameData.currentLevel;
 		this.terrain = lvl.terrain;
 		this.playerBody = Matter.Bodies.circle(lvl.player.x, lvl.player.y, 30);
-		this.playerBody.friction = 1000000;
-		this.playerBody.frictionStatic = 1000000;
+		this.playerBody.friction = 0;
+		this.playerBody.frictionStatic = 0;
 		this.playerBody.restitution = 0;
 		this.goalBody = Matter.Bodies.rectangle(lvl.goal.x, lvl.goal.y, 10, 64);
 		this.goalBody.isStatic = true;
-		this.terrainBodies = MatterUtil.createTerrainBodies(this.terrain);
+		this.terrainBodies = MatterUtil.createTerrainBodies(lvl.terrain);
+		this.gadgetBodies = lvl.gadgets.map((gadget) => gadget.createBody());
 		this.canJump = true;
 		this.started = false;
 		this.ended = false;
+		this.goalReached = false;
 		Matter.World.add(this.physics.world, [this.playerBody, this.goalBody]);
 		Matter.World.add(this.physics.world, this.terrainBodies);
+		Matter.World.add(this.physics.world, this.gadgetBodies);
 	}
 	
 	leave() {
@@ -683,12 +756,12 @@ class PlayScene extends Scene {
 		else {
 			this.playerBody.frictionAir = 0;
 			if (gameInput.forward) {
-				if (this.playerBody.velocity.x < 10000) {
+				if (this.playerBody.velocity.x < 8000) {
 					Matter.Body.applyForce(this.playerBody, this.playerBody.position, { x: 7000, y: 0 });
 				}
 			}
 			else if (gameInput.backward) {
-				if (this.playerBody.velocity.x > -10000) {
+				if (this.playerBody.velocity.x > -8000) {
 					Matter.Body.applyForce(this.playerBody, this.playerBody.position, { x: -7000, y: 0 });
 				}
 			}
@@ -696,28 +769,47 @@ class PlayScene extends Scene {
 		if (this.started && !this.ended) {
 			Matter.Engine.update(this.physics, DELTA_TIME);
 		}
-		this.origin.copy(this.playerBody.position).negate();
-		for (const terrainBody of this.terrainBodies) {
-			const touching = MatterUtil.overlap(this.playerBody, terrainBody);
-			if (touching && terrainBody.deadly && !this.ended) {
-				this.ended = true;
-				clicksCanceled = true;
+		const target = Vector.negate(this.playerBody.position);
+		this.origin.add(target.subtract(this.origin).multiply(10 * DELTA_TIME));
+		if (this.started && !this.ended) {
+			for (const terrainBody of this.terrainBodies) {
+				const touching = MatterUtil.overlap(this.playerBody, terrainBody);
+				if (touching && terrainBody.deadly) {
+					this.ended = true;
+					clicksCanceled = true;
+				}
 			}
-		}
-		var onSurface = false;
-		for (const terrainBody of this.terrainBodies) {
-			onSurface |= MatterUtil.isOnTop(this.playerBody, terrainBody);
-		}
-		if (gameInput.jump && this.canJump && onSurface) {
-			Matter.Body.setVelocity(this.playerBody, { x: this.playerBody.velocity.x, y: this.playerBody.velocity.y - 7000 });
-			this.canJump = false;
-			setTimeout(() => {
-				this.canJump = true;
-			}, 1000);
-		}
-		if (MatterUtil.overlap(this.playerBody, this.goalBody)) {
-			gameData.currentLevel.verified = true;
-			gameData.onLevelExit();
+			for (const gadgetBody of this.gadgetBodies) {
+				// ???
+			}
+			let onSurface = false;
+			for (const terrainBody of this.terrainBodies) {
+				onSurface |= MatterUtil.isOnTop(this.playerBody, terrainBody);
+			}
+			for (const gadgetBody of this.gadgetBodies) {
+				onSurface |= MatterUtil.isOnTop(this.playerBody, gadgetBody);
+			}
+			if (onSurface) {
+				const radius = this.playerBody.circleRadius;
+				const velocity = this.playerBody.velocity;
+				const angularVelocity = this.playerBody.angularVelocity;
+				let difference = velocity.x - angularVelocity * radius;
+				Matter.Body.setVelocity(this.playerBody, { x: velocity.x - difference * 0.3, y: velocity.y });
+				Matter.Body.setAngularVelocity(this.playerBody, angularVelocity + difference / radius);
+			}
+			if (gameInput.jump && this.canJump && onSurface) {
+				Matter.Body.setVelocity(this.playerBody, { x: this.playerBody.velocity.x, y: this.playerBody.velocity.y - 7000 });
+				this.canJump = false;
+				setTimeout(() => {
+					this.canJump = true;
+				}, 1000);
+			}
+			if (MatterUtil.overlap(this.playerBody, this.goalBody)) {
+				this.ended = true;
+				this.goalReached = true;
+				clicksCanceled = true;
+				gameData.currentLevel.verified = true;
+			}
 		}
 	}
 
@@ -730,6 +822,9 @@ class PlayScene extends Scene {
 		context.lineWidth = 5;
 		for (const polyline of this.terrain) {
 			drawPolyline(polyline);
+		}
+		for (const gadgetBody of this.gadgetBodies) {
+			gadgetBody.render();
 		}
 		drawImage(images.ball_normal, this.playerBody.position, this.playerBody.angle);
 		drawImage(images.goal, this.goalBody.position, 0);
@@ -747,7 +842,7 @@ class PlayScene extends Scene {
 			drawText("Tap to Start", new Vector(512, 500), "30px Arial");
 		}
 		if (this.ended) {
-			drawText("Tap to Retry", new Vector(512, 500), "30px Arial");
+			drawText(this.goalReached ? "Level Completed" : "Tap to Retry", new Vector(512, 500), "30px Arial");
 		}
 	}
 	
@@ -755,7 +850,12 @@ class PlayScene extends Scene {
 		super.onClick(position);
 		this.started = true;
 		if (this.ended) {
-			this.initLevel();
+			if (this.goalReached) {
+				gameData.onLevelExit();
+			}
+			else {
+				this.initLevel();
+			}
 		}
 	}
 
@@ -791,7 +891,7 @@ class MatterUtil {
 			if (!bodiesList[polyline.index]) {
 				bodiesList[polyline.index] = [];
 			}
-			for (var i = 0; i + 1 < polyline.length; i++) {
+			for (let i = 0; i + 1 < polyline.length; i++) {
 				const a = polyline[i];
 				const b = polyline[i + 1];
 				const middle = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
@@ -806,7 +906,7 @@ class MatterUtil {
 			bodiesList[polyline.index].push(Matter.Bodies.circle(polyline[polyline.length - 1].x, polyline[polyline.length - 1].y, polyline.width / 2));
 		}
 		const result = [];
-		for (var i = 0; i < bodiesList.length; i++) {
+		for (let i = 0; i < bodiesList.length; i++) {
 			if (bodiesList[i] == undefined) {
 				continue;
 			}
@@ -827,7 +927,7 @@ class MatterUtil {
 		const center1Y = body1.position.y;
 		for (const contact of contacts) {
 			for (const support of contact.supports) {
-				if (support.y > center1Y + 10) {
+				if (support.y > center1Y + 20) {
 					return true;
 				}
 			}

@@ -2,24 +2,24 @@ const WIDTH = 1024;
 const HEIGHT = 720;
 const DELTA_TIME = 0.01;
 
-var canvas;
-var context;
-var popupDiv;
-var popupInput;
-var popupButton;
-var images;
-var scenes;
-var currentScene;
-var mousePosition;
-var mouseDownPosition;
-var mouseIsDown;
-var mouseLongPressTimeout;
-var clicksCanceled;
-var pressedKeys;
-var touchPositions;
-var playerData;
-var gameData;
-var gameInput;
+let canvas;
+let context;
+let popupDiv;
+let popupInput;
+let popupButton;
+let images;
+let scenes;
+let currentScene;
+let mousePosition;
+let mouseDownPosition;
+let mouseIsDown;
+let mouseLongPressTimeout;
+let clicksCanceled;
+let pressedKeys;
+let touchPositions;
+let playerData;
+let gameData;
+let gameInput;
 
 init();
 
@@ -30,8 +30,7 @@ async function init() {
 	document.body.style.alignItems = "center";
 	document.body.style.background = "coral";
 	canvas = document.createElement("canvas");
-	canvas.style.width = "100%";
-	canvas.style.backgroundColor = "coral";
+	canvas.style.backgroundColor = "black";
 	canvas.width = WIDTH;
 	canvas.height = HEIGHT;
 	document.body.appendChild(canvas);
@@ -153,6 +152,16 @@ function update() {
 }
 
 function render() {
+	const bodyWidth = document.activeElement.clientWidth;
+	const bodyHeight = document.activeElement.clientHeight;
+	if (bodyWidth / bodyHeight <= WIDTH / HEIGHT) {
+		canvas.style.width = bodyWidth;
+		canvas.style.height = bodyWidth / WIDTH * HEIGHT;
+	}
+	else {
+		canvas.style.height = bodyHeight;
+		canvas.style.width = bodyHeight / HEIGHT * WIDTH;
+	}
 	if (gameData.paused) {
 		requestAnimationFrame(render);
 		return;
@@ -313,7 +322,7 @@ function drawPolyline(polyline) {
 	}
 	context.beginPath();
 	context.moveTo(polyline[0].x, polyline[0].y);
-	for (var i = 1; i < polyline.length; i++) {
+	for (let i = 1; i < polyline.length; i++) {
 		context.lineTo(polyline[i].x, polyline[i].y);
 	}
 	context.stroke();
@@ -349,6 +358,7 @@ function loadImages() {
 	images.play_level = loadImage("images/play_level.png", 100, 100);
 	images.ball_normal = loadImage("images/ball_normal.png", 64, 64);
 	images.goal = loadImage("images/goal.png", 64, 64);
+	images.box = loadImage("images/box.png", 100, 100);
 	images.ui = {};
 	images.ui.buttons = [
 		{
@@ -367,8 +377,10 @@ function loadImages() {
 	images.ui.icon_cross = loadImage("images/ui/icon_cross.png", 70, 70);
 	images.ui.icon_polyline = loadImage("images/ui/icon_polyline.png", 70, 70);
 	images.ui.icon_eraser = loadImage("images/ui/icon_eraser.png", 70, 70);
+	images.ui.icon_gadgets = loadImage("images/ui/icon_gadgets.png", 70, 70);
 	images.ui.icon_zoom_in = loadImage("images/ui/icon_zoom_in.png", 70, 70);
 	images.ui.icon_zoom_out = loadImage("images/ui/icon_zoom_out.png", 70, 70);
+	images.ui.icon_box = loadImage("images/box.png", 50, 50);
 	images.ui.arrow = {};
 	images.ui.arrow.left = loadImage("images/ui/arrow_left.png", 120, 120);
 	images.ui.arrow.left_pressed = loadImage("images/ui/arrow_left_pressed.png", 120, 120);

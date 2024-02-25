@@ -118,6 +118,10 @@ class Vector {
 		return this.x ** 2 + this.y ** 2;
 	}
 
+	static negate(v) {
+		return new Vector(-v.x, -v.y);
+	}
+
 	static equal(v, w) {
 		return v.x === w.x && v.y === w.y;
 	}
@@ -126,8 +130,16 @@ class Vector {
 		return new Vector(v.x + w.x, v.y + w.y);
 	}
 
+	static addXY(v, x, y) {
+		return new Vector(v.x + x, v.y + y);
+	}
+
 	static subtract(v, w) {
 		return new Vector(v.x - w.x, v.y - w.y);
+	}
+
+	static subtractXY(v, x, y) {
+		return new Vector(v.x - x, v.y - y);
 	}
 
 	static multiply(v, s) {

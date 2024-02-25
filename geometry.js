@@ -15,31 +15,31 @@ function testSegments(a1, b1, a2, b2) {
 }
 
 function projectOntoSegment(p, a, b) {
-	var abX = b.x - a.x;
-	var abY = b.y - a.y;
-	var apX = p.x - a.x;
-	var apY = p.y - a.y;
-	var t = Math.clamp((abX * apX + abY * apY) / (abX * abX + abY * abY), 0, 1);
-	var projectedX = a.x + t * abX;
-	var projectedY = a.y + t * abY;
+	let abX = b.x - a.x;
+	let abY = b.y - a.y;
+	let apX = p.x - a.x;
+	let apY = p.y - a.y;
+	let t = Math.clamp((abX * apX + abY * apY) / (abX * abX + abY * abY), 0, 1);
+	let projectedX = a.x + t * abX;
+	let projectedY = a.y + t * abY;
 	return { x: projectedX, y: projectedY };
 }
 
 function distanceFromSegment(p, a, b) {
-	var abX = b.x - a.x;
-	var abY = b.y - a.y;
-	var apX = p.x - a.x;
-	var apY = p.y - a.y;
-	var t = Math.clamp((abX * apX + abY * apY) / (abX * abX + abY * abY), 0, 1);
-	var projectedX = a.x + t * abX;
-	var projectedY = a.y + t * abY;
-	var distanceSquared = (p.x - projectedX) * (p.x - projectedX) + (p.y - projectedY) * (p.y - projectedY);
+	let abX = b.x - a.x;
+	let abY = b.y - a.y;
+	let apX = p.x - a.x;
+	let apY = p.y - a.y;
+	let t = Math.clamp((abX * apX + abY * apY) / (abX * abX + abY * abY), 0, 1);
+	let projectedX = a.x + t * abX;
+	let projectedY = a.y + t * abY;
+	let distanceSquared = (p.x - projectedX) * (p.x - projectedX) + (p.y - projectedY) * (p.y - projectedY);
 	return Math.sqrt(distanceSquared);
 }
 
 function distanceFromPolyline(point, polyline) {
-	var distance = Number.POSITIVE_INFINITY;
-	for (var i = 0; i + 1 < polyline.length; i++) {
+	let distance = Number.POSITIVE_INFINITY;
+	for (let i = 0; i + 1 < polyline.length; i++) {
 		distance = Math.min(distance, distanceFromSegment(point, polyline[i], polyline[i + 1]));
 	}
 	return distance;
