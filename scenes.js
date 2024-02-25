@@ -443,6 +443,30 @@ class EditorScene extends Scene {
 				text: "PUBLISH",
 				font: "30px Arial"
 			},
+			{
+				position: new Vector(964, 560),
+				halfSize: new Vector(40, 40),
+				toggled: false,
+				hidden: true,
+				onPress: () => {
+					this.currentGadgetType = -1;
+				},
+				type: 0,
+				icon: images.ui.icon_trash,
+				gadgetType: -1
+			},
+			{
+				position: new Vector(864, 560),
+				halfSize: new Vector(40, 40),
+				toggled: false,
+				hidden: true,
+				onPress: () => {
+					this.currentGadgetType = -2;
+				},
+				type: 0,
+				icon: images.ui.icon_duplicate,
+				gadgetType: -2
+			}
 		];
 		for (let i = 0; i < EditorScene.terrainTypes.length; i++) {
 			this.buttons.push({
@@ -494,7 +518,7 @@ class EditorScene extends Scene {
 			terrainSelectorButton.toggled = this.currentTerrainType == i;
 			terrainSelectorButton.hidden = this.currentMode != "draw";
 		}
-		for (let i = 0; i < EditorScene.gadgetTypes.length; i++) {
+		for (let i = -2; i < EditorScene.gadgetTypes.length; i++) {
 			const gadgetSelectorButton = this.buttons.find((button) => button.gadgetType == i);
 			gadgetSelectorButton.toggled = this.currentGadgetType == i;
 			gadgetSelectorButton.hidden = this.currentMode != "gadgets";
@@ -573,6 +597,9 @@ class EditorScene extends Scene {
 					break;
 				}
 				case "erase": {
+					for (const polyline of this.level.terrain) {
+						polyline.erasing = distanceFromPolyline(worldPosition, polyline) <= polyline.width;
+					}
 					break;
 				}
 			}
@@ -655,8 +682,28 @@ class EditorScene extends Scene {
 		const worldPosition = this.screenToWorldPosition(position);
 		if (!this.uiTouched) {
 			if (this.currentMode == "gadgets") {
-				this.level.gadgets.push(new EditorScene.gadgetTypes[this.currentGadgetType].class(worldPosition));
-				this.level.verified = false;
+				if (this.currentGadgetType < 0) {
+					let i = this.level.gadgets.length;
+					while (--i >= 0) {
+						if (this.level.gadgets[i].testPoint(worldPosition)) {
+							break;
+						}
+					}
+					if (i >= 0) {
+						if (this.currentGadgetType == -1) {
+							this.level.gadgets.splice(i, 1);
+						}
+						if (this.currentGadgetType == -2) {
+							const clonedGadget = Object.clone(this.level.gadgets[i]);
+							clonedGadget.drag(null, new Vector(100, 25 - 50 * Math.random()));
+							this.level.gadgets.push(clonedGadget);
+						}
+					}
+				}
+				else {
+					this.level.gadgets.push(new EditorScene.gadgetTypes[this.currentGadgetType].class(worldPosition));
+					this.level.verified = false;
+				}
 			}
 		}
 	}

@@ -5,7 +5,7 @@ Object.clone = function(obj) {
 	if (Array.isArray(obj)) {
 		return obj.map(Object.clone);
 	}
-	const cloned = Object.assign({}, obj);
+	const cloned = Object.create(Object.getPrototypeOf(obj));
 	for (const key in obj) {
 		if (typeof obj[key] === "function") {
 			cloned[key] = obj[key].bind(cloned);

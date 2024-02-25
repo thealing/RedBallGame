@@ -380,6 +380,8 @@ function loadImages() {
 	images.ui.icon_gadgets = loadImage("images/ui/icon_gadgets.png", 70, 70);
 	images.ui.icon_zoom_in = loadImage("images/ui/icon_zoom_in.png", 70, 70);
 	images.ui.icon_zoom_out = loadImage("images/ui/icon_zoom_out.png", 70, 70);
+	images.ui.icon_trash = loadImage("images/ui/icon_trash.png", 70, 70);
+	images.ui.icon_duplicate = loadImage("images/ui/icon_duplicate.png", 70, 70);
 	images.ui.icon_box = loadImage("images/box.png", 50, 50);
 	images.ui.arrow = {};
 	images.ui.arrow.left = loadImage("images/ui/arrow_left.png", 120, 120);
