@@ -647,9 +647,7 @@ class PlayScene extends Scene {
 			this.forwardButton,
 			this.jumpButton
 		];
-		gameInput.forward = 0;
-		gameInput.backward = 0;
-		gameInput.jump = 0;
+		initGameInput();
 		this.initLevel();
 	}
 	
@@ -675,6 +673,7 @@ class PlayScene extends Scene {
 	}
 
 	update() {
+		this.updateGameInput();
 		if (gameInput.forward || gameInput.backward || gameInput.jump) {
 			this.started = true;
 		}
@@ -753,37 +752,34 @@ class PlayScene extends Scene {
 	}
 	
 	onClick(position) {
+		super.onClick(position);
 		this.started = true;
 		if (this.ended) {
 			this.initLevel();
 		}
 	}
 
-	onTouchDown(position) {
-		super.onTouchDown(position);
-		this.updateTouchGameInput(position, 1);
-	}
-
-	onTouchUp(position) {
-		super.onTouchUp(position);
-		this.updateTouchGameInput(position, -1);
-	}
-
-	onTouchMove(position, delta) {
-		super.onTouchMove(position, delta);
-		this.updateTouchGameInput(Vector.subtract(position, delta), -1);
-		this.updateTouchGameInput(position, 1);
-	}
-
-	updateTouchGameInput(position, add) {
-		if (testPointRect(position, Vector.subtract(this.backwardButton.position, this.backwardButton.halfSize), Vector.add(this.backwardButton.position, this.backwardButton.halfSize))) {
-			gameInput.backward += add;
+	updateGameInput(position, add) {
+		initGameInput();
+		for (const [touchId, position] of touchPositions) {
+			if (testPointRect(position, Vector.subtract(this.backwardButton.position, this.backwardButton.halfSize), Vector.add(this.backwardButton.position, this.backwardButton.halfSize))) {
+				gameInput.backward = true;
+			}
+			if (testPointRect(position, Vector.subtract(this.forwardButton.position, this.forwardButton.halfSize), Vector.add(this.forwardButton.position, this.forwardButton.halfSize))) {
+				gameInput.forward = true;
+			}
+			if (testPointRect(position, Vector.subtract(this.jumpButton.position, this.jumpButton.halfSize), Vector.add(this.jumpButton.position, this.jumpButton.halfSize))) {
+				gameInput.jump = true;
+			}
 		}
-		if (testPointRect(position, Vector.subtract(this.forwardButton.position, this.forwardButton.halfSize), Vector.add(this.forwardButton.position, this.forwardButton.halfSize))) {
-			gameInput.forward += add;
+		if (pressedKeys.has('a')) {
+			gameInput.backward = true;
 		}
-		if (testPointRect(position, Vector.subtract(this.jumpButton.position, this.jumpButton.halfSize), Vector.add(this.jumpButton.position, this.jumpButton.halfSize))) {
-			gameInput.jump += add;
+		if (pressedKeys.has('d')) {
+			gameInput.forward = true;
+		}
+		if (pressedKeys.has('w')) {
+			gameInput.jump = true;
 		}
 	}
 }

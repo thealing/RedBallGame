@@ -16,6 +16,7 @@ var mouseIsDown;
 var mouseLongPressTimeout;
 var clicksCanceled;
 var pressedKeys;
+var touchPositions;
 var playerData;
 var gameData;
 var gameInput;
@@ -39,6 +40,7 @@ async function init() {
 	mousePosition = new Vector(0, 0);
 	mouseIsDown = false;
 	pressedKeys = new Set();
+	touchPositions = new Map();
 	function onMouseDown() {
 		mouseDownPosition = mousePosition.clone();
 		mouseIsDown = true;
@@ -54,58 +56,27 @@ async function init() {
 		mouseIsDown = false;
 		onTouchUp(mousePosition);
 	};
-	function onMouseMove(screenX, screenY) {
-		const rect = canvas.getBoundingClientRect();
-		const x = (screenX - rect.left) * canvas.width / rect.width;
-		const y = (screenY - rect.top) * canvas.height / rect.height;
+	function onMouseMove(pageX, pageY) {
+		const position = screenToCanvasPosition(pageX, pageY);
 		if (mouseIsDown) {
 			if (Vector.distance(mouseDownPosition, mousePosition) > 20) {
 				clearTimeout(mouseLongPressTimeout);
 			}
-			onTouchMove(new Vector(x, y), new Vector(x, y).subtract(mousePosition));
+			onTouchMove(position, Vector.subtract(position, mousePosition));
 		}
-		mousePosition.x = x;
-		mousePosition.y = y;
+		mousePosition = position;
 	};
 	document.addEventListener("keydown", (e) => {
 		if (pressedKeys.has(e.key)) {
 			return;
 		}
 		pressedKeys.add(e.key);
-		switch (e.key) {
-			case "a": {
-				gameInput.backward++;
-				break;
-			}
-			case "d": {
-				gameInput.forward++;
-				break;
-			}
-			case "w": {
-				gameInput.jump++;
-				break;
-			}
-		}
 	});
 	document.addEventListener("keyup", (e) => {
 		if (!pressedKeys.has(e.key)) {
 			return;
 		}
-		pressedKeys.delete(e.key)
-		switch (e.key) {
-			case "a": {
-				gameInput.backward--;
-				break;
-			}
-			case "d": {
-				gameInput.forward--;
-				break;
-			}
-			case "w": {
-				gameInput.jump--;
-				break;
-			}
-		}
+		pressedKeys.delete(e.key);
 	});
 	canvas.addEventListener("mousedown", (e) => onMouseDown());
 	canvas.addEventListener("mouseup", (e) => onMouseUp());
@@ -116,19 +87,35 @@ async function init() {
 		const touch = e.touches[0];
 		onMouseMove(touch.pageX, touch.pageY);
 		onMouseDown();
+		for (const touch of e.changedTouches) {
+			console.log("set", touch.identifier);
+			touchPositions.set(touch.identifier, screenToCanvasPosition(touch.pageX, touch.pageY));
+		}
 	});
 	canvas.addEventListener("touchend", (e) => {
 		e.preventDefault();
 		onMouseUp();
+		for (const touch of e.changedTouches) {
+			console.log("del", touch.identifier);
+			touchPositions.delete(touch.identifier);
+		}
 	});
 	canvas.addEventListener("touchcancel", (e) => {
 		e.preventDefault();
 		onMouseUp();
+		for (const touch of e.changedTouches) {
+			console.log("del", touch.identifier);
+			touchPositions.delete(touch.identifier);
+		}
 	});
 	canvas.addEventListener("touchmove", (e) => {
 		e.preventDefault();
 		const touch = e.touches[0];
 		onMouseMove(touch.pageX, touch.pageY);
+		for (const touch of e.changedTouches) {
+			console.log("set", touch.identifier);
+			touchPositions.set(touch.identifier, screenToCanvasPosition(touch.pageX, touch.pageY));
+		}
 	});
 	createInputPopup();
 	images = {};
@@ -208,6 +195,13 @@ function onLongClick(position) {
 		return;
 	}
 	currentScene.onLongClick(position);
+}
+
+function screenToCanvasPosition(x, y) {
+	const rect = canvas.getBoundingClientRect();
+	x = (x - rect.left) * canvas.width / rect.width;
+	y = (y - rect.top) * canvas.height / rect.height;
+	return new Vector(x, y);
 }
 
 function initPlayerData() {
