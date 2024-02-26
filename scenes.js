@@ -54,6 +54,9 @@ class Scene {
 			this.buttonPressed.onRelease?.();
 			this.buttonPressed = null;
 		}
+		else {
+			this.uiTouched = false;
+		}
 	}
 
 	onTouchMove(position, delta) {
@@ -140,37 +143,37 @@ class MenuScene extends Scene {
 				position: new Vector(90, 670),
 				halfSize: new Vector(40, 40),
 				onPress: () => {
-					console.log("goto main");
+					console.log('goto main');
 				},
 				type: 1,
-				text: "BACK",
-				font: "30px Arial"
+				text: 'BACK',
+				font: '30px Arial'
 			},
 		];
 	}
 	
 	render() {
-		context.fillStyle = "lightgray";
+		context.fillStyle = 'lightgray';
 		context.fillRect(0, 0, canvas.width, canvas.height);
 		super.render();
 	}
 	
 	renderWorld() {
-		context.fillStyle = "black";
-		context.strokeStyle = "black";
+		context.fillStyle = 'black';
+		context.strokeStyle = 'black';
 		context.lineWidth = 2;
-		context.lineCap = "flat";
+		context.lineCap = 'flat';
 		context.save();
 		context.translate(0, this.draftLevelsOffset);
 		for (let i = 0; i < playerData.draftLevels.length; i++) {
 			if (i == this.selectedDraftLevel) {
-				context.fillStyle = "darkgray";
+				context.fillStyle = 'darkgray';
 				context.fillRect(0, i * 100 + 1, 512, 100 - 1);
-				context.fillStyle = "black";
+				context.fillStyle = 'black';
 				drawImage(images.edit_level, new Vector(356, i * 100 + 50), 0);
 				drawImage(images.delete_level, new Vector(456, i * 100 + 50), 0);
 			}
-			drawText(playerData.draftLevels[i].name, new Vector(10, i * 100 + 50), "40px Arial", "left", 290);
+			drawText(playerData.draftLevels[i].name, new Vector(10, i * 100 + 50), '40px Arial', 'left', 290);
 			drawSegment(new Vector(0, (i + 1) * 100), new Vector(512, (i + 1) * 100));
 		}
 		drawImage(images.new_level, new Vector(256, playerData.draftLevels.length * 100 + 50), 0);
@@ -179,12 +182,12 @@ class MenuScene extends Scene {
 		context.translate(0, this.publishedLevelsOffset);
 		for (let i = 0; i < playerData.publishedLevels.length; i++) {
 			if (i == this.selectedPublishedLevel) {
-				context.fillStyle = "darkgray";
+				context.fillStyle = 'darkgray';
 				context.fillRect(512, i * 100 + 1, 1024, 100 - 1);
-				context.fillStyle = "black";
+				context.fillStyle = 'black';
 				drawImage(images.play_level, new Vector(966, i * 100 + 50), 0);
 			}
-			drawText(playerData.publishedLevels[i].name, new Vector(522, i * 100 + 50), "40px Arial", "left", 290);
+			drawText(playerData.publishedLevels[i].name, new Vector(522, i * 100 + 50), '40px Arial', 'left', 290);
 			drawSegment(new Vector(512, (i + 1) * 100), new Vector(1024, (i + 1) * 100));
 		}
 		context.restore();
@@ -192,7 +195,7 @@ class MenuScene extends Scene {
 	}
 	
 	renderUI() {
-		context.fillStyle = "lightgray";
+		context.fillStyle = 'lightgray';
 		context.fillRect(0, 620, 1024, 720);
 		context.fillRect(0, 0, 1024, 200);
 		context.lineWidth = 6;
@@ -200,17 +203,17 @@ class MenuScene extends Scene {
 		drawSegment(new Vector(0, 200), new Vector(1024, 200));
 		drawSegment(new Vector(0, 620), new Vector(1024, 620));
 		drawSegment(new Vector(512, 100), new Vector(512, 620));
-		context.fillStyle = "black";
-		drawText("My Levels", new Vector(512, 50), "50px Arial");
-		drawText("Drafts", new Vector(256, 150), "50px Arial");
-		drawText("Published", new Vector(768, 150), "50px Arial");
+		context.fillStyle = 'black';
+		drawText('My Levels', new Vector(512, 50), '50px Arial');
+		drawText('Drafts', new Vector(256, 150), '50px Arial');
+		drawText('Published', new Vector(768, 150), '50px Arial');
 		this.renderButtons();
 	}
 	
 	onTouchDown(position) {
 		super.onTouchDown(position);
 		if (position.y >= 200 && position.y < 620) {
-			this.draggingLevels = position.x < 512 ? "drafts" : "published";
+			this.draggingLevels = position.x < 512 ? 'drafts' : 'published';
 		}
 	}
 	
@@ -221,12 +224,12 @@ class MenuScene extends Scene {
 	
 	onTouchMove(position, delta) {
 		super.onTouchMove(position, delta);
-		if (this.draggingLevels == "drafts") {
+		if (this.draggingLevels == 'drafts') {
 			this.draftLevelsOffset += delta.y;
 			this.draftLevelsOffset = Math.max(this.draftLevelsOffset, 200 - playerData.draftLevels.length * 100);
 			this.draftLevelsOffset = Math.min(this.draftLevelsOffset, 200);
 		}
-		if (this.draggingLevels == "published") {
+		if (this.draggingLevels == 'published') {
 			this.publishedLevelsOffset += delta.y;
 			this.publishedLevelsOffset = Math.max(this.publishedLevelsOffset, 200 - (playerData.publishedLevels.length - 1) * 100);
 			this.publishedLevelsOffset = Math.min(this.publishedLevelsOffset, 200);
@@ -240,12 +243,13 @@ class MenuScene extends Scene {
 				playerData.levelsCreated++;
 				playerData.draftLevels.push({
 					id: generateRandomId(),
-					name: "Level " + playerData.levelsCreated,
+					name: 'Level ' + playerData.levelsCreated,
 					player: new Vector(-100, 0),
 					goal: new Vector(100, 0),
 					terrain: [],
 					gadgets: [],
-					verified: false
+					verified: false,
+					gadgetsCreated: new Array(EditorScene.gadgetTypes.length).fill(0)
 				});
 				this.selectedDraftLevel = playerData.draftLevels.length - 1;
 			}
@@ -306,7 +310,7 @@ class EditorScene extends Scene {
 		{
 			index: 0,
 			deadly: false,
-			color: "LawnGreen",
+			color: 'LawnGreen',
 			friction: 50,
 			frictionStatic: 50,
 			restitution: 0.0
@@ -314,7 +318,7 @@ class EditorScene extends Scene {
 		{
 			index: 1,
 			deadly: true,
-			color: "Maroon",
+			color: 'OrangeRed',
 			friction: 50,
 			frictionStatic: 50,
 			restitution: 0
@@ -324,13 +328,20 @@ class EditorScene extends Scene {
 	static gadgetTypes = [
 		{
 			index: 0,
+			name: 'Box',
 			class: Box
+		},
+		{
+			index: 1,
+			name: 'Button',
+			class: Button
 		}
 	];
 
 	constructor() {
 		super();
 		EditorScene.gadgetTypes[0].icon = images.ui.icon_box;
+		EditorScene.gadgetTypes[1].icon = images.ui.icon_button;
 	}
 	
 	enter() {
@@ -347,9 +358,9 @@ class EditorScene extends Scene {
 				halfSize: new Vector(40, 40), 
 				toggled: false,
 				autoToggle: true,
-				mode: "navigate",
+				mode: 'navigate',
 				onPress: () => {
-					this.currentMode = "navigate";
+					this.currentMode = 'navigate';
 				},
 				type: 0,
 				icon: images.ui.icon_cross
@@ -359,9 +370,9 @@ class EditorScene extends Scene {
 				halfSize: new Vector(40, 40),
 				toggled: false,
 				autoToggle: true,
-				mode: "draw",
+				mode: 'draw',
 				onPress: () => {
-					this.currentMode = "draw";
+					this.currentMode = 'draw';
 				},
 				type: 0,
 				icon: images.ui.icon_polyline
@@ -371,9 +382,9 @@ class EditorScene extends Scene {
 				halfSize: new Vector(40, 40),
 				toggled: false,
 				autoToggle: true,
-				mode: "erase",
+				mode: 'erase',
 				onPress: () => {
-					this.currentMode = "erase";
+					this.currentMode = 'erase';
 				},
 				type: 0,
 				icon: images.ui.icon_eraser
@@ -383,9 +394,9 @@ class EditorScene extends Scene {
 				halfSize: new Vector(40, 40),
 				toggled: false,
 				autoToggle: true,
-				mode: "gadgets",
+				mode: 'gadgets',
 				onPress: () => {
-					this.currentMode = "gadgets";
+					this.currentMode = 'gadgets';
 				},
 				type: 0,
 				icon: images.ui.icon_gadgets
@@ -415,8 +426,8 @@ class EditorScene extends Scene {
 					changeScene(scenes.menu);
 				},
 				type: 1,
-				text: "EXIT",
-				font: "30px Arial"
+				text: 'EXIT',
+				font: '30px Arial'
 			},
 			{
 				position: new Vector(754, 670),
@@ -428,8 +439,8 @@ class EditorScene extends Scene {
 					changeScene(scenes.play);
 				},
 				type: 1,
-				text: "VERIFY",
-				font: "30px Arial"
+				text: 'VERIFY',
+				font: '30px Arial'
 			},
 			{
 				position: new Vector(934, 670),
@@ -440,8 +451,8 @@ class EditorScene extends Scene {
 					changeScene(scenes.menu);
 				},
 				type: 1,
-				text: "PUBLISH",
-				font: "30px Arial"
+				text: 'PUBLISH',
+				font: '30px Arial'
 			},
 			{
 				position: new Vector(964, 560),
@@ -466,6 +477,18 @@ class EditorScene extends Scene {
 				type: 0,
 				icon: images.ui.icon_duplicate,
 				gadgetType: -2
+			},
+			{
+				position: new Vector(764, 560),
+				halfSize: new Vector(40, 40),
+				toggled: false,
+				hidden: true,
+				onPress: () => {
+					this.currentGadgetType = -3;
+				},
+				type: 0,
+				icon: images.ui.icon_editor,
+				gadgetType: -3
 			}
 		];
 		for (let i = 0; i < EditorScene.terrainTypes.length; i++) {
@@ -500,7 +523,7 @@ class EditorScene extends Scene {
 			});
 		}
 		this.buttonPressed = null;
-		this.currentMode = "navigate";
+		this.currentMode = 'navigate';
 		this.currentTerrainType = 0;
 		this.currentGadgetType = 0;
 		this.draggedObject = null;
@@ -516,14 +539,14 @@ class EditorScene extends Scene {
 		for (let i = 0; i < EditorScene.terrainTypes.length; i++) {
 			const terrainSelectorButton = this.buttons.find((button) => button.terrainType == i);
 			terrainSelectorButton.toggled = this.currentTerrainType == i;
-			terrainSelectorButton.hidden = this.currentMode != "draw";
+			terrainSelectorButton.hidden = this.currentMode != 'draw';
 		}
-		for (let i = -2; i < EditorScene.gadgetTypes.length; i++) {
+		for (let i = -3; i < EditorScene.gadgetTypes.length; i++) {
 			const gadgetSelectorButton = this.buttons.find((button) => button.gadgetType == i);
 			gadgetSelectorButton.toggled = this.currentGadgetType == i;
-			gadgetSelectorButton.hidden = this.currentMode != "gadgets";
+			gadgetSelectorButton.hidden = this.currentMode != 'gadgets';
 		}
-		this.buttons.find((button) => button.text == "PUBLISH").disabled = !this.level.verified;
+		this.buttons.find((button) => button.text == 'PUBLISH').disabled = !this.level.verified;
 		this.updateButtons();
 		for (let button of this.buttons) {
 			if (button.mode) {
@@ -540,7 +563,7 @@ class EditorScene extends Scene {
 		context.fillRect(-1e9, -1e9, 2e9, 2e9);
 		context.lineWidth = 5;
 		for (const polyline of this.level.terrain) {
-			polyline.color = polyline.erasing ? "darkred" : EditorScene.terrainTypes[polyline.index].color;
+			polyline.color = polyline.erasing ? 'darkred' : EditorScene.terrainTypes[polyline.index].color;
 			drawPolyline(polyline);
 		}
 		if (this.currentPolyline) {
@@ -554,11 +577,11 @@ class EditorScene extends Scene {
 	}
 
 	renderUI() {
-		context.fillStyle = "lightgray";
+		context.fillStyle = 'lightgray';
 		context.fillRect(0, 620, 1024, 720);
 		context.lineWidth = 6;
 		drawSegment(new Vector(0, 620), new Vector(1024, 620));
-		context.fillStyle = "black";
+		context.fillStyle = 'black';
 		this.renderButtons();
 	}
 
@@ -567,7 +590,7 @@ class EditorScene extends Scene {
 		if (!this.uiTouched) {
 			const worldPosition = this.screenToWorldPosition(position);
 			switch (this.currentMode) {
-				case "navigate": {
+				case 'navigate': {
 					if (Vector.distance(worldPosition, this.level.player) < 50) {
 						this.draggedObject = this.level.player;
 					}
@@ -590,13 +613,13 @@ class EditorScene extends Scene {
 					}
 					break;
 				}
-				case "draw": {
+				case 'draw': {
 					this.currentPolyline = [];
 					this.currentPolyline.width = 25 / this.zoom;
 					Object.assign(this.currentPolyline, EditorScene.terrainTypes[this.currentTerrainType]);
 					break;
 				}
-				case "erase": {
+				case 'erase': {
 					for (const polyline of this.level.terrain) {
 						polyline.erasing = distanceFromPolyline(worldPosition, polyline) <= polyline.width;
 					}
@@ -609,7 +632,7 @@ class EditorScene extends Scene {
 	onTouchUp(position) {
 		super.onTouchUp(position);
 		switch (this.currentMode) {
-			case "navigate": {
+			case 'navigate': {
 				if (this.draggedObject) {
 					if (this.draggedObject != this.origin) {
 						this.level.verified = false;
@@ -618,7 +641,7 @@ class EditorScene extends Scene {
 				}
 				break;
 			}
-			case "draw": {
+			case 'draw': {
 				if (this.currentPolyline && this.currentPolyline.length >= 2) {
 					this.currentPolyline.erasing = false;
 					this.level.terrain.push(this.currentPolyline);
@@ -627,7 +650,7 @@ class EditorScene extends Scene {
 				this.currentPolyline = null;
 				break;
 			}
-			case "erase": {
+			case 'erase': {
 				let i = 0;
 				for (let polygon of this.level.terrain) {
 					if (!polygon.erasing) {
@@ -649,7 +672,7 @@ class EditorScene extends Scene {
 		const worldPosition = this.screenToWorldPosition(position);
 		const worldDelta = this.screenToWorldDelta(delta);
 		switch (this.currentMode) {
-			case "navigate": {
+			case 'navigate': {
 				if (this.draggedObject) {
 					if (this.draggedObject instanceof Gadget) {
 						this.draggedObject.drag(Vector.subtract(worldPosition, worldDelta), worldDelta);
@@ -660,7 +683,7 @@ class EditorScene extends Scene {
 				}
 				break;
 			}
-			case "draw": {
+			case 'draw': {
 				if (this.currentPolyline) {
 					if (this.currentPolyline.length == 0 || Vector.distance(worldPosition, this.currentPolyline.top()) >= this.currentPolyline.width / 2) {
 						this.currentPolyline.push(worldPosition);
@@ -668,7 +691,7 @@ class EditorScene extends Scene {
 				}
 				break;
 			}
-			case "erase": {
+			case 'erase': {
 				for (const polyline of this.level.terrain) {
 					polyline.erasing = distanceFromPolyline(worldPosition, polyline) <= polyline.width;
 				}
@@ -681,7 +704,7 @@ class EditorScene extends Scene {
 		super.onClick(position);
 		const worldPosition = this.screenToWorldPosition(position);
 		if (!this.uiTouched) {
-			if (this.currentMode == "gadgets") {
+			if (this.currentMode == 'gadgets') {
 				if (this.currentGadgetType < 0) {
 					let i = this.level.gadgets.length;
 					while (--i >= 0) {
@@ -690,19 +713,54 @@ class EditorScene extends Scene {
 						}
 					}
 					if (i >= 0) {
-						if (this.currentGadgetType == -1) {
-							this.level.gadgets.splice(i, 1);
+						switch (this.currentGadgetType) {
+							case -1: {
+								this.level.gadgets.splice(i, 1);
+								break;
+							}
+							case -2: {
+								const clonedGadget = Object.clone(this.level.gadgets[i]);
+								clonedGadget.name = EditorScene.gadgetTypes[clonedGadget.type].name + ' ' + (++this.level.gadgetsCreated[clonedGadget.type]);
+								clonedGadget.drag(null, new Vector(100, 25 - 50 * Math.random()));
+								this.level.gadgets.push(clonedGadget);
+								break;
+							}
+							case -3: {
+								showEditor(this.level.gadgets[i].userInstance, (text) => {
+									this.level.gadgets[i].userInstance = text;
+								});
+								break;
+							}
 						}
-						if (this.currentGadgetType == -2) {
-							const clonedGadget = Object.clone(this.level.gadgets[i]);
-							clonedGadget.drag(null, new Vector(100, 25 - 50 * Math.random()));
-							this.level.gadgets.push(clonedGadget);
-						}
+						this.level.verified = false;
 					}
 				}
 				else {
-					this.level.gadgets.push(new EditorScene.gadgetTypes[this.currentGadgetType].class(worldPosition));
+					const name = EditorScene.gadgetTypes[this.currentGadgetType].name + ' ' + ++this.level.gadgetsCreated[this.currentGadgetType];
+					const gadget = new EditorScene.gadgetTypes[this.currentGadgetType].class(name, worldPosition);
+					gadget.type = this.currentGadgetType;
+					this.level.gadgets.push(gadget);
 					this.level.verified = false;
+				}
+			}
+		}
+	}
+
+	onLongClick(position) {
+		super.onLongClick(position);
+		const worldPosition = this.screenToWorldPosition(position);
+		if (!this.uiTouched) {
+			if (this.currentMode == 'gadgets') {
+				let i = this.level.gadgets.length;
+				while (--i >= 0) {
+					if (this.level.gadgets[i].testPoint(worldPosition)) {
+						break;
+					}
+				}
+				if (i >= 0) {
+					showInputPopup(this.level.gadgets[i].name, (text) => {
+						this.level.gadgets[i].name = text;
+					});
 				}
 			}
 		}
@@ -747,8 +805,8 @@ class PlayScene extends Scene {
 				halfSize: new Vector(80, 40),
 				onRelease: gameData.onLevelExit,
 				type: 1,
-				text: "EXIT",
-				font: "30px Arial"
+				text: 'EXIT',
+				font: '30px Arial'
 			},
 			{
 				position: new Vector(934, 670),
@@ -757,8 +815,8 @@ class PlayScene extends Scene {
 					this.initLevel();
 				},
 				type: 1,
-				text: "RESTART",
-				font: "30px Arial"
+				text: 'RESTART',
+				font: '30px Arial'
 			},
 			this.backwardButton,
 			this.forwardButton,
@@ -779,7 +837,7 @@ class PlayScene extends Scene {
 		this.goalBody = Matter.Bodies.rectangle(lvl.goal.x, lvl.goal.y, 10, 64);
 		this.goalBody.isStatic = true;
 		this.terrainBodies = MatterUtil.createTerrainBodies(lvl.terrain);
-		this.gadgetBodies = lvl.gadgets.map((gadget) => gadget.createBody());
+		this.gadgetBodies = lvl.gadgets.flatMap((gadget) => gadget.createBodies());
 		this.canJump = true;
 		this.started = false;
 		this.ended = false;
@@ -827,7 +885,41 @@ class PlayScene extends Scene {
 				}
 			}
 			for (const gadgetBody of this.gadgetBodies) {
-				// ???
+				switch (gadgetBody.gadgetType) {
+					case 0: {
+						break;
+					}
+					case 1: {
+						gadgetBody.pressed = false;
+						break;
+					}
+				}
+			}
+			let handleCollision = (body1, body2, point) => {
+				if (!body2.isStatic) {
+					body1.onCollision?.(body2, point);
+					if (body2 == this.playerBody) {
+						body1.onCollisionWithPlayer?.(point);
+					}
+					if (body1.userInstance) {
+						try {
+							body1.userInstance.onCollision?.(body2, point);
+							if (body2 == this.playerBody) {
+								body1.userInstance.onCollisionWithPlayer?.(point);
+							}
+						}
+						catch (e) {
+							console.warn("Execution Error:\n" + e);
+						}
+					}
+				}
+			}
+			const contacts = Matter.Detector.collisions({ bodies: [ this.playerBody ].concat(this.gadgetBodies) });
+			for (const contact of contacts) {
+				for (const support of contact.supports) {
+					handleCollision(contact.bodyA, contact.bodyB, support);
+					handleCollision(contact.bodyB, contact.bodyA, support);
+				}
 			}
 			let onSurface = false;
 			for (const terrainBody of this.terrainBodies) {
@@ -871,25 +963,25 @@ class PlayScene extends Scene {
 			drawPolyline(polyline);
 		}
 		for (const gadgetBody of this.gadgetBodies) {
-			gadgetBody.render();
+			gadgetBody.renderProc?.();
 		}
 		drawImage(images.ball_normal, this.playerBody.position, this.playerBody.angle);
 		drawImage(images.goal, this.goalBody.position, 0);
 	}
 	
 	renderUI() {
-		context.fillStyle = "lightgray";
+		context.fillStyle = 'lightgray';
 		context.fillRect(0, 620, 1024, 720);
-		context.strokeStyle = "black";
+		context.strokeStyle = 'black';
 		context.lineWidth = 6;
 		drawSegment(new Vector(0, 620), new Vector(1024, 620));
-		context.fillStyle = "black";
+		context.fillStyle = 'black';
 		this.renderButtons();
 		if (!this.started) {
-			drawText("Tap to Start", new Vector(512, 500), "30px Arial");
+			drawText('Tap to Start', new Vector(512, 500), '30px Arial');
 		}
 		if (this.ended) {
-			drawText(this.goalReached ? "Level Completed" : "Tap to Retry", new Vector(512, 500), "30px Arial");
+			drawText(this.goalReached ? 'Level Completed' : 'Game Over', new Vector(512, 500), '30px Arial');
 		}
 	}
 	

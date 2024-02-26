@@ -1,5 +1,5 @@
 Object.clone = function(obj) {
-	if (obj === null || typeof obj !== "object") {
+	if (obj === null || typeof obj !== 'object') {
 		return obj;
 	}
 	if (Array.isArray(obj)) {
@@ -7,7 +7,7 @@ Object.clone = function(obj) {
 	}
 	const cloned = Object.create(Object.getPrototypeOf(obj));
 	for (const key in obj) {
-		if (typeof obj[key] === "function") {
+		if (typeof obj[key] === 'function') {
 			cloned[key] = obj[key].bind(cloned);
 		} else {
 			cloned[key] = Object.clone(obj[key]);
@@ -22,4 +22,8 @@ Math.clamp = function(x, l, h) {
 
 Array.prototype.top = function() {
 	return this[this.length - 1];
+}
+
+String.prototype.count = function(str) {
+	return this.split(str).length - 1;
 }
