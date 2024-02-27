@@ -153,6 +153,10 @@ class Vector {
 	static middle(v, w) {
 		return new Vector((v.x + w.x) / 2, (v.y + w.y) / 2);
 	}
+
+	static rotate(v, a) {
+		return v.clone().rotate(a);
+	}
 	
 	static distance(v, w) {
 		return Math.sqrt(Vector.distanceSquared(v, w));

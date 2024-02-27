@@ -310,7 +310,6 @@ class EditorScene extends Scene {
 		{
 			index: 0,
 			deadly: false,
-			color: 'LawnGreen',
 			friction: 50,
 			frictionStatic: 50,
 			restitution: 0.0
@@ -318,7 +317,6 @@ class EditorScene extends Scene {
 		{
 			index: 1,
 			deadly: true,
-			color: 'OrangeRed',
 			friction: 50,
 			frictionStatic: 50,
 			restitution: 0
@@ -335,13 +333,22 @@ class EditorScene extends Scene {
 			index: 1,
 			name: 'Button',
 			class: Button
+		},
+		{
+			index: 2,
+			name: 'Plank',
+			class: Plank
 		}
 	];
 
 	constructor() {
 		super();
-		EditorScene.gadgetTypes[0].icon = images.ui.icon_box;
-		EditorScene.gadgetTypes[1].icon = images.ui.icon_button;
+		for (let i = 0; i < EditorScene.terrainTypes.length; i++) {
+			EditorScene.terrainTypes[i].color = images.terrains[i];
+		}
+		for (let i = 0; i < EditorScene.gadgetTypes.length; i++) {
+			EditorScene.gadgetTypes[i].icon = images.ui.gadgets[i];
+		}
 	}
 	
 	enter() {
@@ -502,7 +509,7 @@ class EditorScene extends Scene {
 				},
 				type: 0,
 				renderProc: () => {
-					context.fillStyle = EditorScene.terrainTypes[i].color
+					context.fillStyle = context.createPattern(EditorScene.terrainTypes[i].color, "repeat");
 					drawCircle(new Vector(0, 0), 20);
 				},
 				terrainType: i
@@ -726,8 +733,8 @@ class EditorScene extends Scene {
 								break;
 							}
 							case -3: {
-								showEditor(this.level.gadgets[i].userInstance, (text) => {
-									this.level.gadgets[i].userInstance = text;
+								showEditor(this.level.gadgets[i].userCallback, (text) => {
+									this.level.gadgets[i].userCallback = text;
 								});
 								break;
 							}
@@ -838,6 +845,8 @@ class PlayScene extends Scene {
 		this.goalBody.isStatic = true;
 		this.terrainBodies = MatterUtil.createTerrainBodies(lvl.terrain);
 		this.gadgetBodies = lvl.gadgets.flatMap((gadget) => gadget.createBodies());
+		this.onSurface = false;
+		this.onSurfaceTimeout = null;
 		this.canJump = true;
 		this.started = false;
 		this.ended = false;
@@ -901,12 +910,9 @@ class PlayScene extends Scene {
 					if (body2 == this.playerBody) {
 						body1.onCollisionWithPlayer?.(point);
 					}
-					if (body1.userInstance) {
+					if (body1.userCallback) {
 						try {
-							body1.userInstance.onCollision?.(body2, point);
-							if (body2 == this.playerBody) {
-								body1.userInstance.onCollisionWithPlayer?.(point);
-							}
+							body1.userCallback("body2", point, this.handleCommand.bind(this));
 						}
 						catch (e) {
 							console.warn("Execution Error:\n" + e);
@@ -921,14 +927,21 @@ class PlayScene extends Scene {
 					handleCollision(contact.bodyB, contact.bodyA, support);
 				}
 			}
-			let onSurface = false;
+			let onSurfaceNow = false;
 			for (const terrainBody of this.terrainBodies) {
-				onSurface |= MatterUtil.isOnTop(this.playerBody, terrainBody);
+				onSurfaceNow |= MatterUtil.isOnTop(this.playerBody, terrainBody);
 			}
 			for (const gadgetBody of this.gadgetBodies) {
-				onSurface |= MatterUtil.isOnTop(this.playerBody, gadgetBody);
+				onSurfaceNow |= MatterUtil.isOnTop(this.playerBody, gadgetBody);
 			}
-			if (onSurface) {
+			if (onSurfaceNow) {
+				this.onSurface = true;
+				clearTimeout(this.onSurfaceTimeout);
+				this.onSurfaceTimeout = setTimeout(() => {
+					this.onSurface = false;
+				}, 200);
+			}
+			if (this.onSurface) {
 				const radius = this.playerBody.circleRadius;
 				const velocity = this.playerBody.velocity;
 				const angularVelocity = this.playerBody.angularVelocity;
@@ -936,12 +949,12 @@ class PlayScene extends Scene {
 				Matter.Body.setVelocity(this.playerBody, { x: velocity.x - difference * 0.3, y: velocity.y });
 				Matter.Body.setAngularVelocity(this.playerBody, angularVelocity + difference / radius);
 			}
-			if (gameInput.jump && this.canJump && onSurface) {
+			if (gameInput.jump && this.canJump && this.onSurface) {
 				Matter.Body.setVelocity(this.playerBody, { x: this.playerBody.velocity.x, y: this.playerBody.velocity.y - 7000 });
 				this.canJump = false;
 				setTimeout(() => {
 					this.canJump = true;
-				}, 1000);
+				}, 600);
 			}
 			if (MatterUtil.overlap(this.playerBody, this.goalBody)) {
 				this.ended = true;
@@ -949,6 +962,40 @@ class PlayScene extends Scene {
 				clicksCanceled = true;
 				gameData.currentLevel.verified = true;
 			}
+		}
+	}
+
+	handleCommand(command, data) {
+		try {
+			const getBodyByName = (name) => {
+				if (name.toLowerCase() == "player") {
+					return this.playerBody;
+				}
+				return this.gadgetBodies.find((gadget) => gadget.name == name);
+			}
+			switch (command.toLowerCase()) {
+				case "setvelocity": {
+					Matter.Body.setVelocity(getBodyByName(data.name), { x: data.x, y: data.y });
+					break;
+				}
+				case "addvelocity": {
+					const body = getBodyByName(data.name);
+					Matter.Body.setVelocity(body, { x: body.velocity.x + data.x, y: body.velocity.y + data.y });
+					break;
+				}
+				case "setposition": {
+					Matter.Body.setPosition(getBodyByName(data.name), { x: data.x, y: data.y });
+					break;
+				}
+				case "addposition": {
+					const body = getBodyByName(data.name);
+					Matter.Body.setPosition(body, { x: body.position.x + data.x, y: body.position.y + data.y });
+					break;
+				}
+			}
+		}
+		catch (e) {
+			console.warn("Command Error:\n" + e);
 		}
 	}
 

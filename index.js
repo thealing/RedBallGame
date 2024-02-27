@@ -123,8 +123,6 @@ async function init() {
 	});
 	createInputPopup();
 	createEditor();
-	images = {};
-	scenes = {};
 	loadImages();
 	createScenes();
 	initPlayerData();
@@ -240,6 +238,7 @@ function initGameInput() {
 }
 
 function createScenes() {
+	scenes = {};
 	scenes.menu = new MenuScene();
 	scenes.editor = new EditorScene();
 	scenes.play = new PlayScene();
@@ -377,23 +376,25 @@ function drawPolyline(polyline) {
 	}
 	context.lineCap = 'round';
 	context.lineJoin = 'round';
-	if (polyline.width) {
-		context.lineWidth = polyline.width;
-		context.strokeStyle = polyline.color;
-	}
+	context.lineWidth = polyline.width;
+	context.strokeStyle = context.createPattern(polyline.color, "repeat");
 	context.beginPath();
 	context.moveTo(polyline[0].x, polyline[0].y);
 	for (let i = 1; i < polyline.length; i++) {
 		context.lineTo(polyline[i].x, polyline[i].y);
 	}
 	context.stroke();
-	context.closePath();
 }
 
-function drawImage(image, position, angle) {
+function drawImage(image, position, angle, scale) {
 	context.save();
 	context.translate(position.x, position.y);
-	context.rotate(angle);
+	if (angle != undefined) {
+		context.rotate(angle);
+	}
+	if (scale != undefined) {
+		context.scale(scale.x, scale.y);
+	}
 	context.drawImage(image, -image.width / 2, -image.height / 2, image.width, image.height);
 	context.restore();
 }
@@ -413,15 +414,22 @@ function loadImage(path, width, height) {
 }
 
 function loadImages() {
+	images = {};
 	images.new_level = loadImage('images/new_level.png', 300, 100);
 	images.delete_level = loadImage('images/delete_level.png', 100, 100);
 	images.edit_level = loadImage('images/edit_level.png', 100, 100);
 	images.play_level = loadImage('images/play_level.png', 100, 100);
+	images.terrains = [
+		loadImage('images/ground.png', 200, 200),
+		loadImage('images/lava.png', 200, 200)
+	]
 	images.ball_normal = loadImage('images/ball_normal.png', 64, 64);
 	images.goal = loadImage('images/goal.png', 64, 64);
 	images.box = loadImage('images/box.png', 100, 100);
 	images.button = loadImage('images/button.png', 100, 100);
 	images.button_pressed = loadImage('images/button_pressed.png', 100, 100);
+	images.plank = loadImage('images/plank.png', 200, 200);
+	images.plank_end = loadImage('images/plank_end.png', 200, 200);
 	images.ui = {};
 	images.ui.buttons = [
 		{
@@ -446,8 +454,11 @@ function loadImages() {
 	images.ui.icon_trash = loadImage('images/ui/icon_trash.png', 70, 70);
 	images.ui.icon_duplicate = loadImage('images/ui/icon_duplicate.png', 70, 70);
 	images.ui.icon_editor = loadImage('images/ui/icon_editor.png', 70, 70);
-	images.ui.icon_box = loadImage('images/box.png', 50, 50);
-	images.ui.icon_button = loadImage('images/button.png', 50, 50);
+	images.ui.gadgets = [
+		loadImage('images/box.png', 50, 50),
+		loadImage('images/button.png', 50, 50),
+		loadImage('images/plank.png', 50, 50)
+	];
 	images.ui.arrow = {};
 	images.ui.arrow.left = loadImage('images/ui/arrow_left.png', 120, 120);
 	images.ui.arrow.left_pressed = loadImage('images/ui/arrow_left_pressed.png', 120, 120);
