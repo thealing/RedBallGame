@@ -20,6 +20,7 @@ class Gadget {
 	addUserCallback(obj) {
 		try {
 			obj.userCallback = eval(this.userCallback);
+			obj.userCallback.bind(obj);
 		}
 		catch (e) {
 			console.warn("Instantiation Error:\n" + e);
@@ -99,7 +100,7 @@ class Button extends Gadget {
 		body.renderProc = () => {
 			drawImage(body.pressed ? images.button_pressed : images.button, Vector.addXY(body.position, 0, -25), body.angle);
 		};
-		const sensorBody = Matter.Bodies.rectangle(body.center.x, this.center.y, 72, 15, {
+		const sensorBody = Matter.Bodies.rectangle(this.center.x, this.center.y, 72, 15, {
 			isStatic: true,
 			isSensor: true
 		});

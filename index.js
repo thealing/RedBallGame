@@ -377,7 +377,7 @@ function drawPolyline(polyline) {
 	context.lineCap = 'round';
 	context.lineJoin = 'round';
 	context.lineWidth = polyline.width;
-	context.strokeStyle = context.createPattern(polyline.color, "repeat");
+	context.strokeStyle = polyline.color instanceof Image ? context.createPattern(polyline.color, "repeat") : polyline.color;
 	context.beginPath();
 	context.moveTo(polyline[0].x, polyline[0].y);
 	for (let i = 1; i < polyline.length; i++) {
