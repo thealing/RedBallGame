@@ -1,0 +1,52 @@
+this        | references the body of the gadget
+this.world  | references a global object for sharing data between gadgets
+
+Events
+
+"enter"
+{
+}
+
+"leave"
+{
+}
+
+"overlap"
+{ 
+  other       | the body that overlaps this
+  point       | the deepest common point
+}
+
+Methods
+
+"killplayer"
+{
+}
+
+"setvelocity"  
+{
+  name        | the name of the body to set the velocity of
+  x           | x velocity to set
+  y           | y velocity to set
+}
+
+"addvelocity"  
+{
+  name        | the name of the body to add the velocity to
+  x           | x velocity to add
+  y           | y velocity to add
+}
+
+"setposition"  
+{
+  name        | the name of the body to set the position of
+  x           | x position to set
+  y           | y position to set
+}
+
+"addposition"  
+{
+  name        | the name of the body to add the position to
+  x           | x position to add
+  y           | y position to add
+}
