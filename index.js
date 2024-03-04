@@ -1,12 +1,21 @@
 const WIDTH = Math.max(720 / 3 * 4, window.innerWidth / window.innerHeight * 720);
 const HEIGHT = 720;
 const DELTA_TIME = 0.01;
+const SERVER_URL = '192.168.0.117:3000';
 
 let canvas;
 let context;
 let popupDiv;
 let popupInput;
 let popupButton;
+let userDiv;
+let usernameLabel;
+let usernameInput;
+let passwordLabel;
+let passwordInput;
+let userErrorLabel;
+let userLoginButton;
+let userSignupButton;
 let editorDiv;
 let editorTextArea;
 let editorButton;
@@ -122,18 +131,20 @@ async function init() {
     }
   });
   createInputPopup();
+  createUserPopup();
   createEditor();
   loadImages();
   createScenes();
   initPlayerData();
   initGameData();
   initGameInput();
-  changeScene(scenes.menu);
+  changeScene(scenes.main);
   setInterval(update, DELTA_TIME * 1000);
   requestAnimationFrame(render);
 }
 
 function changeScene(newScene) {
+  syncPlayer();
   if (gameData.paused) {
     return;
   }
@@ -215,6 +226,8 @@ function screenToCanvasPosition(x, y) {
 
 function initPlayerData() {
   playerData = {
+    username: '',
+    password: '',
     draftLevels: [],
     publishedLevels: [],
     levelsCreated: 0,
@@ -224,7 +237,7 @@ function initPlayerData() {
 function initGameData() {
   gameData = {
     paused: false,
-    currentLevel: playerData.draftLevels[0],
+    currentLevel: null,
     onLevelExit: null
   };
 }
@@ -239,7 +252,9 @@ function initGameInput() {
 
 function createScenes() {
   scenes = {};
+  scenes.main = new MainScene();
   scenes.menu = new MenuScene();
+  scenes.gallery = new GalleryScene();
   scenes.editor = new EditorScene();
   scenes.play = new PlayScene();
 }
@@ -259,8 +274,86 @@ function generateRandomString(length) {
   return result;
 }
 
+function tryLogin(username, password, callback) {
+  fetch(`http://${SERVER_URL}/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ username, password })
+  })
+  .then((response) => response.text())
+  .then((text) => JSON.parse(text))
+  .then((data) => callback(data))
+  .catch((error) => callback(null));
+}
+
+function trySignup(username, password, callback) {
+  fetch(`http://${SERVER_URL}/signup`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ username, password })
+  })
+  .then((response) => response.text())
+  .then((text) => JSON.parse(text))
+  .then((data) => callback(data))
+  .catch((error) => callback(null));
+}
+
+function syncPlayer() {
+  const playerDataJson = JSON.stringify({ playerData });
+  console.log("syncing playerData with length: " + playerDataJson.length);
+  fetch(`http://${SERVER_URL}/sync`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: playerDataJson
+  })
+  .then((response) => response.text())
+  .then((text) => JSON.parse(text))
+  .then((data) => {
+    setRecursively(playerData, data);
+  })
+  .catch(console.warn);
+}
+
+function loadPlayer() {
+  fetch(`http://${SERVER_URL}/load`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ playerData })
+  })
+  .then((response) => response.text())
+  .then((text) => JSON.parse(text))
+  .then((data) => {
+    setRecursively(playerData, data);
+  })
+  .catch(console.warn);
+}
+
+function getPublicLevels(callback) {
+  fetch(`http://${SERVER_URL}/getLevels`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ playerData })
+  })
+  .then((response) => response.text())
+  .then((text) => JSON.parse(text))
+  .then(callback)
+  .catch(console.warn);
+}
+
 function createInputPopup() {
   popupDiv = document.createElement('div');
+  popupDiv.style.background = 'lightgray';
+  popupDiv.style.border = '1px solid black';
   popupDiv.style.position = 'absolute';
   popupDiv.style.width = '400px';
   popupDiv.style.height = '200px';
@@ -283,8 +376,98 @@ function createInputPopup() {
   document.body.appendChild(popupDiv);
 }
 
+function createUserPopup() {
+  userDiv = document.createElement('div');
+  userDiv.style.background = 'lightgray';
+  userDiv.style.border = '1px solid black';
+  userDiv.style.position = 'absolute';
+  userDiv.style.width = '600px';
+  userDiv.style.height = '300px';
+  userDiv.style.display = 'none';
+  userDiv.style.flexDirection = 'column';
+  usernameLabel = document.createElement('label');
+  usernameLabel.innerHTML = 'Username:';
+  usernameLabel.style.position = 'absolute';
+  usernameLabel.style.left = '5%';
+  usernameLabel.style.top = '0%';
+  usernameLabel.style.width = '50%';
+  usernameLabel.style.height = '20%';
+  usernameLabel.style.fontSize = '40px';
+  usernameLabel.style.fontFamily = 'Arial';
+  usernameLabel.style.display = 'flex';
+  usernameLabel.style.alignItems = 'center';
+  usernameLabel.style.justifyContent = 'left';
+  usernameInput = document.createElement('input');
+  usernameInput.style.position = 'absolute';
+  usernameInput.type = 'text';
+  usernameInput.style.left = '50%';
+  usernameInput.style.top = '0%';
+  usernameInput.style.width = '50%';
+  usernameInput.style.height = '20%';
+  usernameInput.style.fontSize = '40px';
+  passwordLabel = document.createElement('label');
+  passwordLabel.innerHTML = 'Password:';
+  passwordLabel.style.position = 'absolute';
+  passwordLabel.style.left = '5%';
+  passwordLabel.style.top = '20%';
+  passwordLabel.style.width = '50%';
+  passwordLabel.style.height = '20%';
+  passwordLabel.style.fontSize = '40px';
+  passwordLabel.style.fontFamily = 'Arial';
+  passwordLabel.style.display = 'flex';
+  passwordLabel.style.alignItems = 'center';
+  passwordLabel.style.justifyContent = 'left';
+  passwordInput = document.createElement('input');
+  passwordInput.style.position = 'absolute';
+  passwordInput.type = 'text';
+  passwordInput.style.left = '50%';
+  passwordInput.style.top = '20%';
+  passwordInput.style.width = '50%';
+  passwordInput.style.height = '20%';
+  passwordInput.style.fontSize = '40px';
+  userErrorLabel = document.createElement('label');
+  userErrorLabel.innerHTML = '';
+  userErrorLabel.style.position = 'absolute';
+  userErrorLabel.style.left = '0%';
+  userErrorLabel.style.top = '40%';
+  userErrorLabel.style.width = '100%';
+  userErrorLabel.style.height = '20%';
+  userErrorLabel.style.fontSize = '30px';
+  userErrorLabel.style.fontFamily = 'Arial';
+  userErrorLabel.style.display = 'flex';
+  userErrorLabel.style.alignItems = 'center';
+  userErrorLabel.style.justifyContent = 'center';
+  userErrorLabel.style.color = 'red';
+  userLoginButton = document.createElement('button');
+  userLoginButton.style.position = 'absolute';
+  userLoginButton.style.left = '0%';
+  userLoginButton.style.top = '60%';
+  userLoginButton.style.width = '100%';
+  userLoginButton.style.height = '20%';
+  userLoginButton.style.fontSize = '40px';
+  userLoginButton.innerHTML = 'LOG IN';
+  userSignupButton = document.createElement('button');
+  userSignupButton.style.position = 'absolute';
+  userSignupButton.style.left = '0%';
+  userSignupButton.style.top = '80%';
+  userSignupButton.style.width = '100%';
+  userSignupButton.style.height = '20%';
+  userSignupButton.style.fontSize = '40px';
+  userSignupButton.innerHTML = 'SIGN UP';
+  userDiv.appendChild(usernameLabel);
+  userDiv.appendChild(usernameInput);
+  userDiv.appendChild(passwordLabel);
+  userDiv.appendChild(passwordInput);
+  userDiv.appendChild(userErrorLabel);
+  userDiv.appendChild(userLoginButton);
+  userDiv.appendChild(userSignupButton);
+  document.body.appendChild(userDiv);
+}
+
 function createEditor() {
   editorDiv = document.createElement('div');
+  editorDiv.style.background = 'lightgray';
+  editorDiv.style.border = '1px solid black';
   editorDiv.style.position = 'absolute';
   editorDiv.style.width = '100%';
   editorDiv.style.height = '100%';
@@ -343,6 +526,49 @@ function showInputPopup(text, callback) {
   };
 }
 
+function showUserPopup() {
+  gameData.paused = true;
+  userDiv.style.display = 'flex';
+  usernameInput.value = '';
+  passwordInput.value = '';
+  userErrorLabel.innerHTML = '';
+  userLoginButton.onclick = () => {
+    tryLogin(usernameInput.value, passwordInput.value, (response) => {
+      if (!response) {
+        userErrorLabel.innerHTML = 'Connection failed!';
+        return;
+      }
+      if (response.error != 'ok') {
+        userErrorLabel.innerHTML = response.error;
+        return;
+      }
+      playerData.username = usernameInput.value;
+      playerData.password = passwordInput.value;
+      loadPlayer();
+      gameData.paused = false;
+      userDiv.style.display = 'none';
+    });
+  };
+  userSignupButton.onclick = () => {
+    trySignup(usernameInput.value, passwordInput.value, (response) => {
+      if (!response) {
+        userErrorLabel.innerHTML = 'Connection failed!';
+        return;
+      }
+      if (response.error != 'ok') {
+        userErrorLabel.innerHTML = response.error;
+        return;
+      }
+      initPlayerData();
+      playerData.username = usernameInput.value;
+      playerData.password = passwordInput.value;
+      syncPlayer();
+      gameData.paused = false;
+      userDiv.style.display = 'none';
+    });
+  };
+}
+
 function showEditor(text, callback) {
   gameData.paused = true;
   editorDiv.style.display = 'flex';
@@ -374,10 +600,14 @@ function drawPolyline(polyline) {
   if (polyline.length < 2) {
     return;
   }
+  if (polyline.color == null) {
+    polyline.color = EditorScene.terrainTypes[polyline.index].color;
+  }
+  const style = polyline.color instanceof Image ? context.createPattern(polyline.color, 'repeat') : polyline.color;
   context.lineCap = 'round';
   context.lineJoin = 'round';
   context.lineWidth = polyline.width;
-  context.strokeStyle = polyline.color instanceof Image ? context.createPattern(polyline.color, 'repeat') : polyline.color;
+  context.strokeStyle = style;
   context.beginPath();
   context.moveTo(polyline[0].x, polyline[0].y);
   for (let i = 1; i < polyline.length; i++) {
@@ -405,6 +635,13 @@ function drawText(text, position, font, alignment, maxWidth) {
   context.fillText(text, position.x, position.y, maxWidth);
 }
 
+function measureText(text, font, alignment, maxWidth) {
+  context.font = font;
+  context.textAlign = alignment || 'center';
+  const textMetrics = context.measureText(text);
+  return new Vector(textMetrics.width, textMetrics.fontBoundingBoxDescent + textMetrics.fontBoundingBoxAscent);
+}
+
 function loadImage(path, width, height) {
   const image = new Image();
   image.src = path;
@@ -419,6 +656,8 @@ function loadImages() {
   images.delete_level = loadImage('images/delete_level.png', 100, 100);
   images.edit_level = loadImage('images/edit_level.png', 100, 100);
   images.play_level = loadImage('images/play_level.png', 100, 100);
+  images.level_dirty = loadImage('images/level_dirty.png', 100, 100);
+  images.level_synced = loadImage('images/level_synced.png', 100, 100);
   images.terrains = [
     loadImage('images/ground.png', 50, 50),
     loadImage('images/lava.png', 50, 50),
@@ -446,6 +685,12 @@ function loadImages() {
       disabled: loadImage('images/ui/button_1_disabled.png', 160, 80),
       selected: loadImage('images/ui/button_1_selected.png', 160, 80),
       pressed: loadImage('images/ui/button_1_pressed.png', 160, 80),
+    }, 
+    {
+      frame: loadImage('images/ui/button_2_frame.png', 420, 100),
+      disabled: loadImage('images/ui/button_2_disabled.png', 420, 100),
+      selected: loadImage('images/ui/button_2_selected.png', 420, 100),
+      pressed: loadImage('images/ui/button_2_pressed.png', 420, 100),
     }
   ];
   images.ui.icon_cross = loadImage('images/ui/icon_cross.png', 70, 70);
