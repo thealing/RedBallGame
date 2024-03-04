@@ -1,7 +1,7 @@
 const WIDTH = Math.max(720 / 3 * 4, window.innerWidth / window.innerHeight * 720);
 const HEIGHT = 720;
 const DELTA_TIME = 0.01;
-const SERVER_URL = '192.168.0.117:3000';
+const SERVER_URL = 'https://classy-creponne-dc941b.netlify.app/.netlify/functions/api';
 
 let canvas;
 let context;
@@ -275,7 +275,7 @@ function generateRandomString(length) {
 }
 
 function tryLogin(username, password, callback) {
-  fetch(`http://${SERVER_URL}/login`, {
+  fetch(`${SERVER_URL}/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -289,7 +289,7 @@ function tryLogin(username, password, callback) {
 }
 
 function trySignup(username, password, callback) {
-  fetch(`http://${SERVER_URL}/signup`, {
+  fetch(`${SERVER_URL}/signup`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -305,7 +305,7 @@ function trySignup(username, password, callback) {
 function syncPlayer() {
   const playerDataJson = JSON.stringify({ playerData });
   console.log("syncing playerData with length: " + playerDataJson.length);
-  fetch(`http://${SERVER_URL}/sync`, {
+  fetch(`${SERVER_URL}/sync`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -321,7 +321,7 @@ function syncPlayer() {
 }
 
 function loadPlayer() {
-  fetch(`http://${SERVER_URL}/load`, {
+  fetch(`${SERVER_URL}/load`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -337,7 +337,7 @@ function loadPlayer() {
 }
 
 function getPublicLevels(callback) {
-  fetch(`http://${SERVER_URL}/getLevels`, {
+  fetch(`${SERVER_URL}/getLevels`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
