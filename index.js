@@ -616,6 +616,10 @@ function drawPolyline(polyline) {
   for (let i = 1; i < polyline.length; i++) {
     context.lineTo(polyline[i].x, polyline[i].y);
   }
+  if (polyline.filled) {
+    context.fillStyle = style;
+    context.fill();
+  }
   context.stroke();
 }
 

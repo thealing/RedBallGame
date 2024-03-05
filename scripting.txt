@@ -17,6 +17,14 @@ Events
   point       | the deepest common point
 }
 
+"pressed"
+{
+}
+
+"collected"
+{
+}
+
 Methods
 
 "killplayer"

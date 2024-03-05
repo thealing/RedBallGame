@@ -45,6 +45,16 @@ function distanceFromPolyline(point, polyline) {
   return distance;
 }
 
+function testPointPolygon(point, polygon) {
+  let count1 = 0;
+  let count2 = 0;
+  for (let i1 = polygon.length - 1, i2 = 0; i2 < polygon.length; i1 = i2, i2++) {
+    count1 += orientation(point, polygon[i1], polygon[i2]) >= 0;
+    count2 += orientation(point, polygon[i1], polygon[i2]) <= 0;
+  }
+  return count1 == polygon.length || count2 == polygon.length;
+}
+
 function generateEllipse(topLeft, bottomRight) {
   const cx = (topLeft.x + bottomRight.x) / 2;
   const cy = (topLeft.y + bottomRight.y) / 2;

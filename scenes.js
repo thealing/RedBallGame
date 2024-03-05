@@ -867,6 +867,22 @@ class EditorScene extends Scene {
     } 
   }
 
+  updateEraser(point) {
+    let polylineToBeErased = null;
+    for (const polyline of this.level.terrain) {
+      polyline.erasing = false;
+      if (distanceFromPolyline(point, polyline) <= polyline.width / 2) {
+        polylineToBeErased = polyline;
+      }
+      if (polyline.filled && testPointPolygon(point, polyline)) {
+        polylineToBeErased = polyline;
+      }
+    }
+    if (polylineToBeErased) {
+      polylineToBeErased.erasing = true;
+    }
+  }
+
   renderWorld() {
     const gradient = context.createLinearGradient(0, -10000, 0, 10000);
     gradient.addColorStop(0, 'lightblue');
@@ -927,7 +943,8 @@ class EditorScene extends Scene {
         }
         case 'draw': {
           this.currentPolyline = [];
-          this.currentPolyline.width = 25 / this.zoom;
+          // this.currentPolyline.width = 25 / this.zoom;
+          this.currentPolyline.width = 18;
           Object.assign(this.currentPolyline, EditorScene.terrainTypes[this.currentTerrainType]);
           this.currentPolyline.push(worldPosition);
           this.currentPolyline.push(Vector.addXY(worldPosition, 0.1, 0.1));
@@ -938,9 +955,7 @@ class EditorScene extends Scene {
           break;
         }
         case 'erase': {
-          for (const polyline of this.level.terrain) {
-            polyline.erasing = distanceFromPolyline(worldPosition, polyline) <= polyline.width / 2;
-          }
+          this.updateEraser(worldPosition);
           break;
         }
       }
@@ -1038,9 +1053,7 @@ class EditorScene extends Scene {
         break;
       }
       case 'erase': {
-        for (const polyline of this.level.terrain) {
-          polyline.erasing = distanceFromPolyline(worldPosition, polyline) <= polyline.width / 2;
-        }
+        this.updateEraser(worldPosition);
         break;
       }
     }
