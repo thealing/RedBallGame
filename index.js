@@ -346,7 +346,10 @@ function getPublicLevels(callback) {
   })
   .then((response) => response.text())
   .then((text) => JSON.parse(text))
-  .then(callback)
+  .then((data) => {
+    console.log(`Got ${data.levels.length} public levels!`);
+    callback(data.levels);
+  })
   .catch(console.warn);
 }
 
