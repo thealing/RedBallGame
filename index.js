@@ -277,6 +277,7 @@ function generateRandomString(length) {
 function tryLogin(username, password, callback) {
   fetch(`${SERVER_URL}/login`, {
     method: 'POST',
+    mode: 'no-cors',
     headers: {
       'Content-Type': 'application/json'
     },
@@ -291,6 +292,7 @@ function tryLogin(username, password, callback) {
 function trySignup(username, password, callback) {
   fetch(`${SERVER_URL}/signup`, {
     method: 'POST',
+    mode: 'no-cors',
     headers: {
       'Content-Type': 'application/json'
     },
@@ -307,6 +309,7 @@ function syncPlayer() {
   console.log("syncing playerData with length: " + playerDataJson.length);
   fetch(`${SERVER_URL}/sync`, {
     method: 'POST',
+    mode: 'no-cors',
     headers: {
       'Content-Type': 'application/json'
     },
@@ -323,6 +326,7 @@ function syncPlayer() {
 function loadPlayer() {
   fetch(`${SERVER_URL}/load`, {
     method: 'POST',
+    mode: 'no-cors',
     headers: {
       'Content-Type': 'application/json'
     },
@@ -339,6 +343,7 @@ function loadPlayer() {
 function getPublicLevels(callback) {
   fetch(`${SERVER_URL}/getLevels`, {
     method: 'POST',
+    mode: 'no-cors',
     headers: {
       'Content-Type': 'application/json'
     },
