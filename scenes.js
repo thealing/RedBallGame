@@ -420,7 +420,7 @@ class GalleryScene extends Scene {
         context.fillStyle = 'black';
         drawImage(images.play_level, new Vector(WIDTH - 56, i * 100 + 50), 0);
       }
-      drawText(this.levels[i][1].author + " : " + this.levels[i][1].name, new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH - 222);
+      drawText(this.levels[i].author + " : " + this.levels[i].name, new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH - 222);
       drawSegment(new Vector(0, (i + 1) * 100), new Vector(WIDTH, (i + 1) * 100));
     }
     context.restore();
@@ -466,7 +466,7 @@ class GalleryScene extends Scene {
         this.selectedLevel = -1;
       }
       if (position.x >= WIDTH - 106 && position.x < WIDTH - 6) {
-        gameData.currentLevel = this.levels[touchedLevel][1];
+        gameData.currentLevel = this.levels[touchedLevel];
         gameData.onLevelExit = () => {
           changeScene(scenes.gallery);
         }
