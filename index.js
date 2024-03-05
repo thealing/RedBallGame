@@ -315,7 +315,7 @@ function syncPlayer() {
   .then((response) => response.text())
   .then((text) => JSON.parse(text))
   .then((data) => {
-    setRecursively(playerData, data);
+    setRecursively(playerData, data.playerData);
   })
   .catch(console.warn);
 }
@@ -331,7 +331,7 @@ function loadPlayer() {
   .then((response) => response.text())
   .then((text) => JSON.parse(text))
   .then((data) => {
-    setRecursively(playerData, data);
+    setRecursively(playerData, data.playerData);
   })
   .catch(console.warn);
 }
