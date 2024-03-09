@@ -141,10 +141,24 @@ async function init() {
   changeScene(scenes.main);
   setInterval(update, DELTA_TIME * 1000);
   requestAnimationFrame(render);
+  // debug
+  setTimeout(() => {
+    playerData.username = 'admin';
+    playerData.password = '123';
+    loadPlayer();
+    userDiv.style.display = 'none';
+    gameData.paused = false;
+    setTimeout(() => {
+      gameData.currentLevel = playerData.draftLevels[0];
+      changeScene(scenes.editor);
+    }, 1000);
+  }, 500);
 }
 
 function changeScene(newScene) {
-  syncPlayer();
+  if (playerData.username) {
+    syncPlayer();
+  }
   if (gameData.paused) {
     return;
   }
@@ -674,6 +688,7 @@ function loadImages() {
   images.ball_normal = loadImage('images/ball_normal.png', 64, 64);
   images.goal = loadImage('images/goal.png', 64, 64);
   images.box = loadImage('images/box.png', 100, 100);
+  images.boulder = loadImage('images/boulder.png', 150, 150);
   images.button = loadImage('images/button.png', 100, 100);
   images.button_pressed = loadImage('images/button_pressed.png', 100, 100);
   images.plank = loadImage('images/plank.png', 200, 200);
@@ -716,6 +731,7 @@ function loadImages() {
   images.ui.icon_polyline_ellipse = loadImage('images/ui/icon_polyline_ellipse.png', 70, 70);
   images.ui.gadgets = [
     loadImage('images/box.png', 50, 50),
+    loadImage('images/boulder.png', 50, 50),
     loadImage('images/button.png', 50, 50),
     loadImage('images/plank.png', 50, 50)
   ];

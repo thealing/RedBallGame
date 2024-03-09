@@ -484,29 +484,29 @@ class EditorScene extends Scene {
     {
       index: 0,
       deadly: false,
-      friction: 50,
-      frictionStatic: 50,
+      dynamicFriction: 0.5,
+      staticFriction: 0.8,
       restitution: 0.0
     },
     {
       index: 1,
       deadly: true,
-      friction: 50,
-      frictionStatic: 50,
+      dynamicFriction: 0.4,
+      staticFriction: 0.8,
       restitution: 0
     },
     {
       index: 2,
       deadly: false,
-      friction: 0,
-      frictionStatic: 0,
+      dynamicFriction: 0,
+      staticFriction: 0,
       restitution: 0
     },
     {
       index: 3,
       deadly: false,
-      friction: 50,
-      frictionStatic: 50,
+      dynamicFriction: 0.4,
+      staticFriction: 0.8,
       restitution: 0,
       invisible: true
     }
@@ -520,11 +520,16 @@ class EditorScene extends Scene {
     },
     {
       index: 1,
+      name: 'Boulder',
+      class: Boulder
+    },
+    {
+      index: 2,
       name: 'Button',
       class: Button
     },
     {
-      index: 2,
+      index: 3,
       name: 'Plank',
       class: Plank
     }
@@ -1136,8 +1141,6 @@ class EditorScene extends Scene {
 class PlayScene extends Scene {
   constructor() {
     super();
-    this.physics = Matter.Engine.create();
-    this.physics.gravity.y = 700000;
   }
 
   enter() {
@@ -1196,33 +1199,41 @@ class PlayScene extends Scene {
   initLevel() {
     this.uninitLevel();
     this.levelInitialized = true;
-    Matter.Composite.clear(this.physics.world);
+    this.physics?.destroy();
+    this.physics = new PhysicsWorld();
+    this.physics.gravity.y = 700;
     const lvl = gameData.currentLevel;
     this.terrain = lvl.terrain;
-    this.playerBody = Matter.Bodies.circle(lvl.player.x, lvl.player.y, 30);
-    this.playerBody.friction = 0;
-    this.playerBody.frictionStatic = 0;
+    this.playerBody = Physics.createCircleBody(this.physics, lvl.player.x, lvl.player.y, 30);
+    this.playerBody.staticFriction = 0;
+    this.playerBody.dynamicFriction = 0;
     this.playerBody.restitution = 0;
-    this.goalBody = Matter.Bodies.rectangle(lvl.goal.x, lvl.goal.y, 10, 64);
-    this.goalBody.isStatic = true;
-    this.goalBody.isSensor = true;
-    this.terrainBodies = MatterUtil.createTerrainBodies(lvl.terrain);
-    this.gadgetBodies = lvl.gadgets.flatMap((gadget) => gadget.createBodies());
+    this.goalBody = Physics.createRectangleBody(this.physics, lvl.goal.x, lvl.goal.y, 10, 64);
+    this.goalBody.type = PhysicsBodyType.STATIC;
+    this.goalBody.colliders.first.item.sensor = true;
+    this.terrainBodies = PhysicsUtil.createTerrainBodies(this.physics, lvl.terrain);
+    this.gadgetBodies = lvl.gadgets.flatMap((gadget) => gadget.createBodies(this.physics));
     this.onSurface = false;
     this.onSurfaceTimeout = null;
     this.canJump = true;
     this.started = false;
     this.ended = false;
     this.goalReached = false;
-    Matter.World.add(this.physics.world, [this.playerBody, this.goalBody]);
-    Matter.World.add(this.physics.world, this.terrainBodies);
-    Matter.World.add(this.physics.world, this.gadgetBodies);
-    const userWorld = {};
+    const userGlobalData = {};
     for (const gadgetBody of this.gadgetBodies) {
-      gadgetBody.world = userWorld;
+      gadgetBody.env = userGlobalData;
     }
     for (const gadgetBody of this.gadgetBodies) {
       this.callUserCallback(gadgetBody, 'enter', {});
+      gadgetBody.onPhysicsCollision = (otherBody, point) => {
+        gadgetBody.onCollision?.(otherBody, point);
+        if (otherBody == this.playerBody) {
+          gadgetBody.onCollisionWithPlayer?.(point);
+        }
+        if (gadgetBody.callback) {
+          this.callUserCallback(gadgetBody, 'overlap', { other: otherBody, point: point });
+        }
+      };
     }
   }
 
@@ -1246,29 +1257,31 @@ class PlayScene extends Scene {
       this.started = true;
     }
     if (gameInput.forward && gameInput.backward) {
-      this.playerBody.frictionAir = 5;
+      this.playerBody.staticFriction = 0.99;
+      this.playerBody.dynamicFriction = 0.99;
     }
     else {
-      this.playerBody.frictionAir = 0;
+      this.playerBody.staticFriction = 0.5;
+      this.playerBody.dynamicFriction = 0.5;
       if (gameInput.forward) {
-        if (this.playerBody.velocity.x < 8000) {
-          Matter.Body.applyForce(this.playerBody, this.playerBody.position, { x: 7000, y: 0 });
+        if (this.playerBody.linearVelocity.x < 400) {
+          this.playerBody.applyForceAtCenter({ x: 4000000, y: 0 });
         }
       }
       else if (gameInput.backward) {
-        if (this.playerBody.velocity.x > -8000) {
-          Matter.Body.applyForce(this.playerBody, this.playerBody.position, { x: -7000, y: 0 });
+        if (this.playerBody.linearVelocity.x > -400) {
+          this.playerBody.applyForceAtCenter({ x: -4000000, y: 0 });
         }
       }
     }
     if (this.started && !this.ended) {
-      Matter.Engine.update(this.physics, DELTA_TIME);
+      this.physics.step(DELTA_TIME);
     }
     const target = Vector.negate(this.playerBody.position);
     this.origin.add(target.subtract(this.origin).multiply(10 * DELTA_TIME));
     if (this.started && !this.ended) {
       for (const terrainBody of this.terrainBodies) {
-        const touching = MatterUtil.overlap(this.playerBody, terrainBody);
+        const touching = PhysicsUtil.testBodies(this.playerBody, terrainBody);
         if (touching && terrainBody.deadly) {
           this.ended = true;
           clicksCanceled = true;
@@ -1281,7 +1294,7 @@ class PlayScene extends Scene {
           }
           case 1: {
             if (gadgetBody.pressed) {
-              gadgetBody.pressed = false;
+              gadgetBody.pressed = gadgetBody.pressed === true ? 2 : false;
               this.callUserCallback(gadgetBody, 'pressed', {});
             }
             break;
@@ -1301,33 +1314,15 @@ class PlayScene extends Scene {
         this.callUserCallback(gadgetBody, 'update', {});
       }
       this.gadgetBodies = this.gadgetBodies.filter((gadgetBody) => !gadgetBody.toBeDeleted);
-      let handleCollision = (body1, body2, point) => {
-        if (!body2.isStatic) {
-          body1.onCollision?.(body2, point);
-          if (body2 == this.playerBody) {
-            body1.onCollisionWithPlayer?.(point);
-          }
-          if (body1.callback) {
-            this.callUserCallback(body1, 'overlap', { other: body2, point: point });
-          }
-        }
-      }
-      const contacts = Matter.Detector.collisions({ bodies: this.gadgetBodies.concat(this.playerBody) });
-      for (const contact of contacts) {
-        for (const support of contact.supports) {
-          handleCollision(contact.bodyA, contact.bodyB, support);
-          handleCollision(contact.bodyB, contact.bodyA, support);
-        }
-      }
       let onSurfaceNow = false;
       for (const terrainBody of this.terrainBodies) {
-        onSurfaceNow |= MatterUtil.isOnTop(this.playerBody, terrainBody);
+        onSurfaceNow |= PhysicsUtil.isOnTop(this.playerBody, terrainBody);
       }
       for (const gadgetBody of this.gadgetBodies) {
         if (gadgetBody.gadgetType == 3) {
           continue;
         }
-        onSurfaceNow |= MatterUtil.isOnTop(this.playerBody, gadgetBody);
+        onSurfaceNow |= PhysicsUtil.isOnTop(this.playerBody, gadgetBody);
       }
       if (onSurfaceNow) {
         this.onSurface = true;
@@ -1337,21 +1332,21 @@ class PlayScene extends Scene {
         }, 200);
       }
       if (this.onSurface) {
-        const radius = this.playerBody.circleRadius;
-        const velocity = this.playerBody.velocity;
+        const radius = this.playerBody.colliders.first.item.worldShape.radius;
+        const velocity = this.playerBody.linearVelocity;
         const angularVelocity = this.playerBody.angularVelocity;
         let difference = velocity.x - angularVelocity * radius;
-        Matter.Body.setVelocity(this.playerBody, { x: velocity.x - difference * 0.3, y: velocity.y });
-        Matter.Body.setAngularVelocity(this.playerBody, angularVelocity + difference / radius);
+        this.playerBody.linearVelocity.copy({ x: velocity.x - difference * 0.3, y: velocity.y });
+        this.playerBody.angularVelocity = angularVelocity + difference / radius;
       }
       if (gameInput.jump && this.canJump && this.onSurface) {
-        Matter.Body.setVelocity(this.playerBody, { x: this.playerBody.velocity.x, y: this.playerBody.velocity.y - 7000 });
+        this.playerBody.linearVelocity.copy({ x: this.playerBody.linearVelocity.x, y: -440 });
         this.canJump = false;
         setTimeout(() => {
           this.canJump = true;
         }, 600);
       }
-      if (MatterUtil.overlap(this.playerBody, this.goalBody)) {
+      if (PhysicsUtil.testBodies(this.playerBody, this.goalBody)) {
         this.ended = true;
         this.goalReached = true;
         clicksCanceled = true;
@@ -1389,21 +1384,21 @@ class PlayScene extends Scene {
           break;
         }
         case 'setvelocity': {
-          Matter.Body.setVelocity(getBodyByName(data.name), { x: data.x, y: data.y });
+          getBodyByName(data.name)?.linearVelocity.copy({ x: data.x, y: data.y });
           break;
         }
         case 'addvelocity': {
           const body = getBodyByName(data.name);
-          Matter.Body.setVelocity(body, { x: body.velocity.x + data.x, y: body.velocity.y + data.y });
+          body?.linearVelocity.copy({ x: body.linearVelocity.x + data.x, y: body.linearVelocity.y + data.y });
           break;
         }
         case 'setposition': {
-          Matter.Body.setPosition(getBodyByName(data.name), { x: data.x, y: data.y });
+          body?.position.copy({ x: data.x, y: data.y });
           break;
         }
         case 'addposition': {
           const body = getBodyByName(data.name);
-          Matter.Body.setPosition(body, { x: body.position.x + data.x, y: body.position.y + data.y });
+          body?.position.copy({ x: body.position.x + data.x, y: body.position.y + data.y });
           break;
         }
       }
@@ -1486,50 +1481,47 @@ class PlayScene extends Scene {
   }
 }
 
-class MatterUtil {
-  static createTerrainBodies(terrain) {
-    const bodiesList = [];
+class PhysicsUtil {
+  static createTerrainBodies(world, terrain) {
+    const body = world.createBody(PhysicsBodyType.STATIC);
     for (const polyline of terrain) {
-      if (!bodiesList[polyline.index]) {
-        bodiesList[polyline.index] = [];
-      }
       for (let i = 0; i + 1 < polyline.length; i++) {
         const a = polyline[i];
         const b = polyline[i + 1];
         const middle = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
         const distance = Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
         const angle = Math.atan2(b.y - a.y, b.x - a.x);
-        const rectangle = Matter.Bodies.rectangle(middle.x, middle.y, distance, polyline.width, {
-          angle: angle
-        });
-        bodiesList[polyline.index].push(rectangle);
+        const rectangle = Geometry.createRotatedRectangle(middle.x, middle.y, distance, polyline.width, angle);
+        const collider = body.createCollider(rectangle, 1);
+        Object.assign(collider, EditorScene.terrainTypes[polyline.index]);
       }
-      bodiesList[polyline.index].push(Matter.Bodies.circle(polyline[0].x, polyline[0].y, polyline.width / 2));
-      bodiesList[polyline.index].push(Matter.Bodies.circle(polyline[polyline.length - 1].x, polyline[polyline.length - 1].y, polyline.width / 2));
-    }
-    const result = [];
-    for (let i = 0; i < bodiesList.length; i++) {
-      if (bodiesList[i] == undefined) {
-        continue;
+      for (const circle of [
+        Geometry.createCircle(polyline[0].x, polyline[0].y, polyline.width / 2),
+        Geometry.createCircle(polyline[polyline.length - 1].x, polyline[polyline.length - 1].y, polyline.width / 2)
+      ]) {
+        const collider = body.createCollider(circle, 1);
+        Object.assign(collider, EditorScene.terrainTypes[polyline.index]);
       }
-      const body = Matter.Body.create({ parts: bodiesList[i], isStatic: true});
-      Object.assign(body, EditorScene.terrainTypes[i]);
-      result.push(body);
     }
-    return result;
+    return [ body ];
   }
   
-  static overlap(body1, body2) {
-    const contacts = Matter.Detector.collisions({ bodies: [ body1, body2 ] });
-    return contacts.length > 0;
+  static testBodies(body1, body2) {
+    for (const collider1 of body1.colliders) {
+      for (const collider2 of body2.colliders) {
+        if (Physics.collide(collider1, collider2)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
   
   static isOnTop(body1, body2) {
-    const contacts = Matter.Detector.collisions({ bodies: [ body1, body2 ] });
-    const center1Y = body1.position.y;
-    for (const contact of contacts) {
-      for (const support of contact.supports) {
-        if (support.y > center1Y + 20) {
+    for (const collider1 of body1.colliders) {
+      for (const collider2 of body2.colliders) {
+        const collision = Physics.collide(collider1, collider2);
+        if (collision && collision.collision.point.y > body1.position.y + 20) {
           return true;
         }
       }

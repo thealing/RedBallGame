@@ -47,19 +47,47 @@ class Box extends Gadget {
     drawImage(images.box, this.center, 0);
   }
 
-  createBodies() {
-    const body = Matter.Bodies.rectangle(this.center.x, this.center.y, this.halfSize * 2 - 14, this.halfSize * 2 - 14, {
-      friction: 20,
-      frictionStatic: 20,
-      frictionAir: 0,
-      slop: 10,
-      restitution: 0,
-      mass: 30,
-      name: this.name
-    });
+  createBodies(world) {
+    const ret = {};
+    const body = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfSize * 2 - 14, this.halfSize * 2 - 14, ret);
+    ret.coll.staticFriction = 0.1;
+    ret.coll.dynamicFriction = 0.5;
     body.gadgetType = 0;
     body.renderProc = () => {
       drawImage(images.box, body.position, body.angle);
+    };
+    super.addUserCallback(body);
+    return [ body ];
+  }
+}
+
+class Boulder extends Gadget {
+  constructor(name, position) {
+    super(name);
+    this.center = position;
+    this.radius = 67.5;
+  }
+
+  testPoint(point) {
+    return Vector.distanceSquared(this.center, point) <= this.radius ** 2;
+  }
+
+  drag(position, delta) {
+    this.center.add(delta);
+  }
+
+  render() {
+    drawImage(images.boulder, this.center, 0);
+  }
+
+  createBodies(world) {
+    const ret = {};
+    const body = Physics.createCircleBody(world, this.center.x, this.center.y, this.radius, ret);
+    ret.coll.staticFriction = 0.6;
+    ret.coll.dynamicFriction = 0.6;
+    body.gadgetType = 0;
+    body.renderProc = () => {
+      drawImage(images.boulder, body.position, body.angle);
     };
     super.addUserCallback(body);
     return [ body ];
@@ -84,32 +112,23 @@ class Button extends Gadget {
     drawImage(images.button, this.center, 0);
   }
 
-  createBodies() {
-    const body = Matter.Bodies.rectangle(this.center.x, this.center.y + 25, 80, 20, {
-      friction: 20,
-      frictionStatic: 20,
-      frictionAir: 0,
-      slop: 10,
-      restitution: 0,
-      mass: 30,
-      isStatic: true,
-      pressed: false,
-      name: this.name
-    });
+  createBodies(world) {
+    const body = Physics.createRectangleBody(world, this.center.x, this.center.y + 25, 80, 20, { static: true });
     body.gadgetType = 1;
     body.renderProc = () => {
       drawImage(body.pressed ? images.button_pressed : images.button, Vector.addXY(body.position, 0, -25), body.angle);
     };
-    const sensorBody = Matter.Bodies.rectangle(0, 0, 72, 15, {
-      isStatic: true,
-      isSensor: true
-    });
+    const ret = {};
+    const sensorBody = Physics.createRectangleBody(world, 0, 0, 72, 15, ret);
+    sensorBody.type = PhysicsBodyType.STATIC;
+    ret.coll.sensor = true;
     sensorBody.onCollision = (otherBody, point) => {
-      body.pressed = true;
+      if (otherBody != body && otherBody.type != PhysicsBodyType.STATIC) {
+        body.pressed = true;
+      }
     };
-    body.updateProc = () => {
-      Matter.Body.setPosition(sensorBody, Vector.addXY(body.position, 0, -25));
-    };
+    sensorBody.position.x = body.position.x;
+    sensorBody.position.y = body.position.y - 25;
     super.addUserCallback(body);
     return [ body, sensorBody ];
   }
@@ -160,21 +179,13 @@ class Plank extends Gadget {
     drawImage(images.plank_end, this.end, this.getAngle());
   }
 
-  createBodies() {
+  createBodies(world) {
     const center = this.getCenter();
     const length = this.getLength();
     const angle = this.getAngle();
-    const body = Matter.Bodies.rectangle(center.x, center.y, length, 16, {
-      angle: angle,
-      friction: 0.5,
-      frictionStatic: 0.5,
-      frictionAir: 0.5,
-      slop: 10,
-      restitution: 0,
-      mass: 30,
-      isStatic: true,
-      name: this.name
-    });
+    const body = Physics.createRectangleBody(world, center.x, center.y, length, 16);
+    body.type = PhysicsBodyType.STATIC;
+    body.angle = angle;
     body.gadgetType = 2;
     body.renderProc = () => {
       drawImage(images.plank, body.position, body.angle, { x: length / 200, y: 1 });
@@ -217,12 +228,11 @@ class Star extends Gadget {
     drawImage(images.star, this.center, 0);
   }
 
-  createBodies() {
-    const body = Matter.Bodies.rectangle(this.center.x, this.center.y, this.halfSize * 2 - 20, this.halfSize * 2 - 20, {
-      isStatic: true,
-      isSensor: true,
-      name: this.name
-    });
+  createBodies(world) {
+    const ret = {};
+    const body = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfSize * 2 - 20, this.halfSize * 2 - 20, ret);
+    body.type = PhysicsBodyType.STATIC;
+    ret.coll.sensor = true;
     body.gadgetType = 3;
     body.renderProc = () => {
       if (!body.collected) {
