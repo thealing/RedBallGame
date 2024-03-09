@@ -141,18 +141,6 @@ async function init() {
   changeScene(scenes.main);
   setInterval(update, DELTA_TIME * 1000);
   requestAnimationFrame(render);
-  // debug
-  setTimeout(() => {
-    playerData.username = 'admin';
-    playerData.password = '123';
-    loadPlayer();
-    userDiv.style.display = 'none';
-    gameData.paused = false;
-    setTimeout(() => {
-      gameData.currentLevel = playerData.draftLevels[0];
-      changeScene(scenes.editor);
-    }, 1000);
-  }, 500);
 }
 
 function changeScene(newScene) {
