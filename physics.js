@@ -246,13 +246,13 @@ class PhysicsWorld {
         body.angularForce = 0;
       }
     }
+    let collisions = [];
     for (let colliderNode = this.colliders.first, next; colliderNode != null; colliderNode = next) {
       next = colliderNode.next;
       while (colliderNode.prev != null && colliderNode.item.worldBoundingRect.min.x < colliderNode.prev.item.worldBoundingRect.min.x) {
         colliderNode.swapWithPrev();
       }
     }
-    let collisions = [];
     for (let colliderNode1 = this.colliders.first; colliderNode1 != null; colliderNode1 = colliderNode1.next) {
       let collider1 = colliderNode1.item;
       if (!collider1.enabled) {
@@ -272,6 +272,9 @@ class PhysicsWorld {
           continue;
         }
         if (collider1.body == collider2.body) {
+          continue;
+        }
+        if (collider1.body.type == PhysicsBodyType.STATIC && collider2.body.type == PhysicsBodyType.STATIC) {
           continue;
         }
         if (!collider1.filter.test(collider2.filter)) {

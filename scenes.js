@@ -1483,8 +1483,12 @@ class PlayScene extends Scene {
 
 class PhysicsUtil {
   static createTerrainBodies(world, terrain) {
-    const body = world.createBody(PhysicsBodyType.STATIC);
+    const bodies = [];
     for (const polyline of terrain) {
+      if (!bodies[polyline.index]) {
+        bodies[polyline.index] = world.createBody(PhysicsBodyType.STATIC);
+        Object.assign(bodies[polyline.index], EditorScene.terrainTypes[polyline.index]);
+      }
       for (let i = 0; i + 1 < polyline.length; i++) {
         const a = polyline[i];
         const b = polyline[i + 1];
@@ -1492,18 +1496,24 @@ class PhysicsUtil {
         const distance = Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
         const angle = Math.atan2(b.y - a.y, b.x - a.x);
         const rectangle = Geometry.createRotatedRectangle(middle.x, middle.y, distance, polyline.width, angle);
-        const collider = body.createCollider(rectangle, 1);
+        const collider = bodies[polyline.index].createCollider(rectangle, 1);
         Object.assign(collider, EditorScene.terrainTypes[polyline.index]);
       }
       for (const circle of [
         Geometry.createCircle(polyline[0].x, polyline[0].y, polyline.width / 2),
         Geometry.createCircle(polyline[polyline.length - 1].x, polyline[polyline.length - 1].y, polyline.width / 2)
       ]) {
-        const collider = body.createCollider(circle, 1);
+        const collider = bodies[polyline.index].createCollider(circle, 1);
         Object.assign(collider, EditorScene.terrainTypes[polyline.index]);
       }
     }
-    return [ body ];
+    const result = [];
+    for (const body of bodies) {
+      if (body) {
+        result.push(body);
+      }
+    }
+    return result;
   }
   
   static testBodies(body1, body2) {
@@ -1521,7 +1531,7 @@ class PhysicsUtil {
     for (const collider1 of body1.colliders) {
       for (const collider2 of body2.colliders) {
         const collision = Physics.collide(collider1, collider2);
-        if (collision && collision.collision.point.y > body1.position.y + 20) {
+        if (collision && collision.collision.point.y > body1.position.y + 10) {
           return true;
         }
       }
