@@ -141,6 +141,12 @@ async function init() {
   changeScene(scenes.main);
   setInterval(update, DELTA_TIME * 1000);
   requestAnimationFrame(render);
+  if (typeof debugPlayerData !== 'undefined') {
+    setTimeout(() => {
+      gameData.currentLevel = playerData.draftLevels[0];
+      changeScene(scenes.editor);
+    }, 1000);
+  }
 }
 
 function changeScene(newScene) {
@@ -227,7 +233,7 @@ function screenToCanvasPosition(x, y) {
 }
 
 function initPlayerData() {
-  playerData = {
+  playerData = typeof debugPlayerData !== 'undefined' ? debugPlayerData : {
     username: '',
     password: '',
     draftLevels: [],
@@ -317,7 +323,7 @@ function syncPlayer() {
   .then((response) => response.text())
   .then((text) => JSON.parse(text))
   .then((data) => {
-    setRecursively(playerData, data.playerData);
+    setRecursively(playerData, debugPlayerData ?? data.playerData);
   })
   .catch(console.warn);
 }
@@ -333,7 +339,7 @@ function loadPlayer() {
   .then((response) => response.text())
   .then((text) => JSON.parse(text))
   .then((data) => {
-    setRecursively(playerData, data.playerData);
+    setRecursively(playerData, debugPlayerData ?? data.playerData);
   })
   .catch(console.warn);
 }
@@ -682,6 +688,12 @@ function loadImages() {
   images.plank = loadImage('images/plank.png', 200, 200);
   images.plank_end = loadImage('images/plank_end.png', 200, 200);
   images.star = loadImage('images/star.png', 40, 40);
+  images.signs = [
+    loadImage('images/sign_arrow.png', 120, 120),
+    loadImage('images/sign_arrow_back.png', 120, 120),
+    loadImage('images/sign_danger.png', 120, 120),
+    loadImage('images/sign_stop.png', 120, 120)
+  ];
   images.ui = {};
   images.ui.buttons = [
     {
@@ -712,6 +724,7 @@ function loadImages() {
   images.ui.icon_zoom_out = loadImage('images/ui/icon_zoom_out.png', 70, 70);
   images.ui.icon_trash = loadImage('images/ui/icon_trash.png', 70, 70);
   images.ui.icon_duplicate = loadImage('images/ui/icon_duplicate.png', 70, 70);
+  images.ui.icon_rotate = loadImage('images/ui/icon_rotate.png', 70, 70);
   images.ui.icon_editor = loadImage('images/ui/icon_editor.png', 70, 70);
   images.ui.icon_polyline_freehand = loadImage('images/ui/icon_polyline_freehand.png', 70, 70);
   images.ui.icon_polyline_segment = loadImage('images/ui/icon_polyline_segment.png', 70, 70);
@@ -724,7 +737,8 @@ function loadImages() {
     loadImage('images/plank.png', 50, 50)
   ];
   images.ui.decors = [
-    loadImage('images/star.png', 50, 50)
+    loadImage('images/star.png', 50, 50),
+    loadImage('images/sign_icon.png', 50, 50),
   ];
   images.ui.arrow = {};
   images.ui.arrow.left = loadImage('images/ui/arrow_left.png', 120, 120);

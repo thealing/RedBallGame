@@ -11,6 +11,12 @@ class Gadget {
   drag(position, delta) {
   }
 
+  rotate(angle) {
+  }
+
+  click(position) {
+  }
+
   render() {
   }
 
@@ -25,6 +31,10 @@ class Gadget {
     catch (e) {
       console.warn('Instantiation Error:\n' + e);
     }
+  }
+
+  unproject(point) {
+    return Vector.subtract(point, this.center).rotate(-this.angle).add(this.center);
   }
 }
 
@@ -98,9 +108,11 @@ class Button extends Gadget {
   constructor(name, position) {
     super(name);
     this.center = position;
+    this.angle = 0;
   }
 
   testPoint(point) {
+    point = this.unproject(point);
     return testPointRect(point, Vector.subtractXY(this.center, 40, 20), Vector.addXY(this.center, 40, 40));
   }
 
@@ -109,26 +121,27 @@ class Button extends Gadget {
   }
 
   render() {
-    drawImage(images.button, this.center, 0);
+    drawImage(images.button, this.center, this.angle);
   }
 
   createBodies(world) {
     const body = Physics.createRectangleBody(world, this.center.x, this.center.y + 25, 80, 20, { static: true });
+    body.angle = this.angle;
     body.gadgetType = 1;
     body.renderProc = () => {
-      drawImage(body.pressed ? images.button_pressed : images.button, Vector.addXY(body.position, 0, -25), body.angle);
+      drawImage(body.pressed ? images.button_pressed : images.button, Vector.add(body.position, Vector.rotate(new Vector(0, -25), this.angle)), body.angle);
     };
     const ret = {};
     const sensorBody = Physics.createRectangleBody(world, 0, 0, 72, 15, ret);
     sensorBody.type = PhysicsBodyType.STATIC;
+    sensorBody.angle = this.angle;
     ret.coll.sensor = true;
     sensorBody.onCollision = (otherBody, point) => {
       if (otherBody != body && otherBody.type != PhysicsBodyType.STATIC) {
         body.pressed = true;
       }
     };
-    sensorBody.position.x = body.position.x;
-    sensorBody.position.y = body.position.y - 25;
+    sensorBody.position = Vector.add(body.position, Vector.rotate(new Vector(0, -25), this.angle));
     super.addUserCallback(body);
     return [ body, sensorBody ];
   }
@@ -243,6 +256,48 @@ class Star extends Gadget {
       if (!body.collected) {
         body.collected = true;
       }
+    };
+    super.addUserCallback(body);
+    return [ body ];
+  }
+}
+
+class Signs extends Gadget {
+  constructor(name, position) {
+    super(name);
+    this.center = position;
+    this.halfWidth = 20;
+    this.halfHeight = 50;
+    this.angle = 0;
+    this.skin = 0;
+  }
+
+  testPoint(point) {
+    point = this.unproject(point);
+    return testPointRect(point, Vector.subtractXY(this.center, this.halfWidth, this.halfHeight), Vector.addXY(this.center, this.halfWidth, this.halfHeight));
+  }
+
+  drag(position, delta) {
+    this.center.add(delta);
+  }
+
+  click(position) {
+    this.skin++;
+    this.skin %= images.signs.length;
+  }
+
+  render() {
+    drawImage(images.signs[this.skin], this.center, this.angle);
+  }
+
+  createBodies(world) {
+    const ret = {};
+    const body = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfWidth, this.halfHeight, ret);
+    body.type = PhysicsBodyType.STATIC;
+    ret.coll.sensor = true;
+    body.gadgetType = 4;
+    body.renderProc = () => {
+      drawImage(images.signs[this.skin], body.position, this.angle);
     };
     super.addUserCallback(body);
     return [ body ];

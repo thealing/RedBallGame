@@ -43,8 +43,8 @@ class Scene {
             this.buttonPressed = button;
           }
           button.onPress?.();
+          this.uiTouched = true;
         }
-        this.uiTouched = true;
       }
     }
   }
@@ -540,6 +540,11 @@ class EditorScene extends Scene {
       index: 0,
       name: 'Star',
       class: Star
+    },
+    {
+      index: 1,
+      name: 'Signs',
+      class: Signs
     }
   ]
 
@@ -718,9 +723,24 @@ class EditorScene extends Scene {
           this.currentDecorType = -3;
         },
         type: 0,
-        icon: images.ui.icon_editor,
+        icon: images.ui.icon_rotate,
         gadgetType: -3,
         decorType: -3,
+        activeModes: [ 'gadgets', 'decor' ]
+      },
+      {
+        position: new Vector(WIDTH - 360, 560),
+        halfSize: new Vector(40, 40),
+        toggled: false,
+        hidden: true,
+        onPress: () => {
+          this.currentGadgetType = -4;
+          this.currentDecorType = -4;
+        },
+        type: 0,
+        icon: images.ui.icon_editor,
+        gadgetType: -4,
+        decorType: -4,
         activeModes: [ 'gadgets', 'decor' ]
       },
       {
@@ -841,14 +861,14 @@ class EditorScene extends Scene {
       terrainSelectorButton.toggled = this.currentTerrainType == i;
       terrainSelectorButton.hidden = this.currentMode != 'draw';
     }
-    for (let i = -3; i < EditorScene.gadgetTypes.length; i++) {
+    for (let i = -4; i < EditorScene.gadgetTypes.length; i++) {
       const gadgetSelectorButton = this.buttons.find((button) => button.gadgetType == i);
       if (this.currentMode == 'gadgets') {
         gadgetSelectorButton.toggled = this.currentGadgetType == i;
       }
       gadgetSelectorButton.hidden = !gadgetSelectorButton.activeModes.includes(this.currentMode);
     }
-    for (let i = -3; i < EditorScene.decorTypes.length; i++) {
+    for (let i = -4; i < EditorScene.decorTypes.length; i++) {
       const decorSelectorButton = this.buttons.find((button) => button.decorType == i);
       if (this.currentMode == 'decor') {
         decorSelectorButton.toggled = this.currentDecorType == i;
@@ -938,6 +958,7 @@ class EditorScene extends Scene {
               }
             }
             if (draggedGadget) {
+              console.log("GRAB OBJETC!");
               this.draggedObject = draggedGadget;
             }
             else {
@@ -963,6 +984,19 @@ class EditorScene extends Scene {
           this.updateEraser(worldPosition);
           break;
         }
+        case 'gadgets':
+        case 'decor': {
+          let draggedGadget = null;
+          for (const gadget of this.level.gadgets) {
+            if (gadget.testPoint(worldPosition)) {
+              draggedGadget = gadget;
+            }
+          }
+          if (draggedGadget) {
+            this.draggedObject = draggedGadget;
+          }
+          break;
+        }
       }
     }
   }
@@ -976,7 +1010,6 @@ class EditorScene extends Scene {
           if (this.draggedObject != this.origin) {
             this.level.verified = false;
           }
-          this.draggedObject = null;
         }
         break;
       }
@@ -1004,6 +1037,7 @@ class EditorScene extends Scene {
         break;
       }
     }
+    this.draggedObject = null;
   }
 
   onTouchMove(position, delta) {
@@ -1061,6 +1095,30 @@ class EditorScene extends Scene {
         this.updateEraser(worldPosition);
         break;
       }
+      case 'gadgets': {
+        if (this.currentGadgetType == -3) {
+          if (this.draggedObject) {
+            const gadget = this.draggedObject;
+            if (gadget.angle != undefined && gadget.center != undefined) {
+              const center = gadget.center;
+              gadget.angle = Math.atan2(worldPosition.y - center.y, worldPosition.x - center.x) + Math.PI / 2;
+            }
+          }
+        }
+        break;
+      }
+      case 'decor': {
+        if (this.currentDecorType == -3) {
+          if (this.draggedObject) {
+            const gadget = this.draggedObject;
+            if (gadget.angle != undefined && gadget.center != undefined) {
+              const center = gadget.center;
+              gadget.angle = Math.atan2(worldPosition.y - center.y, worldPosition.x - center.x) + Math.PI / 2;
+            }
+          }
+        }
+        break;
+      }
     }
   }
 
@@ -1091,6 +1149,10 @@ class EditorScene extends Scene {
               break;
             }
             case -3: {
+              this.level.gadgets[i].click(worldPosition);
+              break;
+            }
+            case -4: {
               showEditor(this.level.gadgets[i].userCallback, (text) => {
                 this.level.gadgets[i].userCallback = text;
               });
@@ -1121,7 +1183,7 @@ class EditorScene extends Scene {
     super.onLongClick(position);
     const worldPosition = this.screenToWorldPosition(position);
     if (!this.uiTouched) {
-      if (this.currentMode == 'gadgets' || this.currentMode == 'decor') {
+      if (this.currentMode == 'gadgets' && this.currentGadgetType == -4 || this.currentMode == 'decor' && this.currentDecorType == -4) {
         let i = this.level.gadgets.length;
         while (--i >= 0) {
           if (this.level.gadgets[i].testPoint(worldPosition)) {
@@ -1319,7 +1381,7 @@ class PlayScene extends Scene {
         onSurfaceNow |= PhysicsUtil.isOnTop(this.playerBody, terrainBody);
       }
       for (const gadgetBody of this.gadgetBodies) {
-        if (gadgetBody.gadgetType == 3) {
+        if (gadgetBody.gadgetType == 3 || gadgetBody.gadgetType == 4) {
           continue;
         }
         onSurfaceNow |= PhysicsUtil.isOnTop(this.playerBody, gadgetBody);
