@@ -706,6 +706,9 @@ function loadImages() {
     loadImage('images/sign_danger.png', 120, 120),
     loadImage('images/sign_stop.png', 120, 120)
   ];
+  images.lamps = [
+    loadImage('images/torch_orange.png', 200, 200),
+  ];
   images.ui = {};
   images.ui.buttons = [
     {
@@ -725,6 +728,16 @@ function loadImages() {
       disabled: loadImage('images/ui/button_2_disabled.png', 420, 100),
       selected: loadImage('images/ui/button_2_selected.png', 420, 100),
       pressed: loadImage('images/ui/button_2_pressed.png', 420, 100),
+    }, 
+    {
+      frame: loadImage('images/ui/button_3_frame.png', 100, 100),
+      disabled: loadImage('images/ui/button_3_disabled.png', 100, 100),
+      pressed: loadImage('images/ui/button_3_pressed.png', 100, 100),
+    }, 
+    {
+      frame: loadImage('images/ui/button_4_frame.png', 100, 100),
+      disabled: loadImage('images/ui/button_4_disabled.png', 100, 100),
+      pressed: loadImage('images/ui/button_4_pressed.png', 100, 100),
     }
   ];
   images.ui.icon_cross = loadImage('images/ui/icon_cross.png', 70, 70);
@@ -752,6 +765,7 @@ function loadImages() {
   images.ui.decors = [
     loadImage('images/star.png', 50, 50),
     loadImage('images/sign_icon.png', 50, 50),
+    loadImage('images/torch_orange.png', 50, 50),
   ];
   images.ui.arrow = {};
   images.ui.arrow.left = loadImage('images/ui/arrow_left.png', 120, 120);
