@@ -1,7 +1,7 @@
 class Gadget {
   constructor(name) {
     this.name = name;
-    this.userCallback = '(event, data, callMethod) => {\n}\n';
+    this.userCallback = '(event, data, env) => {\n}\n';
   }
 
   testPoint(point) {
@@ -24,6 +24,8 @@ class Gadget {
   }
 
   addUserCallback(obj) {
+    obj.name = this.name;
+    obj.typeName = this.typeName;
     try {
       obj.callback = eval(this.userCallback);
       obj.callback.bind(obj);
@@ -41,6 +43,7 @@ class Gadget {
 class Box extends Gadget {
   constructor(name, position) {
     super(name);
+    this.zIndex = 2;
     this.center = position;
     this.halfSize = 50;
   }
@@ -59,7 +62,8 @@ class Box extends Gadget {
 
   createBodies(world) {
     const ret = {};
-    const body = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfSize * 2 - 14, this.halfSize * 2 - 14, ret);
+    const body = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfSize * 2 - 12, this.halfSize * 2 - 12, ret);
+    body.zIndex = this.zIndex;
     ret.coll.staticFriction = 0.1;
     ret.coll.dynamicFriction = 0.5;
     body.gadgetType = 0;
@@ -74,6 +78,7 @@ class Box extends Gadget {
 class Boulder extends Gadget {
   constructor(name, position) {
     super(name);
+    this.zIndex = 2;
     this.center = position;
     this.radius = 67.5;
   }
@@ -93,8 +98,10 @@ class Boulder extends Gadget {
   createBodies(world) {
     const ret = {};
     const body = Physics.createCircleBody(world, this.center.x, this.center.y, this.radius, ret);
+    body.zIndex = this.zIndex;
     ret.coll.staticFriction = 0.6;
     ret.coll.dynamicFriction = 0.6;
+    ret.coll.restitution = 0.2;
     body.gadgetType = 0;
     body.renderProc = () => {
       drawImage(images.boulder, body.position, body.angle);
@@ -107,6 +114,7 @@ class Boulder extends Gadget {
 class Button extends Gadget {
   constructor(name, position) {
     super(name);
+    this.zIndex = 1;
     this.center = position;
     this.angle = 0;
   }
@@ -127,22 +135,24 @@ class Button extends Gadget {
   createBodies(world) {
     const body = Physics.createRectangleBody(world, this.center.x, this.center.y + 25, 80, 20, { static: true });
     body.angle = this.angle;
-    body.gadgetType = 1;
-    body.renderProc = () => {
-      drawImage(body.pressed ? images.button_pressed : images.button, Vector.add(body.position, Vector.rotate(new Vector(0, -25), this.angle)), body.angle);
-    };
+    body.zIndex = this.zIndex;
     const ret = {};
     const sensorBody = Physics.createRectangleBody(world, 0, 0, 72, 15, ret);
     sensorBody.type = PhysicsBodyType.STATIC;
     sensorBody.angle = this.angle;
     ret.coll.sensor = true;
+    body.renderProc = () => {
+      drawImage(sensorBody.pressed ? images.button_pressed : images.button, Vector.add(body.position, Vector.rotate(new Vector(0, -25), this.angle)), body.angle);
+    };
     sensorBody.onCollision = (otherBody, point) => {
       if (otherBody != body && otherBody.type != PhysicsBodyType.STATIC) {
-        body.pressed = true;
+        sensorBody.pressed = true;
       }
     };
+    sensorBody.zIndex = this.zIndex;
     sensorBody.position = Vector.add(body.position, Vector.rotate(new Vector(0, -25), this.angle));
-    super.addUserCallback(body);
+    sensorBody.gadgetType = 1;
+    super.addUserCallback(sensorBody);
     return [ body, sensorBody ];
   }
 }
@@ -150,6 +160,7 @@ class Button extends Gadget {
 class Plank extends Gadget {
   constructor(name, position) {
     super(name);
+    this.zIndex = 1;
     this.start = Vector.addXY(position, -100, 0);
     this.end = Vector.addXY(position, 100, 0);
   }
@@ -200,6 +211,7 @@ class Plank extends Gadget {
     body.type = PhysicsBodyType.STATIC;
     body.angle = angle;
     body.gadgetType = 2;
+    body.zIndex = this.zIndex;
     body.renderProc = () => {
       drawImage(images.plank, body.position, body.angle, { x: length / 200, y: 1 });
       drawImage(images.plank_end, { x: body.position.x - length / 2 * Math.cos(body.angle), y: body.position.y - length / 2 * Math.sin(body.angle) }, body.angle);
@@ -222,9 +234,109 @@ class Plank extends Gadget {
   }
 }
 
+class Saw extends Gadget {
+  constructor(name, position) {
+    super(name);
+    this.zIndex = -1;
+    this.center = position;
+    this.center2 = Vector.addXY(position, 100, 0);
+    this.radius = 60;
+    this.dragEnd = -1;
+  }
+
+  testPoint(point) {
+    if (Vector.distance(this.center2, point) <= this.radius) {
+      this.dragEnd = 1;
+      return true;
+    }
+    if (Vector.distance(this.center, point) <= this.radius) {
+      this.dragEnd = 0;
+      return true;
+    }
+    this.dragEnd = -1;
+    return false;
+  }
+
+  drag(position, delta) {
+    if (!position) {
+      this.center.add(delta);
+      this.center2.add(delta);
+    }
+    else if (this.dragEnd == 0) {
+      this.center.add(delta);
+    }
+    else if (this.dragEnd == 1) {
+      this.center2.add(delta);
+    }
+  }
+
+  render() {
+    context.globalAlpha = 0.7;
+    context.strokeStyle = 'rgb(93, 93, 93)';
+    context.lineWidth = 2;
+    drawSegment(this.center, this.center2);
+    context.globalAlpha = 1.0;
+    drawImage(images.saw, this.center, 0);
+    context.globalAlpha = 0.7;
+    drawImage(images.saw, this.center2, 0);
+    context.globalAlpha = 1.0;
+  }
+
+  createBodies(world) {
+    const ret = {};
+    const body = Physics.createCircleBody(world, this.center.x, this.center.y, this.radius, ret);
+    body.type = PhysicsBodyType.KINEMATIC;
+    body.zIndex = this.zIndex;
+    ret.coll.staticFriction = 1.0;
+    ret.coll.dynamicFriction = 1.0;
+    ret.coll.restitution = 0.0;
+    body.gadgetType = 0;
+    body.movementDirection = 1;
+    const movementVector = Vector.subtract(this.center2, this.center);
+    const movementDistance = movementVector.length();
+    body.updateProc = () => {
+      body.angle += 5 * DELTA_TIME;
+      const distance = Vector.distance(body.position, this.center);
+      const distance2 = Vector.distance(body.position, this.center2);
+      const minDistance = Math.min(distance, distance2);
+      const speed = Math.clamp(minDistance, 20, 100) * 3 * DELTA_TIME;
+      if (body.movementDirection == 1) {
+        if (Vector.dot(body.position, movementVector) >= Vector.dot(this.center2, movementVector)) {
+          body.movementDirection = 0;
+        }
+        else {
+          body.position.add(Vector.subtract(this.center2, this.center).normalize().multiply(speed));
+        }
+      }
+      else {
+        if (Vector.dot(body.position, movementVector) <= Vector.dot(this.center, movementVector)) {
+          body.movementDirection = 1;
+        }
+        else {
+          body.position.add(Vector.subtract(this.center, this.center2).normalize().multiply(speed));
+        }
+      }
+    };
+    body.renderProc = () => {
+      drawImage(images.saw, body.position, body.angle);
+    };
+    body.onCollision = (other, point) => {
+      if (other.typeName == 'Box') {
+        body.env.destroyObject(other);
+      }
+    };
+    body.onCollisionWithPlayer = (point) => {
+      body.env.killPlayer();
+    };
+    super.addUserCallback(body);
+    return [ body ];
+  }
+}
+
 class Star extends Gadget {
   constructor(name, position) {
     super(name);
+    this.zIndex = -1;
     this.center = position;
     this.halfSize = 25;
   }
@@ -245,6 +357,7 @@ class Star extends Gadget {
     const ret = {};
     const body = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfSize * 2 - 20, this.halfSize * 2 - 20, ret);
     body.type = PhysicsBodyType.STATIC;
+    body.zIndex = this.zIndex;
     ret.coll.sensor = true;
     body.gadgetType = 3;
     body.renderProc = () => {
@@ -265,6 +378,7 @@ class Star extends Gadget {
 class Signs extends Gadget {
   constructor(name, position) {
     super(name);
+    this.zIndex = -2;
     this.center = position;
     this.halfWidth = 20;
     this.halfHeight = 50;
@@ -294,10 +408,12 @@ class Signs extends Gadget {
     const ret = {};
     const body = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfWidth, this.halfHeight, ret);
     body.type = PhysicsBodyType.STATIC;
+    body.zIndex = this.zIndex;
+    body.angle = this.angle;
     ret.coll.sensor = true;
     body.gadgetType = 4;
     body.renderProc = () => {
-      drawImage(images.signs[this.skin], body.position, this.angle);
+      drawImage(images.signs[this.skin], body.position, body.angle);
     };
     super.addUserCallback(body);
     return [ body ];

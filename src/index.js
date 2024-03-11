@@ -143,9 +143,15 @@ async function init() {
   requestAnimationFrame(render);
   if (typeof debugPlayerData !== 'undefined') {
     setTimeout(() => {
-      gameData.currentLevel = playerData.draftLevels[0];
-      changeScene(scenes.editor);
-    }, 1000);
+      usernameInput.value = debugPlayerData.username;
+      passwordInput.value = debugPlayerData.password;
+      uiLogin(() => {
+        gameData.currentLevel = playerData.draftLevels.top();
+        if (gameData.currentLevel) {
+          changeScene(scenes.editor);
+        }
+      });
+    }, 100);
   }
 }
 
@@ -233,7 +239,7 @@ function screenToCanvasPosition(x, y) {
 }
 
 function initPlayerData() {
-  playerData = typeof debugPlayerData !== 'undefined' ? debugPlayerData : {
+  playerData = {
     username: '',
     password: '',
     draftLevels: [],
@@ -323,12 +329,12 @@ function syncPlayer() {
   .then((response) => response.text())
   .then((text) => JSON.parse(text))
   .then((data) => {
-    setRecursively(playerData, debugPlayerData ?? data.playerData);
+    extendRecursively(playerData, data.playerData);
   })
   .catch(console.warn);
 }
 
-function loadPlayer() {
+function loadPlayer(callback) {
   fetch(`${SERVER_URL}/load`, {
     method: 'POST',
     headers: {
@@ -339,7 +345,10 @@ function loadPlayer() {
   .then((response) => response.text())
   .then((text) => JSON.parse(text))
   .then((data) => {
-    setRecursively(playerData, debugPlayerData ?? data.playerData);
+    setRecursively(playerData, data.playerData);
+    if (callback) {
+      callback();
+    }
   })
   .catch(console.warn);
 }
@@ -543,23 +552,7 @@ function showUserPopup() {
   usernameInput.value = '';
   passwordInput.value = '';
   userErrorLabel.innerHTML = '';
-  userLoginButton.onclick = () => {
-    tryLogin(usernameInput.value, passwordInput.value, (response) => {
-      if (!response) {
-        userErrorLabel.innerHTML = 'Connection failed!';
-        return;
-      }
-      if (response.error != 'ok') {
-        userErrorLabel.innerHTML = response.error;
-        return;
-      }
-      playerData.username = usernameInput.value;
-      playerData.password = passwordInput.value;
-      loadPlayer();
-      gameData.paused = false;
-      userDiv.style.display = 'none';
-    });
-  };
+  userLoginButton.onclick = uiLogin;
   userSignupButton.onclick = () => {
     trySignup(usernameInput.value, passwordInput.value, (response) => {
       if (!response) {
@@ -578,6 +571,24 @@ function showUserPopup() {
       userDiv.style.display = 'none';
     });
   };
+}
+
+function uiLogin(callback) {
+  tryLogin(usernameInput.value, passwordInput.value, (response) => {
+    if (!response) {
+      userErrorLabel.innerHTML = 'Connection failed!';
+      return;
+    }
+    if (response.error != 'ok') {
+      userErrorLabel.innerHTML = response.error;
+      return;
+    }
+    playerData.username = usernameInput.value;
+    playerData.password = passwordInput.value;
+    loadPlayer(callback);
+    gameData.paused = false;
+    userDiv.style.display = 'none';
+  });
 }
 
 function showEditor(text, callback) {
@@ -687,12 +698,16 @@ function loadImages() {
   images.button_pressed = loadImage('images/button_pressed.png', 100, 100);
   images.plank = loadImage('images/plank.png', 200, 200);
   images.plank_end = loadImage('images/plank_end.png', 200, 200);
+  images.saw = loadImage('images/saw.png', 130, 130);
   images.star = loadImage('images/star.png', 40, 40);
   images.signs = [
     loadImage('images/sign_arrow.png', 120, 120),
     loadImage('images/sign_arrow_back.png', 120, 120),
     loadImage('images/sign_danger.png', 120, 120),
     loadImage('images/sign_stop.png', 120, 120)
+  ];
+  images.lamps = [
+    loadImage('images/torch_orange.png', 200, 200),
   ];
   images.ui = {};
   images.ui.buttons = [
@@ -713,6 +728,16 @@ function loadImages() {
       disabled: loadImage('images/ui/button_2_disabled.png', 420, 100),
       selected: loadImage('images/ui/button_2_selected.png', 420, 100),
       pressed: loadImage('images/ui/button_2_pressed.png', 420, 100),
+    }, 
+    {
+      frame: loadImage('images/ui/button_3_frame.png', 100, 100),
+      disabled: loadImage('images/ui/button_3_disabled.png', 100, 100),
+      pressed: loadImage('images/ui/button_3_pressed.png', 100, 100),
+    }, 
+    {
+      frame: loadImage('images/ui/button_4_frame.png', 100, 100),
+      disabled: loadImage('images/ui/button_4_disabled.png', 100, 100),
+      pressed: loadImage('images/ui/button_4_pressed.png', 100, 100),
     }
   ];
   images.ui.icon_cross = loadImage('images/ui/icon_cross.png', 70, 70);
@@ -734,11 +759,13 @@ function loadImages() {
     loadImage('images/box.png', 50, 50),
     loadImage('images/boulder.png', 50, 50),
     loadImage('images/button.png', 50, 50),
-    loadImage('images/plank.png', 50, 50)
+    loadImage('images/plank.png', 50, 50),
+    loadImage('images/saw.png', 50, 50)
   ];
   images.ui.decors = [
     loadImage('images/star.png', 50, 50),
     loadImage('images/sign_icon.png', 50, 50),
+    loadImage('images/torch_orange.png', 50, 50),
   ];
   images.ui.arrow = {};
   images.ui.arrow.left = loadImage('images/ui/arrow_left.png', 120, 120);
