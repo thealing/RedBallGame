@@ -333,7 +333,9 @@ function syncPlayer(callback) {
   .then((text) => JSON.parse(text))
   .then((data) => {
     extendRecursively(playerData, data.playerData);
-    callback?.();
+    if (callback) {
+      callback();
+    }
   })
   .catch(console.warn);
 }
@@ -350,7 +352,9 @@ function loadPlayer(callback) {
   .then((text) => JSON.parse(text))
   .then((data) => {
     setRecursively(playerData, data.playerData);
-    callback?.();
+    if (callback) {
+      callback();
+    }
   })
   .catch(console.warn);
 }
@@ -506,8 +510,8 @@ function showUserPopup() {
   usernameInput.value = '';
   passwordInput.value = '';
   userErrorLabel.innerHTML = '';
-  userLoginButton.onclick = uiLogin;
-  userSignupButton.onclick = uiSignup;
+  userLoginButton.onclick = () => uiLogin();
+  userSignupButton.onclick = () => uiSignup();
 }
 
 function showForm(items, callback) {

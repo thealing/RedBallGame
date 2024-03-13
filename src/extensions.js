@@ -117,7 +117,7 @@ function extendRecursively(target, source) {
   }
   for (const key in source) {
     if (typeof source[key] === 'object' && source[key] !== null && typeof target[key] === 'object' && target[key] !== null) {
-      extendRecursively(target[key], source[key], overwrite);
+      extendRecursively(target[key], source[key]);
     }
     else if (!Object.hasOwn(target, key)) {
       target[key] = source[key];
