@@ -9,7 +9,7 @@ class Trampoline extends Platform {
     const center = this.getCenter();
     const length = this.getLength();
     const angle = this.getAngle();
-    const body = Physics.createRectangleBody(world, center.x, center.y, length, 16);
+    const [body] = Physics.createRectangleBody(world, center.x, center.y, length, 16);
     body.type = PhysicsBodyType.STATIC;
     body.angle = angle;
     body.gadgetType = 2;

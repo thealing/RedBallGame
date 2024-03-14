@@ -72,9 +72,8 @@ class Sensor extends Item {
     const centerY = (this.lower.y + this.upper.y) / 2;
     const width = this.upper.x - this.lower.x;
     const height = this.upper.y - this.lower.y;
-    const ret = {};
-    const body = Physics.createRectangleBody(world, centerX, centerY, width, height, ret);
-    ret.coll.sensor = true;
+    const [body, collider] = Physics.createRectangleBody(world, centerX, centerY, width, height);
+    collider.sensor = true;
     body.zIndex = this.zIndex;
     body.type = PhysicsBodyType.STATIC;
     body.toggleState = 0;

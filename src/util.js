@@ -6,7 +6,7 @@ class Util {
   static cloneArray(array) {
     return array.map((item) => item.clone());
   }
-	
+  
   static averageOfArray(array) {
     if (array.length == 0) {
       return 0;

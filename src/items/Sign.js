@@ -28,12 +28,11 @@ class Sign extends Item {
   }
 
   createBodies(world) {
-    const ret = {};
-    const body = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfWidth, this.halfHeight, ret);
+    const [body, collider] = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfWidth, this.halfHeight);
+    collider.sensor = true;
     body.type = PhysicsBodyType.STATIC;
     body.zIndex = this.zIndex;
     body.angle = this.angle;
-    ret.coll.sensor = true;
     body.gadgetType = 4;
     body.renderProc = () => {
       drawImage(images.signs[this.skin], body.position, body.angle);

@@ -118,6 +118,10 @@ class Vector {
     return this.x ** 2 + this.y ** 2;
   }
 
+  static polar(a) {
+    return new Vector(Math.cos(a), Math.sin(a));
+  }
+
   static negate(v) {
     return new Vector(-v.x, -v.y);
   }

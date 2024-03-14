@@ -588,9 +588,10 @@ function showForm(items, callback) {
         const input = document.createElement('input');
         setAttributes(input);
         input.type = 'range';
-        input.value = items[i].get();
         input.min = items[i].min;
         input.max = items[i].max;
+        input.step = items[i].step;
+        input.value = items[i].get();
         input.addEventListener('input', (event) => {
           items[i].set(Number(input.value));
         });
@@ -806,7 +807,28 @@ function loadImages() {
   images.trampoline_end = loadImage('images/trampoline_end.png', 200, 200);
   images.plank = loadImage('images/plank.png', 200, 200);
   images.plank_end = loadImage('images/plank_end.png', 200, 200);
+  images.laser = loadImage('images/laser.png', 200, 200);
+  images.laser_end = loadImage('images/laser_end.png', 200, 200);
   images.saw = loadImage('images/saw.png', 130, 130);
+  images.windmill_blade = loadImage('images/windmill_blade.png', 300, 300);
+  images.windmill_blade_reverse = loadImage('images/windmill_blade_reverse.png', 300, 300);
+  images.windmill_center = loadImage('images/windmill_center.png', 300, 300);
+  images.gravity_down = loadImage('images/gravity_down.png', 80, 80);
+  images.gravity_up = loadImage('images/gravity_up.png', 80, 80);
+  images.booster = loadImage('images/booster.png', 400, 200);
+  images.booster_inactive = loadImage('images/booster_inactive.png', 400, 200);
+  images.boosters = [
+    loadImage('images/booster_2.png', 120, 200),
+    loadImage('images/booster_4.png', 210, 200),
+    loadImage('images/booster_6.png', 300, 200),
+    loadImage('images/booster.png', 400, 200),
+  ];
+  images.boosters_inactive = [
+    loadImage('images/booster_inactive_2.png', 120, 200),
+    loadImage('images/booster_inactive_4.png', 210, 200),
+    loadImage('images/booster_inactive_6.png', 300, 200),
+    loadImage('images/booster_inactive.png', 400, 200),
+  ];
   images.star = loadImage('images/star.png', 40, 40);
   images.signs = [
     loadImage('images/sign_arrow.png', 120, 120),
@@ -870,8 +892,12 @@ function loadImages() {
     loadImage('images/vanisher.png', 50, 50),
     loadImage('images/trampoline.png', 50, 50),
     loadImage('images/plank.png', 50, 50),
+    loadImage('images/laser.png', 50, 50),
     loadImage('images/saw.png', 50, 50),
-    loadImage('images/sensor.png', 50, 50)
+    loadImage('images/windmill.png', 50, 50),
+    loadImage('images/sensor.png', 50, 50),
+    loadImage('images/gravity_down.png', 50, 50),
+    loadImage('images/booster.png', 60, 30),
   ];
   images.ui.decors = [
     loadImage('images/star.png', 50, 50),

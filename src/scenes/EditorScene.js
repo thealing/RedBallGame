@@ -61,24 +61,28 @@ class EditorScene extends Scene {
       class: Plank
     },
     {
+      name: 'Laser',
+      class: Laser
+    },
+    {
       name: 'Saw',
       class: Saw
+    },
+    {
+      name: 'Windmill',
+      class: Windmill
     },
     {
       name: 'Sensor',
       class: Sensor
     },
     {
-      name: 'Dummy',
-      class: Object
+      name: 'Gravity Switch',
+      class: GravitySwitch
     },
     {
-      name: 'Dummy',
-      class: Object
-    },
-    {
-      name: 'Dummy',
-      class: Object
+      name: 'Booster',
+      class: Booster
     }
   ];
 
@@ -551,6 +555,13 @@ class EditorScene extends Scene {
     }
     drawImage(images.ball_normal, this.level.player, 0);
     drawImage(images.goal, this.level.goal, 0);
+    for (let i = 101; i <= 200; i++) {
+      if (zMap[i]) {
+        for (const gadget of zMap[i]) {
+          gadget.render();
+        }
+      }
+    }
   }
 
   renderUI() {

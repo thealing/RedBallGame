@@ -64,15 +64,16 @@ class PlayScene extends Scene {
     this.physics.gravity.y = 700;
     const lvl = gameData.currentLevel;
     this.terrain = lvl.terrain;
-    this.playerBody = Physics.createCircleBody(this.physics, lvl.player.x, lvl.player.y, 30);
+    this.playerBody = Physics.createCircleBody(this.physics, lvl.player.x, lvl.player.y, 30)[0];
     this.playerBody.staticFriction = 0;
     this.playerBody.dynamicFriction = 0;
     this.playerBody.restitution = 0;
-    this.goalBody = Physics.createRectangleBody(this.physics, lvl.goal.x, lvl.goal.y, 10, 64);
+    this.goalBody = Physics.createRectangleBody(this.physics, lvl.goal.x, lvl.goal.y, 10, 64)[0];
     this.goalBody.type = PhysicsBodyType.STATIC;
     this.goalBody.colliders.first.item.sensor = true;
     this.terrainBodies = PhysicsUtil.createTerrainBodies(this.physics, lvl.terrain);
     this.gadgetBodies = lvl.gadgets.flatMap((gadget) => gadget.createBodies(this.physics));
+    this.onSurfaceNow = false;
     this.onSurface = false;
     this.onSurfaceTimeout = null;
     this.canJump = true;
@@ -80,11 +81,15 @@ class PlayScene extends Scene {
     this.ended = false;
     this.goalReached = false;
     this.starsLeft = false;
-    this.playerBody.onPhysicsCollision = (otherBody, point) => {
+    this.playerBody.onPhysicsCollision = (otherBody, collision) => {
       if (otherBody.deadly) {
         this.ended = true;
         clicksCanceled = true;
       }
+      if (otherBody.gadgetType == 3 || otherBody.gadgetType == 4 || otherBody.gadgetType == 1) {
+        return;
+      }
+      this.onSurfaceNow ||= this.physics.gravity.y > 0 ? collision.point.y >= this.playerBody.position.y + 10 : collision.point.y <= this.playerBody.position.y - 10;
     };
     for (const gadgetBody of this.gadgetBodies) {
       gadgetBody.onPhysicsCollision = (otherBody, collision) => {
@@ -161,17 +166,8 @@ class PlayScene extends Scene {
         gadgetBody.updateProc?.(this.gadgetBodies);
       }
       this.gadgetBodies = this.gadgetBodies.filter((gadgetBody) => !gadgetBody.toBeDeleted);
-      let onSurfaceNow = false;
-      for (const terrainBody of this.terrainBodies) {
-        onSurfaceNow |= PhysicsUtil.isOnTop(this.playerBody, terrainBody);
-      }
-      for (const gadgetBody of this.gadgetBodies) {
-        if (gadgetBody.gadgetType == 3 || gadgetBody.gadgetType == 4 || gadgetBody.gadgetType == 1) {
-          continue;
-        }
-        onSurfaceNow |= PhysicsUtil.isOnTop(this.playerBody, gadgetBody);
-      }
-      if (onSurfaceNow) {
+      if (this.onSurfaceNow) {
+        this.onSurfaceNow = false;
         this.onSurface = true;
         clearTimeout(this.onSurfaceTimeout);
         this.onSurfaceTimeout = setTimeout(() => {
@@ -187,7 +183,7 @@ class PlayScene extends Scene {
         this.playerBody.angularVelocity = angularVelocity + difference / radius;
       }
       if (gameInput.jump && this.canJump && this.onSurface) {
-        this.playerBody.linearVelocity.copy({ x: this.playerBody.linearVelocity.x, y: Math.min(this.playerBody.linearVelocity.y, -440) });
+        this.playerBody.linearVelocity.copy({ x: this.playerBody.linearVelocity.x, y: this.physics.gravity.y > 0 ? Math.min(this.playerBody.linearVelocity.y, -440) : Math.max(this.playerBody.linearVelocity.y, 440) });
         this.canJump = false;
         setTimeout(() => {
           this.canJump = true;
@@ -216,7 +212,7 @@ class PlayScene extends Scene {
       zMap[gadgetBody.zIndex] ??= [];
       zMap[gadgetBody.zIndex].push(gadgetBody);
     }
-    for (let i = -100; i < 0; i++) {
+    for (let i = -100; i <= -1; i++) {
       if (zMap[i]) {
         for (const gadgetBody of zMap[i]) {
           gadgetBody.renderProc?.();
@@ -228,7 +224,7 @@ class PlayScene extends Scene {
         drawPolyline(polyline);
       }
     }
-    for (let i = 0; i <= 100; i++) {
+    for (let i = 1; i <= 100; i++) {
       if (zMap[i]) {
         for (const gadgetBody of zMap[i]) {
           gadgetBody.renderProc?.();
@@ -237,6 +233,13 @@ class PlayScene extends Scene {
     }
     drawImage(images.ball_normal, this.playerBody.position, this.playerBody.angle);
     drawImage(images.goal, this.goalBody.position, 0);
+    for (let i = 101; i <= 200; i++) {
+      if (zMap[i]) {
+        for (const gadgetBody of zMap[i]) {
+          gadgetBody.renderProc?.();
+        }
+      }
+    }
   }
   
   renderUI() {
@@ -350,16 +353,4 @@ class PhysicsUtil {
     }
     return false;
   }
-  
-  static isOnTop(body1, body2) {
-    for (const collider1 of body1.colliders) {
-      for (const collider2 of body2.colliders) {
-        const collision = Physics.collide(collider1, collider2);
-        if (collision && collision.collision.point.y > body1.position.y + 10) {
-          return true;
-        }
-      }
-    }
-    return false;
-  } 
 }

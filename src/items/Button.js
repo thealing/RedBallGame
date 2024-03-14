@@ -37,12 +37,11 @@ class Button extends Item {
   }
 
   createBodies(world) {
-    const body = Physics.createRectangleBodyWithOffset(world, this.center.x, this.center.y, 0, 25, 80, 20, { static: true });
+    const [body, collider] = Physics.createRectangleBody(world, this.center.x, this.center.y - 25, 80, 20, { static: true });
     body.angle = this.angle;
     body.zIndex = this.zIndex;
-    const ret = {};
-    const sensorBody = Physics.createRectangleBody(world, 0, 0, 72, 15, ret);
-    ret.coll.sensor = true;
+    const [sensorBody, sensorCollider] = Physics.createRectangleBody(world, 0, 0, 72, 15);
+    sensorCollider.sensor = true;
     sensorBody.type = PhysicsBodyType.STATIC;
     sensorBody.angle = this.angle;
     sensorBody.toggleState = 0;

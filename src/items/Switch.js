@@ -33,7 +33,7 @@ class Switch extends Item {
   }
 
   createBodies(world) {
-    const baseBody = Physics.createRectangleBodyWithOffset(world, this.center.x, this.center.y, 0, 25, 80, 20, { static: true });
+    const [baseBody] = Physics.createRectangleBodyWithOffset(world, this.center.x, this.center.y, 0, 25, 80, 20, { static: true });
     baseBody.angle = this.angle;
     baseBody.zIndex = this.zIndex;
     const handleBody = world.createBody(PhysicsBodyType.STATIC);

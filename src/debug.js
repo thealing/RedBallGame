@@ -1,4 +1,4 @@
-const debugPlayerData1 = {
+const debugPlayerData = {
   username: 'test',
   password: 'test',
 };

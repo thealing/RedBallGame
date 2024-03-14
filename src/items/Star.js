@@ -20,10 +20,10 @@ class Star extends Item {
 
   createBodies(world) {
     const ret = {};
-    const body = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfSize * 2 - 20, this.halfSize * 2 - 20, ret);
+    const [body, collider] = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfSize * 2 - 20, this.halfSize * 2 - 20, ret);
+    collider.sensor = true;
     body.type = PhysicsBodyType.STATIC;
     body.zIndex = this.zIndex;
-    ret.coll.sensor = true;
     body.gadgetType = 3;
     body.renderProc = () => {
       if (!body.collected) {

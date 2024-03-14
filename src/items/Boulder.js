@@ -40,12 +40,11 @@ class Boulder extends Item {
   }
 
   createBodies(world) {
-    const ret = {};
-    const body = Physics.createCircleBody(world, this.center.x, this.center.y, this.radius, ret);
+    const [body, collider] = Physics.createCircleBody(world, this.center.x, this.center.y, this.radius);
+    collider.staticFriction = 0.6;
+    collider.dynamicFriction = 0.6;
+    collider.restitution = 0.2;
     body.zIndex = this.zIndex;
-    ret.coll.staticFriction = 0.6;
-    ret.coll.dynamicFriction = 0.6;
-    ret.coll.restitution = 0.2;
     body.gadgetType = 0;
     body.deadly = this.deadly;
     body.renderProc = () => {

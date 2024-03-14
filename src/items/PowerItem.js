@@ -10,7 +10,12 @@ class PowerItem extends Item {
     obj.updateProc = (gadgetBodies) => {
       const controllerBody = gadgetBodies.find((gadgetBody) => gadgetBody.name == this.controllerName);
       if (this.onByDefault ^ (controllerBody ? controllerBody.toggleState : 0)) {
-        obj.powerProc();
+        obj.status = true;
+        obj?.powerProc?.();
+      }
+      else {
+        obj.status = false;
+        obj?.standbyProc?.();
       }
     }
   }

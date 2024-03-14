@@ -64,13 +64,12 @@ class Saw extends PowerItem {
   }
 
   createBodies(world) {
-    const ret = {};
-    const body = Physics.createCircleBody(world, this.center.x, this.center.y, this.radius, ret);
+    const [body, collider] = Physics.createCircleBody(world, this.center.x, this.center.y, this.radius);
+    collider.staticFriction = 1.0;
+    collider.dynamicFriction = 1.0;
+    collider.restitution = 0.0;
     body.type = PhysicsBodyType.KINEMATIC;
     body.zIndex = this.zIndex;
-    ret.coll.staticFriction = 1.0;
-    ret.coll.dynamicFriction = 1.0;
-    ret.coll.restitution = 0.0;
     body.deadly = true;
     body.gadgetType = 0;
     body.movementDirection = 1;

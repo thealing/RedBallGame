@@ -1,6 +1,7 @@
 class Fence extends Item {
   constructor(name, position) {
     super(name);
+    this.position = 'background';
     this.zIndex = -3;
     this.center = position;
     this.halfWidth = 200;
@@ -21,13 +22,30 @@ class Fence extends Item {
     drawImage(images.fence, this.center, this.angle);
   }
 
+  showOptions() {
+    showForm([
+      {
+        label: 'Position',
+        type: 'list',
+        values: [
+          'foreground',
+          'background'
+        ],
+        get: () => this.position,
+        set: (value) => {
+          this.position = value;
+          this.zIndex = this.position == 'background' ? -3 : 103;
+        }
+      }
+    ]);
+  }
+
   createBodies(world) {
-    const ret = {};
-    const body = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfWidth, this.halfHeight, ret);
+    const [body, collider] = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfWidth, this.halfHeight);
+    collider.sensor = true;
     body.type = PhysicsBodyType.STATIC;
     body.zIndex = this.zIndex;
     body.angle = this.angle;
-    ret.coll.sensor = true;
     body.gadgetType = 4;
     body.renderProc = () => {
       drawImage(images.fence, body.position, body.angle);

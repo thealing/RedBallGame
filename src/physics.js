@@ -7,7 +7,7 @@ class ShapeType {
 class PhysicsBodyType {
   static DYNAMIC = 0;
   static STATIC = 1;
-  static KINEMATIC = 1;
+  static KINEMATIC = 2;
 };
 
 class PhysicsJointType {
@@ -404,9 +404,9 @@ class PhysicsWorld {
     }
     this._collidersToDestroy.length = 0;
     const stepEndTime = performance.now();
-		if (this.counters.stepDurations.length == 120) {
-			this.counters.stepDurations.shift();
-		}
+    if (this.counters.stepDurations.length == 120) {
+      this.counters.stepDurations.shift();
+    }
     this.counters.stepDurations.push(stepEndTime - stepStartTime);
     this.counters.stepDurationAverage = Util.averageOfArray(this.counters.stepDurations);
   }
@@ -817,32 +817,26 @@ class Physics {
     return collision == null ? null : {collider1, collider2, collision};
   }
 
-  static createSegmentBody(world, x0, y0, x1, y1, ret) {
-    const body = world.createBody(ret?.static ? PhysicsBodyType.STATIC : PhysicsBodyType.DYNAMIC);
+  static createSegmentBody(world, x0, y0, x1, y1, options) {
+    const body = world.createBody(options?.static ? PhysicsBodyType.STATIC : PhysicsBodyType.DYNAMIC);
     const collider = body.createCollider(Geometry.createSegment(new Vector(x0, y0), new Vector(x1, y1)), 1);
-    if (ret) {
-      ret.coll = collider;
-    }
-    return body;
+    return [body, collider];
   }
 
-  static createCircleBody(world, x, y, r, ret) {
-    const body = world.createBody(PhysicsBodyType.DYNAMIC);
+  static createCircleBody(world, x, y, r, options) {
+    const body = world.createBody(options?.static ? PhysicsBodyType.STATIC : PhysicsBodyType.DYNAMIC);
     const collider = body.createCollider(new Circle(new Vector(0, 0), r), 1);
     body.position.x = x;
     body.position.y = y;
-    if (ret) {
-      ret.coll = collider;
-    }
-    return body;
+    return [body, collider];
   }
 
-  static createRectangleBody(world, x, y, w, h, ret) {
-    return this.createRectangleBodyWithOffset(world, x, y, 0, 0, w, h, ret);
+  static createRectangleBody(world, x, y, w, h, options) {
+    return this.createRectangleBodyWithOffset(world, x, y, 0, 0, w, h, options);
   }
 
-  static createRectangleBodyWithOffset(world, x, y, ox, oy, w, h, ret) {
-    const body = world.createBody(ret?.static ? PhysicsBodyType.STATIC : PhysicsBodyType.DYNAMIC);
+  static createRectangleBodyWithOffset(world, x, y, ox, oy, w, h, options) {
+    const body = world.createBody(options?.static ? PhysicsBodyType.STATIC : PhysicsBodyType.DYNAMIC);
     const collider = body.createCollider(new Polygon([
       new Vector(ox - w / 2, oy - h / 2),
       new Vector(ox + w / 2, oy - h / 2),
@@ -851,9 +845,6 @@ class Physics {
     ]), 1);
     body.position.x = x;
     body.position.y = y;
-    if (ret) {
-      ret.coll = collider;
-    }
-    return body;
+    return [body, collider];
   }
 }
