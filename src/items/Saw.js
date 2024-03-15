@@ -45,6 +45,7 @@ class Saw extends PowerItem {
     }
     else if (this.dragEnd == 0) {
       this.center.add(delta);
+      this.center2.add(delta);
     }
     else if (this.dragEnd == 1) {
       this.center2.add(delta);

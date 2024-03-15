@@ -573,6 +573,18 @@ function showForm(items, callback) {
         form.appendChild(input);
         break;
       }
+      case 'number': {
+        const input = document.createElement('input');
+        setAttributes(input);
+        input.type = 'number';
+        input.step = items[i].step;
+        input.value = items[i].get();
+        input.addEventListener('input', (event) => {
+          items[i].set(Number(input.value));
+        });
+        form.appendChild(input);
+        break;
+      }
       case 'color': {
         const input = document.createElement('input');
         setAttributes(input);
@@ -829,6 +841,8 @@ function loadImages() {
     loadImage('images/booster_inactive_6.png', 300, 200),
     loadImage('images/booster_inactive.png', 400, 200),
   ];
+  images.elevator = loadImage('images/elevator.png', 200, 200);
+  images.elevator_end = loadImage('images/elevator_end.png', 200, 200);
   images.star = loadImage('images/star.png', 40, 40);
   images.signs = [
     loadImage('images/sign_arrow.png', 120, 120),
@@ -898,6 +912,7 @@ function loadImages() {
     loadImage('images/sensor.png', 50, 50),
     loadImage('images/gravity_down.png', 50, 50),
     loadImage('images/booster.png', 60, 30),
+    loadImage('images/elevator_icon.png', 50, 50),
   ];
   images.ui.decors = [
     loadImage('images/star.png', 50, 50),

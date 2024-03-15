@@ -30,7 +30,8 @@ class Item {
     obj.typeName = this.typeName;
   }
 
-  unproject(point) {
+  unproject(point, centerOfProjection) {
+    centerOfProjection |= this.center;
     return Vector.subtract(point, this.center).rotate(-this.angle).add(this.center);
   }
 }

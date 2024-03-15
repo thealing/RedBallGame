@@ -773,23 +773,21 @@ class Geometry {
     let collisionDepth = Number.POSITIVE_INFINITY;
     let collisionPoint = null;
     let collisionNormal = null;
+    let collidedPerpendicularly = false;
     for (let i = polygon.points.length - 1, j = 0; j < polygon.points.length; i = j, j++) {
       const a = polygon.points[i];
       const b = polygon.points[j];
       if (Vector.equal(a, b)) {
         continue;
       }
-      const axis = Vector.subtract(b, a).rotateLeft();
-      const centerProjected = Geometry.projectOntoSegment(a, b, circle.center);
-      if (!Vector.equal(centerProjected, circle.center)) {
-        if (Vector.dot(circle.center, axis) >= Vector.dot(centerProjected, axis)) {
-          axis.copy(circle.center).subtract(centerProjected);
-        }
-        else {
-          axis.copy(centerProjected).subtract(circle.center);
-        }
-        axis.normalize();
+      const centerProjected = Geometry.projectOntoLine(a, b, circle.center);
+      if (Vector.equal(centerProjected, circle.center)) {
+        continue;
       }
+      if (Vector.equal(centerProjected, Geometry.projectOntoSegment(a, b, circle.center))) {
+        collidedPerpendicularly = true;
+      }
+      const axis = Vector.subtract(b, a).rotateLeft().normalize();
       const depth = circle.radius + Vector.dot(circle.center, axis) - Vector.dot(centerProjected, axis);
       if (depth < 0) {
         return null;
@@ -798,6 +796,36 @@ class Geometry {
         collisionDepth = depth;
         collisionPoint = centerProjected;
         collisionNormal = axis;
+      }
+    }
+    if (!collidedPerpendicularly) {
+      for (let i = polygon.points.length - 1, j = 0; j < polygon.points.length; i = j, j++) {
+        const a = polygon.points[i];
+        const b = polygon.points[j];
+        if (Vector.equal(a, b)) {
+          continue;
+        }
+        const centerProjected = Geometry.projectOntoSegment(a, b, circle.center);
+        if (Vector.equal(centerProjected, circle.center)) {
+          continue;
+        }
+        const axis = Vector.subtract(b, a).rotateLeft();
+        if (Vector.dot(circle.center, axis) >= Vector.dot(centerProjected, axis)) {
+          axis.copy(circle.center).subtract(centerProjected);
+        }
+        else {
+          axis.copy(centerProjected).subtract(circle.center);
+        }
+        axis.normalize();
+        const depth = circle.radius + Vector.dot(circle.center, axis) - Vector.dot(centerProjected, axis);
+        if (depth < 0) {
+          return null;
+        }
+        if (depth < collisionDepth) {
+          collisionDepth = depth;
+          collisionPoint = centerProjected;
+          collisionNormal = axis;
+        }
       }
     }
     return {
@@ -836,12 +864,20 @@ class Physics {
   }
 
   static createRectangleBodyWithOffset(world, x, y, ox, oy, w, h, options) {
+    return this.createTrapezoidBodyWithOffset(world, x, y, ox, oy, w, w, h, options);
+  }
+
+  static createTrapezoidBody(world, x, y, w0, w1, h, options) {
+    return this.createTrapezoidBodyWithOffset(world, x, y, 0, 0, w0, w1, h, options);
+  }
+
+  static createTrapezoidBodyWithOffset(world, x, y, ox, oy, w0, w1, h, options) {
     const body = world.createBody(options?.static ? PhysicsBodyType.STATIC : PhysicsBodyType.DYNAMIC);
     const collider = body.createCollider(new Polygon([
-      new Vector(ox - w / 2, oy - h / 2),
-      new Vector(ox + w / 2, oy - h / 2),
-      new Vector(ox + w / 2, oy + h / 2),
-      new Vector(ox - w / 2, oy + h / 2),
+      new Vector(ox - w0 / 2, oy - h / 2),
+      new Vector(ox + w0 / 2, oy - h / 2),
+      new Vector(ox + w1 / 2, oy + h / 2),
+      new Vector(ox - w1 / 2, oy + h / 2),
     ]), 1);
     body.position.x = x;
     body.position.y = y;

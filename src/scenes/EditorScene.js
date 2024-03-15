@@ -83,6 +83,10 @@ class EditorScene extends Scene {
     {
       name: 'Booster',
       class: Booster
+    },
+    {
+      name: 'Elevator',
+      class: Elevator
     }
   ];
 
@@ -731,7 +735,7 @@ class EditorScene extends Scene {
     if (this.currentMode == 'gadgets' && this.currentGadgetType == -3 || this.currentMode == 'decor' && this.currentDecorType == -3) {
       if (this.draggedObject) {
         const gadget = this.draggedObject;
-        if (gadget.angle != undefined && gadget.center != undefined) {
+        if (gadget.angle != undefined && gadget.center != undefined && (gadget.dragEnd == undefined || gadget.dragEnd == 0)) {
           const center = gadget.center;
           const dragAngle = Math.atan2(worldPosition.y - center.y, worldPosition.x - center.x);
           if (this.dragAngleOffset == null) {
@@ -748,7 +752,8 @@ class EditorScene extends Scene {
   onClick(position) {
     super.onClick(position);
     const worldPosition = this.screenToWorldPosition(position);
-    if (!this.uiTouched) {
+    const coverTouched = position.y >= 620 || (this.currentMode == 'gadgets' || this.currentMode == 'decor') && position.y >= 500 && position.x <= 640;
+    if (!this.uiTouched && !coverTouched) {
       let type;
       if (this.currentMode == 'gadgets' && (type = this.currentGadgetType) < 0 || this.currentMode == 'decor' && (type = this.currentDecorType) < 0) {
         const i = this.getSelectedGadgetIndex(worldPosition);
