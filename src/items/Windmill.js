@@ -83,16 +83,23 @@ class Windmill extends PowerItem {
     const body = world.createBody(PhysicsBodyType.KINEMATIC);
     body.createCollider(new Circle(new Vector(0, 0), 20), 1);
     for (let i = 0; i < this.blades; i++) {
-      const angle0 = this.angle + Math.PI * 2 / this.blades * i;
-      const top = 0.1;
-      const bottom = 0.026;
-      body.createCollider(new Polygon([
+      const angle = Math.PI * 2 / this.blades * i;
+      const points = [
         new Vector(0, 0),
-        Vector.polar(angle0 - (this.reversed ? top : -top)).multiply(this.size * 0.86),
-        Vector.polar(angle0 + (this.reversed ? bottom : -bottom)).multiply(this.size * 0.9),
-      ]), 1);
+        new Vector(0, -0.01),
+        new Vector(0.448, -0.01),
+        new Vector(0.437, 0.036),
+      ];
+      for (let point of points) {
+        point.rotate(angle).multiply(2 * this.size);
+        if (this.reversed) {
+          point.y *= -1;
+        }
+      }
+      body.createCollider(new Polygon(points), 1);
     }
     body.position.copy(this.center);
+    body.angle = this.angle;
     body.zIndex = this.zIndex;
     body.gadgetType = 0;
     body.powerProc = () => {

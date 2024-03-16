@@ -60,7 +60,7 @@ class Booster extends PowerItem {
   }
 
   createBodies(world) {
-    const [body, collider] = Physics.createRectangleBody(world, this.center.x, this.center.y, this.halfWidth * 2, this.halfHeight * 2);
+    const [body, collider] = Physics.createRectangleBody(world, this.center.x, this.center.y, (this.halfWidth - 20) * 2, (this.halfHeight - 10) * 2);
     collider.sensor = true;
     body.type = PhysicsBodyType.STATIC;
     body.zIndex = this.zIndex;
