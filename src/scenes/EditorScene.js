@@ -222,7 +222,22 @@ class EditorScene extends Scene {
               set: (value) => this.gridHeight = value
             },
             {
-              label: 'Enabled',
+              label: 'Color',
+              type: 'color',
+              get: () => this.gridColor,
+              set: (value) => this.gridColor = value
+            },
+            {
+              label: 'Opaqueness',
+              type: 'range',
+              min: 0,
+              max: 1,
+              step: 0.05,
+              get: () => this.gridAlpha,
+              set: (value) => this.gridAlpha = value
+            },
+            {
+              label: 'Show',
               type: 'check',
               get: () => this.gridEnabled,
               set: (value) => this.gridEnabled = value
@@ -498,6 +513,9 @@ class EditorScene extends Scene {
       this.gridHeight = 100;
       this.gridEnabled = false;
       this.gridSnap = false;
+      this.gridThickness = 1;
+      this.gridColor = '#000000';
+      this.gridAlpha = 0.2;
     }
   }
   
@@ -619,15 +637,15 @@ class EditorScene extends Scene {
     }
     if (this.gridEnabled && this.gridWidth > Math.max(0, 1 / this.zoom) && this.gridHeight > Math.max(0, 1 / this.zoom)) {
       context.save();
-      context.lineWidth = 1;
-      context.strokeStyle = 'black';
-      context.globalAlpha = 0.2;
+      context.lineWidth = this.gridThickness;
+      context.strokeStyle = this.gridColor;
+      context.globalAlpha = this.gridAlpha;
       const minCoords = this.screenToWorldPosition({ x: 0, y: 0 });
       const maxCoords = this.screenToWorldPosition({ x: WIDTH, y: HEIGHT });
       for (let x = minCoords.x - minCoords.x % this.gridWidth; x <= maxCoords.x; x += this.gridWidth) {
         drawSegment(new Vector(x, minCoords.y), new Vector(x, maxCoords.y));
       }
-      for (let y = minCoords.y - minCoords.y % this.gridHeight; y <= maxCoords.x; y += this.gridHeight) {
+      for (let y = minCoords.y - minCoords.y % this.gridHeight; y <= maxCoords.y; y += this.gridHeight) {
         drawSegment(new Vector(minCoords.x, y), new Vector(maxCoords.x, y));
       }
       context.restore();
@@ -675,7 +693,6 @@ class EditorScene extends Scene {
         }
         case 'draw': {
           this.currentPolyline = [];
-          // this.currentPolyline.width = 25 / this.zoom;
           this.currentPolyline.width = 18;
           Object.assign(this.currentPolyline, EditorScene.terrainTypes[this.currentTerrainType]);
           this.currentPolyline.push(worldPosition);
@@ -935,7 +952,7 @@ class EditorScene extends Scene {
 
   snapPosition(position) {
     let result = new Vector(position.x, position.y);
-    if (this.gridEnabled && this.gridSnap && this.gridWidth > 0 && this.gridHeight > 0) {
+    if (this.gridSnap && this.gridWidth > 0 && this.gridHeight > 0) {
       const cellX = (result.x < 0 ? this.gridWidth : 0) + result.x % this.gridWidth;
       const cellY = (result.y < 0 ? this.gridHeight : 0) + result.y % this.gridHeight;
       result.x = cellX >= this.gridWidth / 2 ? result.x - cellX + this.gridWidth : result.x - cellX;

@@ -5,7 +5,7 @@ class Switch extends Item {
     this.center = position;
     this.angle = 0;
     this.onByDefault = false;
-    this.weight = 10;
+    this.weight = 100;
   }
 
   testPoint(point) {
@@ -18,7 +18,7 @@ class Switch extends Item {
   }
 
   dragTo(location) {
-    this.center.copy(location);
+    this.center.set(0, -24).rotate(this.angle).add(location);
   }
 
   render() {
@@ -27,6 +27,13 @@ class Switch extends Item {
 
   showOptions() {
     showForm([
+      {
+        label: 'Weight',
+        type: 'number',
+        step: 50,
+        get: () => this.weight,
+        set: (value) => this.weight = value
+      },
       {
         label: 'Toggled By Default',
         type: 'check',
@@ -37,7 +44,7 @@ class Switch extends Item {
   }
 
   createBodies(world) {
-    const [baseBody] = Physics.createRectangleBodyWithOffset(world, this.center.x, this.center.y, 0, 25, 80, 20, { static: true });
+    const [baseBody] = Physics.createRectangleBodyWithOffset(world, this.center.x, this.center.y, 0, 25, 75, 16, { static: true });
     baseBody.angle = this.angle;
     baseBody.zIndex = this.zIndex;
     const handleBody = world.createBody(PhysicsBodyType.STATIC);

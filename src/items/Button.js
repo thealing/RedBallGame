@@ -17,7 +17,7 @@ class Button extends Item {
   }
 
   dragTo(location) {
-    this.center.copy(location);
+    this.center.set(0, -24).rotate(this.angle).add(location);
   }
 
   render() {
@@ -41,7 +41,7 @@ class Button extends Item {
   }
 
   createBodies(world) {
-    const [body, collider] = Physics.createRectangleBody(world, this.center.x, this.center.y + 25, 80, 20, { static: true });
+    const [body, collider] = Physics.createRectangleBody(world, this.center.x, this.center.y + 25, 75, 16, { static: true });
     body.angle = this.angle;
     body.zIndex = this.zIndex;
     const [sensorBody, sensorCollider] = Physics.createRectangleBody(world, 0, 0, 72, 15);

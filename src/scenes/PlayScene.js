@@ -138,14 +138,12 @@ class PlayScene extends Scene {
         }
       }
     }
-    if (this.started && !this.goalReached) {
+    if (this.started && !this.ended) {
       this.physics.step(DELTA_TIME);
     }
-    if (!this.ended) {
-      const target = Vector.negate(this.playerBody.position);
-      this.origin.add(target.subtract(this.origin).multiply(10 * DELTA_TIME));
-    }
-    if (this.started && !this.goalReached) {
+    const target = Vector.negate(this.playerBody.position);
+    this.origin.add(target.subtract(this.origin).multiply(10 * DELTA_TIME));
+    if (this.started && !this.ended) {
       for (const gadgetBody of this.gadgetBodies) {
         switch (gadgetBody.gadgetType) {
           case 0: {
@@ -186,22 +184,20 @@ class PlayScene extends Scene {
         this.playerBody.linearVelocity.copy({ x: velocity.x - difference * 0.3, y: velocity.y });
         this.playerBody.angularVelocity = angularVelocity + difference / radius;
       }
-      if (!this.ended) {
-        if (gameInput.jump && this.canJump && this.onSurface) {
-          this.playerBody.linearVelocity.copy({ x: this.playerBody.linearVelocity.x, y: this.physics.gravity.y > 0 ? Math.min(this.playerBody.linearVelocity.y, -440) : Math.max(this.playerBody.linearVelocity.y, 440) });
-          this.canJump = false;
-          setTimeout(() => {
-            this.canJump = true;
-          }, 600);
-        }
-        if (PhysicsUtil.testBodies(this.playerBody, this.goalBody)) {
-          this.ended = true;
-          this.starsLeft = this.gadgetBodies.find((gadget) => gadget.typeName == 'Star');
-          this.goalReached = !this.starsLeft;
-          clicksCanceled = true;
-          if (!this.starsLeft) {
-            gameData.currentLevel.verified = true;
-          }
+      if (gameInput.jump && this.canJump && this.onSurface) {
+        this.playerBody.linearVelocity.copy({ x: this.playerBody.linearVelocity.x, y: this.physics.gravity.y > 0 ? Math.min(this.playerBody.linearVelocity.y, -440) : Math.max(this.playerBody.linearVelocity.y, 440) });
+        this.canJump = false;
+        setTimeout(() => {
+          this.canJump = true;
+        }, 600);
+      }
+      if (PhysicsUtil.testBodies(this.playerBody, this.goalBody)) {
+        this.ended = true;
+        this.starsLeft = this.gadgetBodies.find((gadget) => gadget.typeName == 'Star');
+        this.goalReached = !this.starsLeft;
+        clicksCanceled = true;
+        if (!this.starsLeft) {
+          gameData.currentLevel.verified = true;
         }
       }
     }
