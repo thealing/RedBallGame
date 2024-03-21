@@ -33,6 +33,9 @@ class Platform extends Item {
       this.start.add(delta);
       this.end.add(delta);
     }
+    else if (this.dragEnd == 3) {
+      this.dragTo(Vector.add(this.getCenter(), delta));
+    }
     else {
       this.dragTo(Vector.add(position, delta));
     }

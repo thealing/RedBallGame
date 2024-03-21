@@ -1,4 +1,4 @@
-// let debugPlayerData = {
-//   username: 'test',
-//   password: 'test'
-// }
+// let debugPlayerData = {
+//   username: 'test',
+//   password: 'test'
+// }

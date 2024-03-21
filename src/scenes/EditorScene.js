@@ -29,6 +29,10 @@ class EditorScene extends Scene {
 
   static gadgetTypes = [
     {
+      name: 'Star',
+      class: Star
+    },
+    {
       name: 'Box',
       class: Box
     },
@@ -99,10 +103,6 @@ class EditorScene extends Scene {
   ];
 
   static decorTypes = [
-    {
-      name: 'Star',
-      class: Star
-    },
     {
       name: 'Sign',
       class: Sign
@@ -601,8 +601,8 @@ class EditorScene extends Scene {
 
   renderWorld() {
     const gradient = context.createLinearGradient(0, -10000, 0, 10000);
-    gradient.addColorStop(0, 'lightblue');
-    gradient.addColorStop(1, 'darkblue');
+    gradient.addColorStop(0, this.level.upperColor || 'lightblue');
+    gradient.addColorStop(1, this.level.lowerColor || 'darkblue');
     context.fillStyle = gradient;
     context.fillRect(-1e9, -1e9, 2e9, 2e9);
     context.lineWidth = 5;
@@ -878,6 +878,28 @@ class EditorScene extends Scene {
             }
           }
           this.level.verified = false;
+        }
+        else if (Vector.distance(worldPosition, this.level.player) < 50) {
+          // player settings
+        }
+        else if (Vector.distance(worldPosition, this.level.goal) < 50) {
+          // goal settings
+        }
+        else {
+          showForm([
+            {
+              label: 'Upper Color',
+              type: 'color',
+              get: () => this.level.upperColor,
+              set: (value) => this.level.upperColor = value
+            },
+            {
+              label: 'Lower Color',
+              type: 'color',
+              get: () => this.level.lowerColor,
+              set: (value) => this.level.lowerColor = value
+            }
+          ]);
         }
       }
       else if (this.currentMode == 'gadgets') {

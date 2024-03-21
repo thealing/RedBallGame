@@ -56,6 +56,9 @@ class Door extends Item {
       this.end.add(delta);
       this.center.add(delta);
     }
+    else if (this.dragEnd == 3) {
+      this.dragTo(Vector.add(this.getCenter(), delta));
+    }
     else {
       this.dragTo(Vector.add(position, delta));
     }
@@ -111,6 +114,7 @@ class Door extends Item {
   }
 
   createBodies(world) {
+    this.updateImages();
     const center = this.getCenter();
     const length = this.getLength();
     const angle = this.getAngle();

@@ -69,6 +69,7 @@ class Teleport extends Item {
   }
 
   createBodies(world) {
+    this.updateImages();
     const [body, collider] = Physics.createCircleBody(world, this.center.x, this.center.y, this.radius - 15, { static: true });
     const [body2, collider2] = Physics.createCircleBody(world, this.center2.x, this.center2.y, this.radius - 15, { static: true });
     collider.sensor = true;

@@ -120,7 +120,9 @@ class MenuScene extends Scene {
           terrain: [],
           gadgets: [],
           verified: false,
-          gadgetsCreated: new Array(EditorScene.gadgetTypes.length + EditorScene.decorTypes.length).fill(0)
+          gadgetsCreated: new Array(EditorScene.gadgetTypes.length + EditorScene.decorTypes.length).fill(0),
+          upperColor: '#add8e6',
+          lowerColor: '#00008b'
         });
         this.selectedDraftLevel = playerData.draftLevels.length - 1;
       }

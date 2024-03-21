@@ -62,17 +62,17 @@ class PlayScene extends Scene {
     this.physics?.destroy();
     this.physics = new PhysicsWorld();
     this.physics.gravity.y = 700;
-    const lvl = gameData.currentLevel;
-    this.terrain = lvl.terrain;
-    this.playerBody = Physics.createCircleBody(this.physics, lvl.player.x, lvl.player.y, 30)[0];
+    this.level = gameData.currentLevel;
+    this.terrain = this.level.terrain;
+    this.playerBody = Physics.createCircleBody(this.physics, this.level.player.x, this.level.player.y, 30)[0];
     this.playerBody.staticFriction = 0;
     this.playerBody.dynamicFriction = 0;
     this.playerBody.restitution = 0;
-    this.goalBody = Physics.createRectangleBody(this.physics, lvl.goal.x, lvl.goal.y, 10, 64)[0];
+    this.goalBody = Physics.createRectangleBody(this.physics, this.level.goal.x, this.level.goal.y, 10, 64)[0];
     this.goalBody.type = PhysicsBodyType.STATIC;
     this.goalBody.colliders.first.item.sensor = true;
-    this.terrainBodies = PhysicsUtil.createTerrainBodies(this.physics, lvl.terrain);
-    this.gadgetBodies = lvl.gadgets.flatMap((gadget) => gadget.createBodies(this.physics));
+    this.terrainBodies = PhysicsUtil.createTerrainBodies(this.physics, this.level.terrain);
+    this.gadgetBodies = this.level.gadgets.flatMap((gadget) => gadget.createBodies(this.physics));
     this.onSurfaceNow = false;
     this.onSurface = false;
     this.onSurfaceTimeout = null;
@@ -205,8 +205,8 @@ class PlayScene extends Scene {
 
   renderWorld() {
     const gradient = context.createLinearGradient(0, -10000, 0, 10000);
-    gradient.addColorStop(0, 'lightblue');
-    gradient.addColorStop(1, 'darkblue');
+    gradient.addColorStop(0, this.level.upperColor || 'lightblue');
+    gradient.addColorStop(1, this.level.lowerColor || 'darkblue');
     context.fillStyle = gradient;
     context.fillRect(-1e9, -1e9, 2e9, 2e9);
     context.lineWidth = 5;

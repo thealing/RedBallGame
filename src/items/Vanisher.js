@@ -1,4 +1,21 @@
 class Vanisher extends Platform {
+  constructor(name, position) {
+    super(name, position);
+    this.delay = 1000;
+  }
+  
+  showOptions() {
+    showForm([
+      {
+        label: 'Delay',
+        type: 'number',
+        step: 100,
+        get: () => this.delay,
+        set: (value) => this.delay = value
+      }
+    ]);
+  }
+  
   render() {
     drawImage(images.vanisher, this.getCenter(), this.getAngle(), { x: this.getLength() / 200, y: 1 });
     drawImage(images.vanisher_end, this.start, this.getAngle());
@@ -24,7 +41,7 @@ class Vanisher extends Platform {
         body.vanishTimeout = setTimeout(() => {
           body.toBeDeleted = true;
           body.destroy();
-        }, 1000);
+        }, this.delay);
       }
     };
     super.extendBody(body);
