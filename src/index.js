@@ -2,6 +2,7 @@ const WIDTH = Math.max(720 / 3 * 4, window.innerWidth / window.innerHeight * 720
 const HEIGHT = 720;
 const DELTA_TIME = 0.01;
 const TOUCH_RANGE = 20;
+const LONG_PRESS_DELAY = 1000;
 const SERVER_URL = 'https://classy-creponne-dc941b.netlify.app/.netlify/functions/api';
 
 let canvas;
@@ -57,7 +58,7 @@ function init() {
   function onMouseDown() {
     mouseDownPosition = mousePosition.clone();
     mouseIsDown = true;
-    mouseLongPressTimeout = setTimeout(onLongClick, 2000, mousePosition);
+    mouseLongPressTimeout = setTimeout(onLongClick, LONG_PRESS_DELAY, mousePosition);
     clicksCanceled = false;
     onTouchDown(mousePosition);
   };
@@ -241,14 +242,19 @@ function screenToCanvasPosition(x, y) {
   return new Vector(x, y);
 }
 
-function initPlayerData() {
-  playerData = {
+function createPlayerData() {
+  return {
     username: '',
     password: '',
     draftLevels: [],
     publishedLevels: [],
     levelsCreated: 0,
+    ballColor: '#ffff00',
   };
+}
+
+function initPlayerData() {
+  playerData = createPlayerData();
 }
 
 function initGameData() {
@@ -291,81 +297,97 @@ function generateRandomString(length) {
   return result;
 }
 
+function compressJson(json) {
+  const stream = new Blob([ json ], {
+    type: 'application/json',
+  }).stream();
+  const compressionStream = new CompressionStream('gzip');
+  return new Response(stream.pipeThrough(compressionStream)).arrayBuffer();
+}
+
 function tryLogin(username, password, callback) {
-  fetch(`${SERVER_URL}/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ username, password })
-  })
-  .then((response) => response.text())
-  .then((text) => JSON.parse(text))
-  .then((data) => callback(data))
-  .catch((error) => callback(null));
+  const playerDataJson = JSON.stringify({ username, password });
+  compressJson(playerDataJson).then((compressedPayload) => {
+    fetch(`${SERVER_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Encoding': 'gzip'
+      },
+      body: compressedPayload
+    })
+    .then((response) => response.text())
+    .then((text) => JSON.parse(text))
+    .then((data) => callback(data))
+    .catch((error) => callback(null));
+  });
 }
 
 function trySignup(username, password, callback) {
-  fetch(`${SERVER_URL}/signup`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ username, password })
-  })
-  .then((response) => response.text())
-  .then((text) => JSON.parse(text))
-  .then((data) => callback(data))
-  .catch((error) => callback(null));
+  const playerDataJson = JSON.stringify({ username, password });
+  compressJson(playerDataJson).then((compressedPayload) => {
+    fetch(`${SERVER_URL}/signup`, {
+      method: 'POST',
+      headers: {
+        'Content-Encoding': 'gzip'
+      },
+      body: compressedPayload
+    })
+    .then((response) => response.text())
+    .then((text) => JSON.parse(text))
+    .then((data) => callback(data))
+    .catch((error) => callback(null));
+  });
 }
 
 function syncPlayer(callback) {
   const playerDataJson = JSON.stringify({ playerData });
-  console.log("syncing playerData with length: " + playerDataJson.length);
-  fetch(`${SERVER_URL}/sync`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: playerDataJson
-  })
-  .then((response) => response.text())
-  .then((text) => JSON.parse(text))
-  .then((data) => {
-    extendRecursively(playerData, data.playerData);
-    if (callback) {
-      callback();
-    }
-  })
-  .catch(console.warn);
+  compressJson(playerDataJson).then((compressedPayload) => {
+    console.log("syncing playerData with size: " + compressedPayload.byteLength);
+    fetch(`${SERVER_URL}/sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Encoding': 'gzip'
+      },
+      body: compressedPayload
+    })
+    .then((response) => response.text())
+    .then((text) => JSON.parse(text))
+    .then((data) => {
+      extendRecursively(playerData, data.playerData);
+      if (callback) {
+        callback();
+      }
+    })
+    .catch(console.warn);
+  });
 }
 
 function loadPlayer(callback) {
-  fetch(`${SERVER_URL}/load`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ playerData })
-  })
-  .then((response) => response.text())
-  .then((text) => JSON.parse(text))
-  .then((data) => {
-    setRecursively(playerData, data.playerData);
-    if (callback) {
-      callback();
-    }
-  })
-  .catch(console.warn);
+  const playerDataJson = JSON.stringify({ playerData });
+  compressJson(playerDataJson).then((compressedPayload) => {
+    fetch(`${SERVER_URL}/load`, {
+      method: 'POST',
+      headers: {
+        'Content-Encoding': 'gzip'
+      },
+      body: compressedPayload
+    })
+    .then((response) => response.text())
+    .then((text) => JSON.parse(text))
+    .then((data) => {
+      setRecursively(playerData, data.playerData);
+      extendRecursively(playerData, createPlayerData());
+      if (callback) {
+        callback();
+      }
+    })
+    .catch(console.warn);
+  });
 }
 
 function getPublicLevels(callback) {
   fetch(`${SERVER_URL}/getLevels`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ playerData })
+    method: 'POST'
   })
   .then((response) => response.text())
   .then((text) => JSON.parse(text))
@@ -822,7 +844,8 @@ function loadImages() {
     loadImage('images/ice.png', 50, 50),
     loadImage('images/invisible.png', 50, 50)
   ]
-  images.ball_normal = loadImage('images/ball_normal.png', 64, 64);
+  images.ball_background = loadImage('images/ball_background.png', 64, 64);
+  images.ball_foreground = loadImage('images/ball_foreground.png', 64, 64);
   images.goal = loadImage('images/goal.png', 64, 64);
   images.box = loadImage('images/box.png', 100, 100);
   images.boulder = loadImage('images/boulder.png', 150, 150);

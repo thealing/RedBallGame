@@ -497,6 +497,7 @@ class EditorScene extends Scene {
       gadget.updateImages?.();
     }
     this.buttonPressed = null;
+    this.ballImage = colorizeImage(images.ball_background, playerData.ballColor);
     if (previousScene != scenes.play) {
       this.currentMode = 'navigate';
       this.currentTerrainType = 0;
@@ -626,7 +627,8 @@ class EditorScene extends Scene {
         }
       }
     }
-    drawImage(images.ball_normal, this.level.player, 0);
+    drawImage(this.ballImage, this.level.player, 0);
+    drawImage(images.ball_foreground, this.level.player, 0);
     drawImage(images.goal, this.level.goal, 0);
     for (let i = 101; i <= 200; i++) {
       if (zMap[i]) {

@@ -7,7 +7,7 @@ class GalleryScene extends Scene {
     this.draggingLevels = false;
     this.levels = [];
     getPublicLevels((levels) => {
-      this.levels = levels;
+      this.levels = levels.reverse();
     });
     this.buttons = [
       {

@@ -115,9 +115,6 @@ function setRecursively(target, source) {
 }
 
 function extendRecursively(target, source) {
-  if (Array.isArray(source)) {
-    target.length = source.length;
-  }
   for (const key in source) {
     if (typeof source[key] === 'object' && source[key] !== null && typeof target[key] === 'object' && target[key] !== null) {
       extendRecursively(target[key], source[key]);

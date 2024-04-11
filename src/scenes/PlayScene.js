@@ -81,6 +81,7 @@ class PlayScene extends Scene {
     this.ended = false;
     this.goalReached = false;
     this.starsLeft = false;
+    this.ballImage = colorizeImage(images.ball_background, playerData.ballColor);
     this.playerBody.onPhysicsCollision = (otherBody, collision) => {
       if (otherBody.deadly) {
         this.ended = true;
@@ -235,7 +236,8 @@ class PlayScene extends Scene {
         }
       }
     }
-    drawImage(images.ball_normal, this.playerBody.position, this.playerBody.angle);
+    drawImage(this.ballImage, this.playerBody.position, this.playerBody.angle);
+    drawImage(images.ball_foreground, this.playerBody.position, this.playerBody.angle);
     drawImage(images.goal, this.goalBody.position, 0);
     for (let i = 101; i <= 200; i++) {
       if (zMap[i]) {
