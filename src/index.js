@@ -353,7 +353,7 @@ function syncPlayer(callback) {
     .then((response) => response.text())
     .then((text) => JSON.parse(text))
     .then((data) => {
-      extendRecursively(playerData, data.playerData);
+      extendRecursively(playerData.publishedLevels, data.playerData.publishedLevels);
       if (callback) {
         callback();
       }
