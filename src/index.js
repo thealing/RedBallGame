@@ -353,7 +353,11 @@ function syncPlayer(callback) {
     .then((response) => response.text())
     .then((text) => JSON.parse(text))
     .then((data) => {
-      extendRecursively(playerData.publishedLevels, data.playerData.publishedLevels);
+      if (!data.error) {
+        for (const level of playerData.publishedLevels) {
+          level.sentToServer = true;
+        }
+      }
       if (callback) {
         callback();
       }
@@ -676,7 +680,7 @@ function uiLogin(callback) {
       userErrorLabel.innerHTML = 'Connection failed!';
       return;
     }
-    if (response.error != 'ok') {
+    if (response.error) {
       userErrorLabel.innerHTML = response.error;
       return;
     }
@@ -694,7 +698,7 @@ function uiSignup(callback) {
       userErrorLabel.innerHTML = 'Connection failed!';
       return;
     }
-    if (response.error != 'ok') {
+    if (response.error) {
       userErrorLabel.innerHTML = response.error;
       return;
     }
