@@ -60,7 +60,16 @@ class MainScene extends Scene {
     super.onClick();
     const size = measureText(playerData.username, "25px Arial", "left");
     if (position.x >= 30 && position.x <= 30 + size.x && Math.abs(position.y - 40) <= size.y / 2) {
-      // changeScene(scenes.profile);
+      showForm([
+        {
+          label: 'Ball Color',
+          type: 'color',
+          get: () => playerData.ballColor,
+          set: (value) => {
+            playerData.ballColor = value;
+          }
+        }
+      ]);
     }
   }
 }
