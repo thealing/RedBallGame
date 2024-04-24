@@ -36,7 +36,7 @@ class MainScene extends Scene {
             {
               label: 'Levels Finished',
               type: 'span',
-              get: () => playerData.finishedLevels.size
+              get: () => playerData.finishedLevelIds.length
             },
             {
               label: 'Deaths',

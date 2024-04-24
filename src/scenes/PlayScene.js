@@ -199,7 +199,9 @@ class PlayScene extends Scene {
         this.goalReached = !this.starsLeft;
         clicksCanceled = true;
         if (!this.starsLeft) {
-          playerData.finishedLevels.add(gameData.currentLevel.id);
+          if (!playerData.finishedLevelIds.includes(gameData.currentLevel.id)) {
+            playerData.finishedLevelIds.push(gameData.currentLevel.id);
+          }
           gameData.currentLevel.verified = true;
         }
       }

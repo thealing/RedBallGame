@@ -250,7 +250,7 @@ function createPlayerData() {
     publishedLevels: [],
     levelsCreated: 0,
     deathCount: 0,
-    finishedLevels: new Set(),
+    finishedLevelIds: [],
     ballColor: '#ffff00',
   };
 }
