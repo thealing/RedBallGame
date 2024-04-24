@@ -4,7 +4,7 @@ class MainScene extends Scene {
     this.setAnchorToTopLeft();
     this.buttons = [
       {
-        position: new Vector(WIDTH / 2, 210),
+        position: new Vector(WIDTH / 4 * 1, 210),
         halfSize: new Vector(210, 50),
         onRelease: () => {
           changeScene(scenes.menu);
@@ -14,13 +14,58 @@ class MainScene extends Scene {
         font: '30px Arial'
       },
       {
-        position: new Vector(WIDTH / 2, 360),
+        position: new Vector(WIDTH / 4 * 3, 210),
         halfSize: new Vector(210, 50),
         onRelease: () => {
           changeScene(scenes.gallery);
         },
         type: 2,
         text: 'Public Levels',
+        font: '30px Arial'
+      },
+      {
+        position: new Vector(WIDTH / 4 * 1, 360),
+        halfSize: new Vector(210, 50),
+        onRelease: () => {
+          showForm([
+            {
+              label: 'Levels Created',
+              type: 'span',
+              get: () => playerData.levelsCreated
+            },
+            {
+              label: 'Levels Finished',
+              type: 'span',
+              get: () => playerData.finishedLevels.size
+            },
+            {
+              label: 'Deaths',
+              type: 'span',
+              get: () => playerData.deathCount
+            }
+          ]);
+        },
+        type: 2,
+        text: 'Stats',
+        font: '30px Arial'
+      },
+      {
+        position: new Vector(WIDTH / 4 * 3, 360),
+        halfSize: new Vector(210, 50),
+        onRelease: () => {
+          showForm([
+            {
+              label: 'Ball Color',
+              type: 'color',
+              get: () => playerData.ballColor,
+              set: (value) => {
+                playerData.ballColor = value;
+              }
+            }
+          ]);
+        },
+        type: 2,
+        text: 'Preferences',
         font: '30px Arial'
       },
       {
@@ -53,23 +98,6 @@ class MainScene extends Scene {
       context.strokeStyle = 'black';
       this.renderButtons();
       drawText(playerData.username, { x: 30, y: 40 }, "25px Arial", "left");
-    }
-  }
-
-  onClick(position) {
-    super.onClick();
-    const size = measureText(playerData.username, "25px Arial", "left");
-    if (position.x >= 30 && position.x <= 30 + size.x && Math.abs(position.y - 40) <= size.y / 2) {
-      showForm([
-        {
-          label: 'Ball Color',
-          type: 'color',
-          get: () => playerData.ballColor,
-          set: (value) => {
-            playerData.ballColor = value;
-          }
-        }
-      ]);
     }
   }
 }

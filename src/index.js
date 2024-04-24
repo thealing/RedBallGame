@@ -249,6 +249,8 @@ function createPlayerData() {
     draftLevels: [],
     publishedLevels: [],
     levelsCreated: 0,
+    deathCount: 0,
+    finishedLevels: new Set(),
     ballColor: '#ffff00',
   };
 }
@@ -576,6 +578,13 @@ function showForm(items, callback) {
       element.style.justifyContent = 'left';
     }
     switch (items[i].type) {
+      case 'span': {
+        const span = document.createElement('span');
+        setAttributes(span);
+        span.textContent = items[i].get();
+        form.appendChild(span);
+        break;
+      }
       case 'check': {
         const input = document.createElement('input');
         setAttributes(input);

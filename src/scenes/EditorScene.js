@@ -639,6 +639,8 @@ class EditorScene extends Scene {
     }
     if (this.gridEnabled && this.gridWidth > Math.max(0, 1 / this.zoom) && this.gridHeight > Math.max(0, 1 / this.zoom)) {
       context.save();
+      context.lineCap = 'butt';
+      context.lineJoin = 'miter';
       context.lineWidth = this.gridThickness;
       context.strokeStyle = this.gridColor;
       context.globalAlpha = this.gridAlpha;
@@ -881,27 +883,43 @@ class EditorScene extends Scene {
           }
           this.level.verified = false;
         }
-        else if (Vector.distance(worldPosition, this.level.player) < 50) {
-          // player settings
-        }
-        else if (Vector.distance(worldPosition, this.level.goal) < 50) {
-          // goal settings
-        }
         else {
-          showForm([
-            {
-              label: 'Upper Color',
-              type: 'color',
-              get: () => this.level.upperColor,
-              set: (value) => this.level.upperColor = value
-            },
-            {
-              label: 'Lower Color',
-              type: 'color',
-              get: () => this.level.lowerColor,
-              set: (value) => this.level.lowerColor = value
+          switch (type) {
+            case -1: {
+              break;
             }
-          ]);
+            case -2: {
+              break;
+            }
+            case -3: {
+              break;
+            }
+            case -4: {
+              if (Vector.distance(worldPosition, this.level.player) < 50) {
+                // player settings
+              }
+              else if (Vector.distance(worldPosition, this.level.goal) < 50) {
+                // goal settings
+              }
+              else {
+                showForm([
+                  {
+                    label: 'Upper Color',
+                    type: 'color',
+                    get: () => this.level.upperColor,
+                    set: (value) => this.level.upperColor = value
+                  },
+                  {
+                    label: 'Lower Color',
+                    type: 'color',
+                    get: () => this.level.lowerColor,
+                    set: (value) => this.level.lowerColor = value
+                  }
+                ]);
+              }
+              break;
+            }
+          }
         }
       }
       else if (this.currentMode == 'gadgets') {

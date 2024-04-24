@@ -84,6 +84,7 @@ class PlayScene extends Scene {
     this.ballImage = colorizeImage(images.ball_background, playerData.ballColor);
     this.playerBody.onPhysicsCollision = (otherBody, collision) => {
       if (otherBody.deadly) {
+        playerData.deathCount++;
         this.ended = true;
         clicksCanceled = true;
       }
@@ -198,6 +199,7 @@ class PlayScene extends Scene {
         this.goalReached = !this.starsLeft;
         clicksCanceled = true;
         if (!this.starsLeft) {
+          playerData.finishedLevels.add(gameData.currentLevel.id);
           gameData.currentLevel.verified = true;
         }
       }
