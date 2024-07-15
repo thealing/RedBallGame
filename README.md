@@ -1,4 +1,4 @@
-## Red Ball Game
+## Custom Ball
 
 This is a Red Ball clone game, but instead of limited amount of pre-made levels, here you have a **level editor** so you can **create and publish unlimited number of levels**. You can also play levels published by other players. You can sign-up and log-in with only a username and password.
 
