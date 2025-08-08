@@ -10,6 +10,7 @@ let context;
 let popupDiv;
 let popupInput;
 let popupButton;
+let canvasContainer;
 let userDiv;
 let usernameLabel;
 let usernameInput;
@@ -18,6 +19,7 @@ let passwordInput;
 let userErrorLabel;
 let userLoginButton;
 let userSignupButton;
+let playAsGuestButton;
 let editorDiv;
 let editorTextArea;
 let editorButton;
@@ -35,6 +37,7 @@ let touchPositions;
 let playerData;
 let gameData;
 let gameInput;
+let globalPublishedLevels;
 
 init();
 
@@ -48,9 +51,12 @@ function init() {
   canvas.style.backgroundColor = 'black';
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
-  document.body.appendChild(canvas);
+  canvasContainer = document.createElement('div');
+  canvasContainer.appendChild(canvas);
+  document.body.appendChild(canvasContainer);
   context = canvas.getContext('2d');
   context.textBaseline = 'middle';
+  globalPublishedLevels = [];
   mousePosition = new Vector(0, 0);
   mouseIsDown = false;
   pressedKeys = new Set();
@@ -342,6 +348,9 @@ function trySignup(username, password, callback) {
 }
 
 function syncPlayer(callback) {
+  if (playerData.guestMode) {
+    return;
+  }
   const playerDataJson = JSON.stringify({ playerData });
   compressJson(playerDataJson).then((compressedPayload) => {
     console.log("syncing playerData with size: " + compressedPayload.byteLength);
@@ -491,7 +500,6 @@ function createUserPopup() {
   userErrorLabel.style.display = 'flex';
   userErrorLabel.style.alignItems = 'center';
   userErrorLabel.style.justifyContent = 'center';
-  userErrorLabel.style.color = 'red';
   userLoginButton = document.createElement('button');
   userLoginButton.style.position = 'absolute';
   userLoginButton.style.left = '0%';
@@ -508,6 +516,20 @@ function createUserPopup() {
   userSignupButton.style.height = '20%';
   userSignupButton.style.fontSize = '40px';
   userSignupButton.innerHTML = 'SIGN UP';
+  playAsGuestButton = document.createElement('button');
+  playAsGuestButton.style.position = 'absolute';
+  playAsGuestButton.style.left = '0%';
+  playAsGuestButton.style.bottom = '0%';
+  playAsGuestButton.style.width = '340px';
+  playAsGuestButton.style.height = '90px';
+  playAsGuestButton.style.fontSize = '45px';
+  playAsGuestButton.style.border = 'none';
+  playAsGuestButton.style.background = 'transparent';
+  playAsGuestButton.style.color = '#FDFDFD';
+  playAsGuestButton.style.cursor = 'pointer';
+  playAsGuestButton.innerHTML = 'Play as Guest';
+  playAsGuestButton.style.display = 'none';
+  canvasContainer.style.position = 'relative';
   userDiv.appendChild(usernameLabel);
   userDiv.appendChild(usernameInput);
   userDiv.appendChild(passwordLabel);
@@ -515,6 +537,7 @@ function createUserPopup() {
   userDiv.appendChild(userErrorLabel);
   userDiv.appendChild(userLoginButton);
   userDiv.appendChild(userSignupButton);
+  canvasContainer.appendChild(playAsGuestButton);
   document.body.appendChild(userDiv);
 }
 
@@ -535,11 +558,13 @@ function showInputPopup(text, callback) {
 function showUserPopup() {
   gameData.paused = true;
   userDiv.style.display = 'flex';
+  playAsGuestButton.style.display = 'inline-block';
   usernameInput.value = '';
   passwordInput.value = '';
   userErrorLabel.innerHTML = '';
   userLoginButton.onclick = () => uiLogin();
   userSignupButton.onclick = () => uiSignup();
+  playAsGuestButton.onclick = () => loginGuest();
 }
 
 function showForm(items, callback) {
@@ -684,12 +709,21 @@ function showForm(items, callback) {
 }
 
 function uiLogin(callback) {
+  if (!usernameInput.value) {
+    userErrorLabel.style.color = 'red';
+    userErrorLabel.innerHTML = 'Username is empty!';
+    return;
+  }
+  userErrorLabel.style.color = 'black';
+  userErrorLabel.innerHTML = 'Connecting...';
   tryLogin(usernameInput.value, passwordInput.value, (response) => {
     if (!response) {
+      userErrorLabel.style.color = 'red';
       userErrorLabel.innerHTML = 'Connection failed!';
       return;
     }
     if (response.error) {
+      userErrorLabel.style.color = 'red';
       userErrorLabel.innerHTML = response.error;
       return;
     }
@@ -698,16 +732,26 @@ function uiLogin(callback) {
     loadPlayer(callback);
     gameData.paused = false;
     userDiv.style.display = 'none';
+    playAsGuestButton.style.display = 'none';
   });
 }
 
 function uiSignup(callback) {
+  if (!usernameInput.value) {
+    userErrorLabel.style.color = 'red';
+    userErrorLabel.innerHTML = 'Username is empty!';
+    return;
+  }
+  userErrorLabel.style.color = 'black';
+  userErrorLabel.innerHTML = 'Connecting...';
   trySignup(usernameInput.value, passwordInput.value, (response) => {
     if (!response) {
+      userErrorLabel.style.color = 'red';
       userErrorLabel.innerHTML = 'Connection failed!';
       return;
     }
     if (response.error) {
+      userErrorLabel.style.color = 'red';
       userErrorLabel.innerHTML = response.error;
       return;
     }
@@ -717,7 +761,18 @@ function uiSignup(callback) {
     syncPlayer(callback);
     gameData.paused = false;
     userDiv.style.display = 'none';
+    playAsGuestButton.style.display = 'none';
   });
+}
+
+function loginGuest() {
+  initPlayerData();
+  playerData.username = "Guest";
+  playerData.password = "Guest";
+  playerData.guestMode = true;
+  gameData.paused = false;
+  userDiv.style.display = 'none';
+  playAsGuestButton.style.display = 'none';
 }
 
 function drawCircle(position, radius) {

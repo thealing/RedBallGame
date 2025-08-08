@@ -5,9 +5,12 @@ class GalleryScene extends Scene {
     this.levelsOffset = 100;
     this.selectedLevel = -1;
     this.draggingLevels = false;
-    this.levels = [];
+    this.loading = true;
+    this.levels = globalPublishedLevels;
     getPublicLevels((levels) => {
+      this.loading = false;
       this.levels = levels.reverse();
+      globalPublishedLevels = this.levels;
     });
     this.buttons = [
       {
@@ -27,6 +30,9 @@ class GalleryScene extends Scene {
     context.fillStyle = 'lightgray';
     context.fillRect(0, 0, canvas.width, canvas.height);
     super.render();
+    if (this.loading) {
+      drawText("Loading...", new Vector(20, 50), '36px Arial', 'left', WIDTH);
+    }
   }
 
   renderWorld() {
