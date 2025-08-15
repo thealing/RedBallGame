@@ -19,6 +19,12 @@ Object.clone = function(obj) {
   return cloned;
 }
 
+if (!Object.hasOwn) {
+  Object.hasOwn = function(obj, prop) {
+    return Object.prototype.hasOwnProperty.call(obj, prop);
+  };
+}
+
 Math.clamp = function(x, l, h) {
   return Math.min(Math.max(x, l), h);
 }
@@ -126,7 +132,7 @@ function extendRecursively(target, source) {
 }
 
 function isNonCopyable(value) {
-  if (value instanceof HTMLImageElement || value instanceof OffscreenCanvas) {
+  if (value instanceof HTMLImageElement) {
     return true;
   }
   return false;

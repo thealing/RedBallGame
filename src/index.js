@@ -540,16 +540,17 @@ function createUserPopup() {
   canvasContainer.appendChild(playAsGuestButton);
   document.body.appendChild(userDiv);
   function scaleMenu() {
-    const userDivScale = Math.min(1, canvas.offsetHeight / 2 / userDiv.offsetHeight);
+    const canvasHeight = canvas.offsetHeight;
+    const userDivScale = Math.min(1, canvasHeight / 600);
     userDiv.style.transform = `scale(${userDivScale})`;
     userDiv.style.transformOrigin = 'center';
-    const playAsGuestScale = Math.min(1, canvas.offsetHeight / 4 / playAsGuestButton.offsetHeight);
+    const playAsGuestScale = Math.min(1, canvasHeight / 400);
     playAsGuestButton.style.transform = `scale(${playAsGuestScale})`;
     playAsGuestButton.style.transformOrigin = 'bottom left';
   }
   window.addEventListener('resize', scaleMenu);
-  setTimeout(scaleMenu, 0);
-  setTimeout(scaleMenu, 100);
+  window.addEventListener('orientationchange', scaleMenu);
+  setInterval(scaleMenu, 100);
 }
 
 function showInputPopup(text, callback) {
@@ -881,7 +882,9 @@ function measureText(text, font, alignment, maxWidth) {
 function colorizeImage(image, color) {
   const w = image.width;
   const h = image.height;
-  const canvas = new OffscreenCanvas(w, h);
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
   const context = canvas.getContext('2d');
   function colorize() {
     context.globalCompositeOperation = 'copy';
@@ -894,8 +897,7 @@ function colorizeImage(image, color) {
   }
   if (!image.complete) {
     image.onload = colorize;
-  }
-  else {
+  } else {
     colorize();
   }
   return canvas;
