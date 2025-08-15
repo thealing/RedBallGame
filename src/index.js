@@ -540,16 +540,16 @@ function createUserPopup() {
   canvasContainer.appendChild(playAsGuestButton);
   document.body.appendChild(userDiv);
   function scaleMenu() {
-    const userDivScale = Math.min(1, window.innerHeight / 2 / userDiv.offsetHeight);
+    const userDivScale = Math.min(1, canvas.offsetHeight / 2 / userDiv.offsetHeight);
     userDiv.style.transform = `scale(${userDivScale})`;
     userDiv.style.transformOrigin = 'center';
-    const playAsGuestScale = Math.min(1, window.innerHeight / 4 / playAsGuestButton.offsetHeight);
+    const playAsGuestScale = Math.min(1, canvas.offsetHeight / 4 / playAsGuestButton.offsetHeight);
     playAsGuestButton.style.transform = `scale(${playAsGuestScale})`;
     playAsGuestButton.style.transformOrigin = 'bottom left';
   }
+  window.addEventListener('resize', scaleMenu);
   setTimeout(scaleMenu, 0);
   setTimeout(scaleMenu, 100);
-  setInterval(scaleMenu, 500);
 }
 
 function showInputPopup(text, callback) {
