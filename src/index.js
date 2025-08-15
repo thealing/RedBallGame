@@ -547,8 +547,7 @@ function createUserPopup() {
     playAsGuestButton.style.transform = `scale(${playAsGuestScale})`;
     playAsGuestButton.style.transformOrigin = 'bottom left';
   }
-  window.addEventListener('resize', scaleMenu);
-  setTimeout(scaleMenu, 0);
+  setInterval(scaleMenu, 100);
 }
 
 function showInputPopup(text, callback) {
