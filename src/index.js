@@ -371,7 +371,7 @@ function syncPlayer(callback) {
   }
   const playerDataJson = JSON.stringify({ playerData });
   compressJson(playerDataJson).then((compressedPayload) => {
-    console.log("syncing playerData with size: " + compressedPayload.byteLength);
+    console.log("Compressed player size: " + compressedPayload.byteLength + " bytes");
     fetch(`${SERVER_URL}/sync`, {
       method: 'POST',
       headers: {
@@ -423,7 +423,10 @@ function getPublicLevels(callback) {
     method: 'POST'
   })
   .then((response) => response.text())
-  .then((text) => JSON.parse(text))
+  .then((text) => {
+    console.log(`Public level storage size: ${text.length} characters`);
+    return JSON.parse(text);
+  })
   .then((data) => {
     console.log(`Got ${data.levels.length} public levels!`);
     callback(data.levels);
