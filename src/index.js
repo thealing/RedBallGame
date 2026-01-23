@@ -553,18 +553,6 @@ function createUserPopup() {
   userDiv.appendChild(userSignupButton);
   canvasContainer.appendChild(playAsGuestButton);
   document.body.appendChild(userDiv);
-  function scaleMenu() {
-    const canvasHeight = canvas.offsetHeight;
-    const userDivScale = Math.min(1, canvasHeight / 600);
-    userDiv.style.transform = `scale(${userDivScale})`;
-    userDiv.style.transformOrigin = 'center';
-    const playAsGuestScale = Math.min(1, canvasHeight / 400);
-    playAsGuestButton.style.transform = `scale(${playAsGuestScale})`;
-    playAsGuestButton.style.transformOrigin = 'bottom left';
-  }
-  window.addEventListener('resize', scaleMenu);
-  window.addEventListener('orientationchange', scaleMenu);
-  setInterval(scaleMenu, 100);
 }
 
 function showInputPopup(text, callback) {
