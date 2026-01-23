@@ -202,7 +202,6 @@ class CollisionFilter {
 
 class PhysicsCounters {
   constructor() {
-    this.stepDurations = [];
     this.reset();
   }
 
@@ -216,7 +215,7 @@ class PhysicsCounters {
     this.shapesTested = 0;
     this.collisionsDetected = 0;
     this.collisionsHandled = 0;
-    this.stepDurationAverage = 0;
+    this.stepDuration = 0;
   }
 }
 
@@ -419,11 +418,7 @@ class PhysicsWorld {
     }
     this._collidersToDestroy.length = 0;
     const stepEndTime = performance.now();
-    if (this.counters.stepDurations.length == 120) {
-      this.counters.stepDurations.shift();
-    }
-    this.counters.stepDurations.push(stepEndTime - stepStartTime);
-    this.counters.stepDurationAverage = Util.averageOfArray(this.counters.stepDurations);
+    this.counters.stepDuration = stepEndTime - stepStartTime;
   }
 }
 
