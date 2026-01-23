@@ -126,27 +126,29 @@ class MenuScene extends Scene {
         });
         this.selectedDraftLevel = playerData.draftLevels.length - 1;
       }
-      else if (touchedDraftLevel == this.selectedDraftLevel) {
-        if (position.x < WIDTH / 2 - 206) {
-          this.selectedDraftLevel = -1;
+      else if (touchedDraftLevel >= 0) {
+        if (touchedDraftLevel == this.selectedDraftLevel) {
+          if (position.x < WIDTH / 2 - 206) {
+            this.selectedDraftLevel = -1;
+          }
+          if (position.x >= WIDTH / 2 - 206 && position.x < WIDTH / 2 - 106) {
+            gameData.currentLevel = playerData.draftLevels[this.selectedDraftLevel];
+            changeScene(scenes.editor);
+          }
+          if (position.x >= WIDTH / 2 - 106 && position.x < WIDTH / 2 - 6) {
+            playerData.draftLevels.splice(this.selectedDraftLevel, 1);
+            this.selectedDraftLevel = -1;
+          }
         }
-        if (position.x >= WIDTH / 2 - 206 && position.x < WIDTH / 2 - 106) {
-          gameData.currentLevel = playerData.draftLevels[this.selectedDraftLevel];
-          changeScene(scenes.editor);
+        else if (touchedDraftLevel < playerData.draftLevels.length) {
+          this.selectedDraftLevel = touchedDraftLevel;
+          this.selectedPublishedLevel = -1;
         }
-        if (position.x >= WIDTH / 2 - 106 && position.x < WIDTH / 2 - 6) {
-          playerData.draftLevels.splice(this.selectedDraftLevel, 1);
-          this.selectedDraftLevel = -1;
-        }
-      }
-      else if (touchedDraftLevel >= 0 && touchedDraftLevel < playerData.draftLevels.length) {
-        this.selectedDraftLevel = touchedDraftLevel;
-        this.selectedPublishedLevel = -1;
       }
     }
     else {
       const touchedPublishedLevel = Math.floor((position.y - this.publishedLevelsOffset) / 100);
-      if (touchedPublishedLevel == this.selectedPublishedLevel) {
+      if (touchedPublishedLevel >= 0 && touchedPublishedLevel == this.selectedPublishedLevel) {
         if (position.x < WIDTH - 106) {
           this.selectedPublishedLevel = -1;
         }
