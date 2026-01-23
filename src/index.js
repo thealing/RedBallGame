@@ -1,5 +1,5 @@
-const WIDTH = Math.max(720 / 3 * 4, window.innerWidth / window.innerHeight * 720);
 const HEIGHT = 720;
+const WIDTH = Math.max(HEIGHT / 3 * 4, window.innerWidth / window.innerHeight * HEIGHT);
 const DELTA_TIME = 0.01;
 const TOUCH_RANGE = 20;
 const LONG_PRESS_DELAY = 1000;
