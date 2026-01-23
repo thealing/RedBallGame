@@ -55,6 +55,15 @@ class MainScene extends Scene {
         onRelease: () => {
           showForm([
             {
+              label: 'Long Press Delay',
+              type: 'number',
+              step: 100,
+              get: () => playerData.longPressDelay,
+              set: (value) => {
+                playerData.longPressDelay = value;
+              }
+            },
+            {
               label: 'Ball Color',
               type: 'color',
               get: () => playerData.ballColor,

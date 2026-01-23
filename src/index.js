@@ -3,7 +3,6 @@ const WIDTH = Math.max(HEIGHT / 3 * 4, window.innerWidth / window.innerHeight * 
 const DELTA_TIME = 0.01;
 const TOUCH_RANGE = 20;
 const LONG_PRESS_RADIUS = 4;
-const LONG_PRESS_DELAY = 700;
 const SERVER_URL = 'https://classy-creponne-dc941b.netlify.app/.netlify/functions/api';
 
 let canvas;
@@ -67,7 +66,7 @@ function init() {
   function onMouseDown() {
     mouseDownPosition = mousePosition.clone();
     mouseIsDown = true;
-    mouseLongPressTimeout = setTimeoutIngame(onLongClick, LONG_PRESS_DELAY, mousePosition);
+    mouseLongPressTimeout = setTimeoutIngame(onLongClick, playerData.longPressDelay, mousePosition);
     clicksCanceled = false;
     onTouchDown(mousePosition);
   };
@@ -273,6 +272,7 @@ function createPlayerData() {
     levelsCreated: 0,
     deathCount: 0,
     finishedLevelIds: [],
+    longPressDelay: 800,
     ballColor: '#ff2222',
   };
 }
