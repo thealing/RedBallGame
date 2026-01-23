@@ -152,18 +152,6 @@ function init() {
   changeScene(scenes.main);
   setInterval(update, DELTA_TIME * 1000);
   requestAnimationFrame(render);
-  if (typeof debugPlayerData !== 'undefined') {
-    setTimeout(() => {
-      usernameInput.value = debugPlayerData.username;
-      passwordInput.value = debugPlayerData.password;
-      uiLogin(() => {
-        gameData.currentLevel = playerData.draftLevels.top();
-        if (gameData.currentLevel) {
-          changeScene(scenes.editor);
-        }
-      });
-    }, 100);
-  }
 }
 
 function setTimeoutIngame(callback, delay, ...args) {
