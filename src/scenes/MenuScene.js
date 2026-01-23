@@ -107,6 +107,11 @@ class MenuScene extends Scene {
   }
   
   onClick(position) {
+    if (position.y <= 200 || position.y >= HEIGHT - 100) {
+      this.selectedPublishedLevel = -1;
+      this.selectedDraftLevel = -1;
+      return;
+    }
     if (position.x < WIDTH / 2) {
       const touchedDraftLevel = Math.floor((position.y - this.draftLevelsOffset) / 100);
       if (touchedDraftLevel == playerData.draftLevels.length && position.x < WIDTH / 4 + 125 && position.x > WIDTH / 4 - 125) {
@@ -167,13 +172,14 @@ class MenuScene extends Scene {
         this.selectedDraftLevel = -1;
       }
     }
-    if (position.y <= 200 || position.y >= HEIGHT - 100) {
-      this.selectedPublishedLevel = -1;
-      this.selectedDraftLevel = -1;
-    }
   }
   
   onDoubleClick(position) {
+    if (position.y <= 200 || position.y >= HEIGHT - 100) {
+      this.selectedPublishedLevel = -1;
+      this.selectedDraftLevel = -1;
+      return;
+    }
     if (position.x < WIDTH / 2) {
       const touchedDraftLevel = Math.floor((position.y - this.draftLevelsOffset) / 100);
       if (touchedDraftLevel == this.selectedDraftLevel) {
