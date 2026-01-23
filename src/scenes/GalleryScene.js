@@ -131,11 +131,12 @@ class GalleryScene extends Scene {
     if (this.uiTouched) {
       return;
     }
+    if (position.y <= 100 || position.y >= HEIGHT - 100) {
+      this.selectedLevel = -1;
+      return;
+    }
     const touchedLevel = Math.floor((position.y - this.levelsOffset) / 100 - 1);
     if (touchedLevel == this.selectedLevel) {
-      if (position.x < WIDTH - 106) {
-        this.selectedLevel = -1;
-      }
       if (position.x >= WIDTH - 106 && position.x < WIDTH - 6) {
         gameData.currentLevel = this.levels[touchedLevel];
         gameData.onLevelExit = () => {
