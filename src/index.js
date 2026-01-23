@@ -2,7 +2,7 @@ const HEIGHT = 720;
 const WIDTH = Math.max(HEIGHT / 3 * 4, window.innerWidth / window.innerHeight * HEIGHT);
 const DELTA_TIME = 0.01;
 const TOUCH_RANGE = 20;
-const LONG_PRESS_DELAY = 1000;
+const LONG_PRESS_DELAY = 650;
 const SERVER_URL = 'https://classy-creponne-dc941b.netlify.app/.netlify/functions/api';
 
 let canvas;
