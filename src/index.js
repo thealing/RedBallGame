@@ -586,6 +586,7 @@ function showInputPopup(text, callback) {
       gameData.paused = false;
       popupDiv.style.display = 'none';
       callback(popupInput.value);
+      doubleClickPosition = null;
     }
   };
   setTimeout(scaleMenus, 0);
@@ -738,6 +739,7 @@ function showForm(items, callback) {
     if (callback) {
       callback();
     }
+    doubleClickPosition = null;
   }
   form.appendChild(button);
   formDiv = form;

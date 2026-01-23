@@ -130,6 +130,7 @@ class MenuScene extends Scene {
           lowerColor: '#00008b'
         });
         this.selectedDraftLevel = playerData.draftLevels.length - 1;
+        doubleClickPosition = null;
       }
       else if (touchedDraftLevel >= 0) {
         if (touchedDraftLevel == this.selectedDraftLevel) {
