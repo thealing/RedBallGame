@@ -7,6 +7,17 @@ class PlayScene extends Scene {
     super.enter();
     this.setAnchorToCenter();
     this.zoom = 0.75;
+    this.levelPaused = false;
+    this.pauseButton = {
+      position: new Vector(WIDTH - 270, 670),
+      halfSize: new Vector(80, 40),
+      onRelease: () => {
+        this.levelPaused = !this.levelPaused;
+      },
+      type: 1,
+      text: 'PAUSE',
+      font: '30px Arial'
+    };
     this.backwardButton = {
       position: new Vector(80, 520),
       halfSize: new Vector(60, 60),
@@ -49,7 +60,8 @@ class PlayScene extends Scene {
       },
       this.backwardButton,
       this.forwardButton,
-      this.jumpButton
+      this.jumpButton,
+      this.pauseButton
     ];
     this.levelInitialized = false;
     this.initLevel();
@@ -80,6 +92,7 @@ class PlayScene extends Scene {
     this.canJump = true;
     this.started = false;
     this.ended = false;
+    this.levelPaused = false;
     this.goalReached = false;
     this.starsLeft = false;
     this.ballImage = colorizeImage(images.ball_background, playerData.ballColor);
@@ -125,7 +138,7 @@ class PlayScene extends Scene {
     if (gameInput.forward || gameInput.backward || gameInput.jump) {
       this.started = true;
     }
-    if (this.started && !this.ended) {
+    if (this.started && !this.ended && !this.levelPaused) {
       this.playerBody.staticFriction = 0.5;
       this.playerBody.dynamicFriction = 0.5;
       if (gameInput.forward && gameInput.backward) {
@@ -148,13 +161,11 @@ class PlayScene extends Scene {
           }
         }
       }
-    }
-    if (this.started && !this.ended) {
       this.physics.step(DELTA_TIME);
     }
     const target = Vector.negate(this.playerBody.position);
     this.origin.add(target.subtract(this.origin).multiply(10 * DELTA_TIME));
-    if (this.started && !this.ended) {
+    if (this.started && !this.ended && !this.levelPaused) {
       for (const gadgetBody of this.gadgetBodies) {
         switch (gadgetBody.gadgetType) {
           case 0: {
@@ -270,6 +281,7 @@ class PlayScene extends Scene {
     context.lineWidth = 6;
     drawSegment(new Vector(0, 620), new Vector(WIDTH, 620));
     context.fillStyle = 'black';
+    this.pauseButton.text = this.levelPaused ? 'RESUME' : 'PAUSE';
     this.renderButtons();
     if (!this.started) {
       drawText(('Tap to Start').toUpperCase(), new Vector(WIDTH / 2, 500), '30px Arial');
@@ -281,7 +293,9 @@ class PlayScene extends Scene {
   
   onClick(position) {
     super.onClick(position);
-    this.started = true;
+    if (!this.uiTouched) {
+      this.started = true;
+    }
     if (this.ended && !this.uiTouched) {
       if (this.goalReached) {
         gameData.onLevelExit();
