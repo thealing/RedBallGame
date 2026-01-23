@@ -9,7 +9,7 @@ class PlayScene extends Scene {
     this.zoom = 0.75;
     this.levelPaused = false;
     this.pauseButton = {
-      position: new Vector(WIDTH - 270, 670),
+      position: new Vector(WIDTH - 270, HEIGHT - 50),
       halfSize: new Vector(80, 40),
       onRelease: () => {
         this.levelPaused = !this.levelPaused;
@@ -19,21 +19,21 @@ class PlayScene extends Scene {
       font: '30px Arial'
     };
     this.backwardButton = {
-      position: new Vector(80, 520),
+      position: new Vector(80, HEIGHT - 200),
       halfSize: new Vector(60, 60),
       renderProc: () => {
         drawImage(gameInput.backward ? images.ui.arrow.left_pressed : images.ui.arrow.left, new Vector(0, 0), 0);
       }
     }
     this.forwardButton = {
-      position: new Vector(200, 520),
+      position: new Vector(200, HEIGHT - 200),
       halfSize: new Vector(60, 60),
       renderProc: () => {
         drawImage(gameInput.forward ? images.ui.arrow.right_pressed : images.ui.arrow.right, new Vector(0, 0), 0);
       }
     }
     this.jumpButton = {
-      position: new Vector(WIDTH - 80, 520),
+      position: new Vector(WIDTH - 80, HEIGHT - 200),
       halfSize: new Vector(60, 60),
       renderProc: () => {
         drawImage(gameInput.jump ? images.ui.arrow.up_pressed : images.ui.arrow.up, new Vector(0, 0), 0);
@@ -41,7 +41,7 @@ class PlayScene extends Scene {
     }
     this.buttons = [
       {
-        position: new Vector(90, 670),
+        position: new Vector(90, HEIGHT - 50),
         halfSize: new Vector(80, 40),
         onRelease: gameData.onLevelExit,
         type: 1,
@@ -49,7 +49,7 @@ class PlayScene extends Scene {
         font: '30px Arial'
       },
       {
-        position: new Vector(WIDTH - 90, 670),
+        position: new Vector(WIDTH - 90, HEIGHT - 50),
         halfSize: new Vector(80, 40),
         onRelease: () => {
           this.initLevel();
@@ -276,18 +276,18 @@ class PlayScene extends Scene {
   
   renderUI() {
     context.fillStyle = 'lightgray';
-    context.fillRect(0, 620, WIDTH, 720);
+    context.fillRect(0, HEIGHT - 100, WIDTH, HEIGHT);
     context.strokeStyle = 'black';
     context.lineWidth = 6;
-    drawSegment(new Vector(0, 620), new Vector(WIDTH, 620));
+    drawSegment(new Vector(0, HEIGHT - 100), new Vector(WIDTH, HEIGHT - 100));
     context.fillStyle = 'black';
     this.pauseButton.text = this.levelPaused ? 'RESUME' : 'PAUSE';
     this.renderButtons();
     if (!this.started) {
-      drawText(('Tap to Start').toUpperCase(), new Vector(WIDTH / 2, 500), '30px Arial');
+      drawText(('Tap to Start').toUpperCase(), new Vector(WIDTH / 2, HEIGHT - 220), '30px Arial');
     }
     if (this.ended) {
-      drawText((this.goalReached ? 'Level Completed' : this.starsLeft ? 'There Are Stars Left' : 'Game Over').toUpperCase(), new Vector(WIDTH / 2, 500), '30px Arial');
+      drawText((this.goalReached ? 'Level Completed' : this.starsLeft ? 'There Are Stars Left' : 'Game Over').toUpperCase(), new Vector(WIDTH / 2, HEIGHT - 220), '30px Arial');
     }
   }
   

@@ -272,7 +272,7 @@ class EditorScene extends Scene {
         icon: images.ui.icon_zoom_out
       },
       {
-        position: new Vector(90, 670),
+        position: new Vector(90, HEIGHT - 50),
         halfSize: new Vector(80, 40),
         onRelease: () => {
           changeScene(scenes.menu);
@@ -282,7 +282,7 @@ class EditorScene extends Scene {
         font: '30px Arial'
       },
       {
-        position: new Vector(WIDTH - 270, 670),
+        position: new Vector(WIDTH - 270, HEIGHT - 50),
         halfSize: new Vector(80, 40),
         onRelease: () => {
           gameData.onLevelExit = () => {
@@ -295,7 +295,7 @@ class EditorScene extends Scene {
         font: '30px Arial'
       },
       {
-        position: new Vector(WIDTH - 90, 670),
+        position: new Vector(WIDTH - 90, HEIGHT - 50),
         halfSize: new Vector(80, 40),
         onRelease: () => {
           playerData.draftLevels.splice(playerData.draftLevels.indexOf(this.level), 1);
@@ -307,7 +307,7 @@ class EditorScene extends Scene {
         font: '30px Arial'
       },
       {
-        position: new Vector(WIDTH - 60, 260),
+        position: new Vector(WIDTH - 60, HEIGHT - 460),
         halfSize: new Vector(40, 40),
         toggled: false,
         hidden: true,
@@ -319,7 +319,7 @@ class EditorScene extends Scene {
         polylineMode: 0
       },
       {
-        position: new Vector(WIDTH - 60, 360),
+        position: new Vector(WIDTH - 60, HEIGHT - 360),
         halfSize: new Vector(40, 40),
         toggled: false,
         hidden: true,
@@ -331,7 +331,7 @@ class EditorScene extends Scene {
         polylineMode: 1
       },
       {
-        position: new Vector(WIDTH - 60, 460),
+        position: new Vector(WIDTH - 60, HEIGHT - 260),
         halfSize: new Vector(40, 40),
         toggled: false,
         hidden: true,
@@ -343,7 +343,7 @@ class EditorScene extends Scene {
         polylineMode: 2
       },
       {
-        position: new Vector(WIDTH - 60, 560),
+        position: new Vector(WIDTH - 60, HEIGHT - 160),
         halfSize: new Vector(40, 40),
         toggled: false,
         hidden: true,
@@ -355,7 +355,7 @@ class EditorScene extends Scene {
         polylineMode: 3
       },
       {
-        position: new Vector(WIDTH - 60, 560),
+        position: new Vector(WIDTH - 60, HEIGHT - 160),
         halfSize: new Vector(40, 40),
         toggled: false,
         hidden: true,
@@ -370,7 +370,7 @@ class EditorScene extends Scene {
         activeModes: [ 'gadgets', 'decor' ]
       },
       {
-        position: new Vector(WIDTH - 60, 460),
+        position: new Vector(WIDTH - 60, HEIGHT - 260),
         halfSize: new Vector(40, 40),
         toggled: false,
         hidden: true,
@@ -385,7 +385,7 @@ class EditorScene extends Scene {
         activeModes: [ 'gadgets', 'decor' ]
       },
       {
-        position: new Vector(WIDTH - 60, 360),
+        position: new Vector(WIDTH - 60, HEIGHT - 360),
         halfSize: new Vector(40, 40),
         toggled: false,
         hidden: true,
@@ -400,7 +400,7 @@ class EditorScene extends Scene {
         activeModes: [ 'gadgets', 'decor' ]
       },
       {
-        position: new Vector(WIDTH - 60, 260),
+        position: new Vector(WIDTH - 60, HEIGHT - 460),
         halfSize: new Vector(40, 40),
         toggled: false,
         hidden: true,
@@ -416,7 +416,7 @@ class EditorScene extends Scene {
       }
     ];
     this.leftArrowButton = {
-      position: new Vector(40, 560),
+      position: new Vector(40, HEIGHT - 160),
       halfSize: new Vector(20, 40),
       hidden: true,
       onRelease: () => {
@@ -431,7 +431,7 @@ class EditorScene extends Scene {
       activeModes: [ 'gadgets', 'decor' ]
     };
     this.rightArrowButton = {
-      position: new Vector(600, 560),
+      position: new Vector(600, HEIGHT - 160),
       halfSize: new Vector(20, 40),
       hidden: true,
       onRelease: () => {
@@ -448,7 +448,7 @@ class EditorScene extends Scene {
     this.buttons.push(this.leftArrowButton, this.rightArrowButton);
     for (let i = 0; i < EditorScene.terrainTypes.length; i++) {
       this.buttons.push({
-        position: new Vector(60 + 100 * i, 560),
+        position: new Vector(60 + 100 * i, HEIGHT - 160),
         halfSize: new Vector(40, 40),
         toggled: false,
         hidden: true,
@@ -465,7 +465,7 @@ class EditorScene extends Scene {
     }
     for (let i = 0; i < EditorScene.gadgetTypes.length; i++) {
       this.buttons.push({
-        position: new Vector(120 + 100 * (i % 5), 560),
+        position: new Vector(120 + 100 * (i % 5), HEIGHT - 160),
         halfSize: new Vector(40, 40),
         toggled: false,
         hidden: true,
@@ -480,7 +480,7 @@ class EditorScene extends Scene {
     }
     for (let i = 0; i < EditorScene.decorTypes.length; i++) {
       this.buttons.push({
-        position: new Vector(120 + 100 * (i % 5), 560),
+        position: new Vector(120 + 100 * (i % 5), HEIGHT - 160),
         halfSize: new Vector(40, 40),
         toggled: false,
         hidden: true,
@@ -662,12 +662,12 @@ class EditorScene extends Scene {
     context.lineWidth = 6;
     context.lineCap = 'round';
     if (this.currentMode == 'gadgets' || this.currentMode == 'decor') {
-      context.fillRect(0, 500, 640, 620);
-      drawSegment(new Vector(0, 500), new Vector(640, 500));
-      drawSegment(new Vector(640, 500), new Vector(640, 620));
+      context.fillRect(0, HEIGHT - 220, 640, HEIGHT - 100);
+      drawSegment(new Vector(0, HEIGHT - 220), new Vector(640, HEIGHT - 220));
+      drawSegment(new Vector(640, HEIGHT - 220), new Vector(640, HEIGHT - 100));
     }
-    context.fillRect(0, 620, WIDTH, 720);
-    drawSegment(new Vector(0, 620), new Vector(WIDTH, 620));
+    context.fillRect(0, HEIGHT - 100, WIDTH, HEIGHT);
+    drawSegment(new Vector(0, HEIGHT - 100), new Vector(WIDTH, HEIGHT - 100));
     context.fillStyle = 'black';
     this.renderButtons();
   }
@@ -853,7 +853,7 @@ class EditorScene extends Scene {
   onClick(position) {
     super.onClick(position);
     const worldPosition = this.screenToWorldPosition(position);
-    const coverTouched = position.y >= 620 || (this.currentMode == 'gadgets' || this.currentMode == 'decor') && position.y >= 500 && position.x <= 640;
+    const coverTouched = position.y >= HEIGHT - 100 || (this.currentMode == 'gadgets' || this.currentMode == 'decor') && position.y >= HEIGHT - 220 && position.x <= 640;
     if (!this.uiTouched && !coverTouched) {
       let type;
       if (this.currentMode == 'gadgets' && (type = this.currentGadgetType) < 0 || this.currentMode == 'decor' && (type = this.currentDecorType) < 0) {
@@ -896,10 +896,10 @@ class EditorScene extends Scene {
             }
             case -4: {
               if (Vector.distance(worldPosition, this.level.player) < 50) {
-                // player settings
+                break;
               }
               else if (Vector.distance(worldPosition, this.level.goal) < 50) {
-                // goal settings
+                break;
               }
               else {
                 showForm([

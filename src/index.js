@@ -1,5 +1,7 @@
-const HEIGHT = 720;
-const WIDTH = Math.max(HEIGHT / 3 * 4, window.innerWidth / window.innerHeight * HEIGHT);
+const MIN_WIDTH = 960;
+const MIN_HEIGHT = 720;
+const WIDTH = Math.max(Math.max(MIN_WIDTH, window.innerWidth), window.innerWidth / window.innerHeight * MIN_HEIGHT);
+const HEIGHT = Math.max(Math.max(MIN_HEIGHT, window.innerHeight), window.innerHeight / window.innerWidth * MIN_WIDTH);
 const DELTA_TIME = 0.01;
 const TOUCH_RANGE = 20;
 const LONG_PRESS_RADIUS = 4;
@@ -19,7 +21,7 @@ let passwordInput;
 let userErrorLabel;
 let userLoginButton;
 let userSignupButton;
-let playAsGuestButton;
+let guestButton;
 let formDiv;
 let images;
 let scenes;
@@ -466,7 +468,7 @@ function createUserPopup() {
   usernameLabel.style.left = '5%';
   usernameLabel.style.top = '0%';
   usernameLabel.style.width = '50%';
-  usernameLabel.style.height = '20%';
+  usernameLabel.style.height = '60px';
   usernameLabel.style.fontSize = '40px';
   usernameLabel.style.fontFamily = 'Arial';
   usernameLabel.style.display = 'flex';
@@ -478,15 +480,15 @@ function createUserPopup() {
   usernameInput.style.left = '50%';
   usernameInput.style.top = '0%';
   usernameInput.style.width = '50%';
-  usernameInput.style.height = '20%';
+  usernameInput.style.height = '60px';
   usernameInput.style.fontSize = '40px';
   passwordLabel = document.createElement('label');
   passwordLabel.innerHTML = 'Password:';
   passwordLabel.style.position = 'absolute';
   passwordLabel.style.left = '5%';
-  passwordLabel.style.top = '20%';
+  passwordLabel.style.top = '60px';
   passwordLabel.style.width = '50%';
-  passwordLabel.style.height = '20%';
+  passwordLabel.style.height = '60px';
   passwordLabel.style.fontSize = '40px';
   passwordLabel.style.fontFamily = 'Arial';
   passwordLabel.style.display = 'flex';
@@ -496,17 +498,17 @@ function createUserPopup() {
   passwordInput.style.position = 'absolute';
   passwordInput.type = 'text';
   passwordInput.style.left = '50%';
-  passwordInput.style.top = '20%';
+  passwordInput.style.top = '60px';
   passwordInput.style.width = '50%';
-  passwordInput.style.height = '20%';
+  passwordInput.style.height = '60px';
   passwordInput.style.fontSize = '40px';
   userErrorLabel = document.createElement('label');
   userErrorLabel.innerHTML = '';
   userErrorLabel.style.position = 'absolute';
   userErrorLabel.style.left = '0%';
-  userErrorLabel.style.top = '40%';
+  userErrorLabel.style.top = '120px';
   userErrorLabel.style.width = '100%';
-  userErrorLabel.style.height = '20%';
+  userErrorLabel.style.height = '60px';
   userErrorLabel.style.fontSize = '30px';
   userErrorLabel.style.fontFamily = 'Arial';
   userErrorLabel.style.display = 'flex';
@@ -515,32 +517,27 @@ function createUserPopup() {
   userLoginButton = document.createElement('button');
   userLoginButton.style.position = 'absolute';
   userLoginButton.style.left = '0%';
-  userLoginButton.style.top = '60%';
-  userLoginButton.style.width = '100%';
-  userLoginButton.style.height = '20%';
+  userLoginButton.style.top = '180px';
+  userLoginButton.style.width = '50%';
+  userLoginButton.style.height = '60px';
   userLoginButton.style.fontSize = '40px';
   userLoginButton.innerHTML = 'LOG IN';
   userSignupButton = document.createElement('button');
   userSignupButton.style.position = 'absolute';
-  userSignupButton.style.left = '0%';
-  userSignupButton.style.top = '80%';
-  userSignupButton.style.width = '100%';
-  userSignupButton.style.height = '20%';
+  userSignupButton.style.left = '50%';
+  userSignupButton.style.top = '180px';
+  userSignupButton.style.width = '50%';
+  userSignupButton.style.height = '60px';
   userSignupButton.style.fontSize = '40px';
   userSignupButton.innerHTML = 'SIGN UP';
-  playAsGuestButton = document.createElement('button');
-  playAsGuestButton.style.position = 'absolute';
-  playAsGuestButton.style.left = '0%';
-  playAsGuestButton.style.bottom = '0%';
-  playAsGuestButton.style.width = '340px';
-  playAsGuestButton.style.height = '90px';
-  playAsGuestButton.style.fontSize = '45px';
-  playAsGuestButton.style.border = 'none';
-  playAsGuestButton.style.background = 'transparent';
-  playAsGuestButton.style.color = '#FDFDFD';
-  playAsGuestButton.style.cursor = 'pointer';
-  playAsGuestButton.innerHTML = 'Play as Guest';
-  playAsGuestButton.style.display = 'none';
+  guestButton = document.createElement('button');
+  guestButton.style.position = 'absolute';
+  guestButton.style.left = '0%';
+  guestButton.style.top = '240px';
+  guestButton.style.width = '100%';
+  guestButton.style.height = '60px';
+  guestButton.style.fontSize = '40px';
+  guestButton.innerHTML = 'Play as Guest';
   canvasContainer.style.position = 'relative';
   userDiv.appendChild(usernameLabel);
   userDiv.appendChild(usernameInput);
@@ -549,8 +546,8 @@ function createUserPopup() {
   userDiv.appendChild(userErrorLabel);
   userDiv.appendChild(userLoginButton);
   userDiv.appendChild(userSignupButton);
+  userDiv.appendChild(guestButton);
   userDiv.style.transform = 'scale(0)';
-  canvasContainer.appendChild(playAsGuestButton);
   document.body.appendChild(userDiv);
   window.addEventListener('resize', scaleMenus);
   window.addEventListener('orientationchange', scaleMenus);
@@ -572,10 +569,7 @@ function scaleMenus() {
 function scalePopup(element) {
   const canvasHeight = canvas.offsetHeight;
   const canvasWidth = canvas.offsetWidth;
-  const rect = document.body.getBoundingClientRect();
-  const width = Math.min(rect.width, canvasWidth);
-  const height = Math.min(rect.height, canvasHeight);
-  const scale = Math.min(1, Math.min(0.9 * height / parseFloat(element.style.height), 0.9 * width / parseFloat(element.style.width)));
+  const scale = Math.min(1, Math.min(0.9 * canvasHeight / parseFloat(element.style.height), 0.9 * canvasWidth / parseFloat(element.style.width)));
   element.style.transform = `scale(${scale})`;
   element.style.transformOrigin = 'center';
 }
@@ -599,13 +593,12 @@ function showInputPopup(text, callback) {
 function showUserPopup() {
   gameData.paused = true;
   userDiv.style.display = 'flex';
-  playAsGuestButton.style.display = 'inline-block';
   usernameInput.value = '';
   passwordInput.value = '';
   userErrorLabel.innerHTML = '';
   userLoginButton.onclick = () => uiLogin();
   userSignupButton.onclick = () => uiSignup();
-  playAsGuestButton.onclick = () => loginGuest();
+  guestButton.onclick = () => loginGuest();
 }
 
 function showForm(items, callback) {
@@ -777,7 +770,6 @@ function uiLogin(callback) {
     loadPlayer(callback);
     gameData.paused = false;
     userDiv.style.display = 'none';
-    playAsGuestButton.style.display = 'none';
   });
 }
 
@@ -806,7 +798,6 @@ function uiSignup(callback) {
     syncPlayer(callback);
     gameData.paused = false;
     userDiv.style.display = 'none';
-    playAsGuestButton.style.display = 'none';
   });
 }
 
@@ -817,7 +808,6 @@ function loginGuest() {
   playerData.guestMode = true;
   gameData.paused = false;
   userDiv.style.display = 'none';
-  playAsGuestButton.style.display = 'none';
 }
 
 function drawCircle(position, radius) {

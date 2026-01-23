@@ -9,7 +9,7 @@ class MenuScene extends Scene {
     this.draggingLevels = false;
     this.buttons = [
       {
-        position: new Vector(90, 670),
+        position: new Vector(90, HEIGHT - 50),
         halfSize: new Vector(80, 40),
         onRelease: () => {
           changeScene(scenes.main);
@@ -66,13 +66,13 @@ class MenuScene extends Scene {
   
   renderUI() {
     context.fillStyle = 'lightgray';
-    context.fillRect(0, 620, WIDTH, 720);
+    context.fillRect(0, HEIGHT - 100, WIDTH, HEIGHT);
     context.fillRect(0, 0, WIDTH, 200);
     context.lineWidth = 6;
     drawSegment(new Vector(0, 100), new Vector(WIDTH, 100));
     drawSegment(new Vector(0, 200), new Vector(WIDTH, 200));
-    drawSegment(new Vector(0, 620), new Vector(WIDTH, 620));
-    drawSegment(new Vector(WIDTH / 2, 100), new Vector(WIDTH / 2, 620));
+    drawSegment(new Vector(0, HEIGHT - 100), new Vector(WIDTH, HEIGHT - 100));
+    drawSegment(new Vector(WIDTH / 2, 100), new Vector(WIDTH / 2, HEIGHT - 100));
     context.fillStyle = 'black';
     drawText('My Levels', new Vector(WIDTH / 2, 50), '50px Arial');
     drawText('Drafts', new Vector(WIDTH / 4, 150), '50px Arial');
@@ -82,7 +82,7 @@ class MenuScene extends Scene {
   
   onTouchDown(position) {
     super.onTouchDown(position);
-    if (position.y >= 200 && position.y < 620) {
+    if (position.y >= 200 && position.y < HEIGHT - 100) {
       this.draggingLevels = position.x < WIDTH / 2 ? 'drafts' : 'published';
     }
   }

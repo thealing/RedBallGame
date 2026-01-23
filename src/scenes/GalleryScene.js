@@ -17,7 +17,7 @@ class GalleryScene extends Scene {
     });
     this.buttons = [
       {
-        position: new Vector(90, 670),
+        position: new Vector(90, HEIGHT - 50),
         halfSize: new Vector(80, 40),
         onRelease: () => {
           changeScene(scenes.main);
@@ -27,7 +27,7 @@ class GalleryScene extends Scene {
         font: '30px Arial'
       },
       {
-        position: new Vector(WIDTH - 90, 670),
+        position: new Vector(WIDTH - 90, HEIGHT - 50),
         halfSize: new Vector(80, 40),
         onRelease: () => {
           showForm([
@@ -96,11 +96,11 @@ class GalleryScene extends Scene {
 
   renderUI() {
     context.fillStyle = 'lightgray';
-    context.fillRect(0, 620, WIDTH, 720);
+    context.fillRect(0, HEIGHT - 100, WIDTH, HEIGHT);
     context.fillRect(0, 0, WIDTH, 100);
     context.lineWidth = 6;
     drawSegment(new Vector(0, 100), new Vector(WIDTH, 100));
-    drawSegment(new Vector(0, 620), new Vector(WIDTH, 620));
+    drawSegment(new Vector(0, HEIGHT - 100), new Vector(WIDTH, HEIGHT - 100));
     context.fillStyle = 'black';
     drawText('Public Levels', new Vector(WIDTH / 2, 50), '50px Arial');
     this.renderButtons();
@@ -108,7 +108,7 @@ class GalleryScene extends Scene {
 
   onTouchDown(position) {
     super.onTouchDown(position);
-    if (position.y >= 100 && position.y < 620) {
+    if (position.y >= 100 && position.y < HEIGHT - 100) {
       this.draggingLevels = true;
     }
   }

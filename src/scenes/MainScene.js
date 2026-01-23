@@ -4,7 +4,7 @@ class MainScene extends Scene {
     this.setAnchorToTopLeft();
     this.buttons = [
       {
-        position: new Vector(WIDTH / 4 * 1, 210),
+        position: new Vector(WIDTH / 4 * 1, HEIGHT * 0.3),
         halfSize: new Vector(210, 50),
         onRelease: () => {
           changeScene(scenes.menu);
@@ -14,7 +14,7 @@ class MainScene extends Scene {
         font: '30px Arial'
       },
       {
-        position: new Vector(WIDTH / 4 * 3, 210),
+        position: new Vector(WIDTH / 4 * 3, HEIGHT * 0.3),
         halfSize: new Vector(210, 50),
         onRelease: () => {
           changeScene(scenes.gallery);
@@ -24,7 +24,7 @@ class MainScene extends Scene {
         font: '30px Arial'
       },
       {
-        position: new Vector(WIDTH / 4 * 1, 360),
+        position: new Vector(WIDTH / 4 * 1, HEIGHT * 0.5),
         halfSize: new Vector(210, 50),
         onRelease: () => {
           showForm([
@@ -50,7 +50,7 @@ class MainScene extends Scene {
         font: '30px Arial'
       },
       {
-        position: new Vector(WIDTH / 4 * 3, 360),
+        position: new Vector(WIDTH / 4 * 3, HEIGHT * 0.5),
         halfSize: new Vector(210, 50),
         onRelease: () => {
           showForm([
@@ -78,7 +78,7 @@ class MainScene extends Scene {
         font: '30px Arial'
       },
       {
-        position: new Vector(WIDTH / 2, 510),
+        position: new Vector(WIDTH / 2, HEIGHT * 0.7),
         halfSize: new Vector(210, 50),
         onRelease: () => {
           playerData.username = '';
