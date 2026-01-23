@@ -182,8 +182,8 @@ class PlayScene extends Scene {
       if (this.onSurfaceNow) {
         this.onSurfaceNow = false;
         this.onSurface = true;
-        clearTimeout(this.onSurfaceTimeout);
-        this.onSurfaceTimeout = setTimeout(() => {
+        clearTimeoutIngame(this.onSurfaceTimeout);
+        this.onSurfaceTimeout = setTimeoutIngame(() => {
           this.onSurface = false;
         }, 200);
       }
@@ -194,14 +194,13 @@ class PlayScene extends Scene {
         const sign = this.onSurfaceDirection;
         if (sign != 0) {
           const difference = velocity.x - angularVelocity * radius * sign;
-          this.playerBody.linearVelocity.copy({ x: velocity.x - difference * 0.3, y: velocity.y });
-          this.playerBody.angularVelocity = angularVelocity + difference / radius * sign;
+          this.playerBody.angularVelocity = angularVelocity + difference / radius * sign * DELTA_TIME;
         }
       }
       if (gameInput.jump && this.canJump && this.onSurface) {
         this.playerBody.linearVelocity.copy({ x: this.playerBody.linearVelocity.x, y: this.physics.gravity.y > 0 ? Math.min(this.playerBody.linearVelocity.y, -440) : Math.max(this.playerBody.linearVelocity.y, 440) });
         this.canJump = false;
-        setTimeout(() => {
+        setTimeoutIngame(() => {
           this.canJump = true;
         }, 600);
       }

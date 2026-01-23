@@ -38,7 +38,7 @@ class Vanisher extends Platform {
     };
     body.onCollisionWithPlayer = (point) => {
       if (!body.vanishTimeout) {
-        body.vanishTimeout = setTimeout(() => {
+        body.vanishTimeout = setTimeoutIngame(() => {
           body.toBeDeleted = true;
           body.destroy();
         }, this.delay);

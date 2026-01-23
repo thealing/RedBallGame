@@ -38,6 +38,7 @@ let playerData;
 let gameData;
 let gameInput;
 let globalPublishedLevels;
+let ingameTimers;
 
 init();
 
@@ -57,6 +58,7 @@ function init() {
   context = canvas.getContext('2d');
   context.textBaseline = 'middle';
   globalPublishedLevels = [];
+  ingameTimers = new Set();
   mousePosition = new Vector(0, 0);
   mouseIsDown = false;
   pressedKeys = new Set();
@@ -64,7 +66,7 @@ function init() {
   function onMouseDown() {
     mouseDownPosition = mousePosition.clone();
     mouseIsDown = true;
-    mouseLongPressTimeout = setTimeout(onLongClick, LONG_PRESS_DELAY, mousePosition);
+    mouseLongPressTimeout = setTimeoutIngame(onLongClick, LONG_PRESS_DELAY, mousePosition);
     clicksCanceled = false;
     onTouchDown(mousePosition);
   };
@@ -72,7 +74,7 @@ function init() {
     if (!clicksCanceled && mouseDownPosition && Vector.distance(mouseDownPosition, mousePosition) <= TOUCH_RANGE) {
       onClick(mouseDownPosition);
     }
-    clearTimeout(mouseLongPressTimeout);
+    clearTimeoutIngame(mouseLongPressTimeout);
     mouseIsDown = false;
     onTouchUp(mousePosition);
   };
@@ -80,7 +82,7 @@ function init() {
     const position = screenToCanvasPosition(pageX, pageY);
     if (mouseIsDown) {
       if (Vector.distance(mouseDownPosition, mousePosition) > TOUCH_RANGE) {
-        clearTimeout(mouseLongPressTimeout);
+        clearTimeoutIngame(mouseLongPressTimeout);
         clicksCanceled = true;
       }
       onTouchMove(position, Vector.subtract(position, mousePosition));
@@ -164,6 +166,30 @@ function init() {
   }
 }
 
+function setTimeoutIngame(callback, delay, ...args) {
+  const timer = { callback, delay, args };
+  ingameTimers.add(timer);
+  return timer;
+}
+
+function clearTimeoutIngame(timer) {
+  ingameTimers.delete(timer);
+}
+
+function updateIngameTimers() {
+  for (const timer of ingameTimers) {
+    timer.delay -= DELTA_TIME * 1000;
+    if (timer.delay <= 0 && timer.callback) {
+      timer.callback(...timer.args);
+    }
+  }
+  for (const timer of ingameTimers) {
+    if (timer.delay <= 0) {
+      ingameTimers.delete(timer);
+    }
+  }
+}
+
 function changeScene(newScene) {
   if (playerData.username) {
     syncPlayer();
@@ -185,6 +211,7 @@ function update() {
   if (gameData.paused) {
     return;
   }
+  updateIngameTimers();
   currentScene.update();
 }
 
