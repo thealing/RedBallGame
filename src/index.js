@@ -2,7 +2,8 @@ const HEIGHT = 720;
 const WIDTH = Math.max(HEIGHT / 3 * 4, window.innerWidth / window.innerHeight * HEIGHT);
 const DELTA_TIME = 0.01;
 const TOUCH_RANGE = 20;
-const LONG_PRESS_DELAY = 650;
+const LONG_PRESS_RADIUS = 4;
+const LONG_PRESS_DELAY = 700;
 const SERVER_URL = 'https://classy-creponne-dc941b.netlify.app/.netlify/functions/api';
 
 let canvas;
@@ -71,7 +72,7 @@ function init() {
     onTouchDown(mousePosition);
   };
   function onMouseUp() {
-    if (!clicksCanceled && mouseDownPosition && Vector.distance(mouseDownPosition, mousePosition) <= TOUCH_RANGE) {
+    if (!clicksCanceled && mouseDownPosition && Vector.distance(mouseDownPosition, mousePosition) <= LONG_PRESS_RADIUS) {
       onClick(mouseDownPosition);
     }
     clearTimeoutIngame(mouseLongPressTimeout);
@@ -81,7 +82,7 @@ function init() {
   function onMouseMove(pageX, pageY) {
     const position = screenToCanvasPosition(pageX, pageY);
     if (mouseIsDown) {
-      if (Vector.distance(mouseDownPosition, mousePosition) > TOUCH_RANGE) {
+      if (Vector.distance(mouseDownPosition, mousePosition) > LONG_PRESS_RADIUS) {
         clearTimeoutIngame(mouseLongPressTimeout);
         clicksCanceled = true;
       }
