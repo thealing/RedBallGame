@@ -194,7 +194,7 @@ class PlayScene extends Scene {
         const sign = this.onSurfaceDirection;
         if (sign != 0) {
           const difference = velocity.x - angularVelocity * radius * sign;
-          this.playerBody.angularVelocity = angularVelocity + difference / radius * sign * DELTA_TIME;
+          this.playerBody.angularVelocity = angularVelocity + difference / radius * sign * 10 * DELTA_TIME;
         }
       }
       if (gameInput.jump && this.canJump && this.onSurface) {
