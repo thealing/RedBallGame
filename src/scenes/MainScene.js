@@ -71,7 +71,7 @@ class MainScene extends Scene {
                 playerData.ballColor = value;
               }
             }
-          ]);
+          ], syncPlayer);
         },
         type: 2,
         text: 'Preferences',
@@ -81,9 +81,11 @@ class MainScene extends Scene {
         position: new Vector(WIDTH / 2, HEIGHT * 0.7),
         halfSize: new Vector(210, 50),
         onRelease: () => {
-          playerData.username = '';
-          playerData.password = '';
-          showUserPopup();
+          syncPlayer(() => {
+            initPlayerData();
+            saveLocalData();
+            showUserPopup();
+          });
         },
         type: 2,
         text: 'Log Out',

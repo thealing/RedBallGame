@@ -38,6 +38,7 @@ let playerData;
 let gameData;
 let gameInput;
 let ingameTimers;
+let localErrors;
 
 init();
 
@@ -61,6 +62,7 @@ function init() {
   mouseIsDown = false;
   pressedKeys = new Set();
   touchPositions = new Map();
+  localErrors = {};
   function onMouseDown() {
     mouseDownPosition = mousePosition.clone();
     mouseIsDown = true;
@@ -149,6 +151,7 @@ function init() {
   initPlayerData();
   initGameData();
   initGameInput();
+  loadLocalData();
   changeScene(scenes.main);
   setInterval(update, DELTA_TIME * 1000);
   requestAnimationFrame(render);
@@ -366,7 +369,11 @@ function trySignup(username, password, callback) {
 }
 
 function syncPlayer(callback) {
+  saveLocalData();
   if (playerData.guestMode) {
+    if (callback) {
+      callback();
+    }
     return;
   }
   const playerDataJson = JSON.stringify({ playerData });
@@ -410,6 +417,7 @@ function loadPlayer(callback) {
     .then((data) => {
       setRecursively(playerData, data.playerData);
       extendRecursively(playerData, createPlayerData());
+      saveLocalData();
       if (callback) {
         callback();
       }
@@ -432,6 +440,35 @@ function getPublicLevels(callback) {
     callback(data.levels);
   })
   .catch(console.warn);
+}
+
+function saveLocalData() {
+  try {
+    const playerDataJson = JSON.stringify(playerData);
+    localStorage.setItem("player", playerDataJson);
+    return true;
+  }
+  catch (e) {
+    if (!localErrors.saveError) {
+      localErrors.saveError = e;
+      alert("Failed to save local data: " + e);
+    }
+  }
+}
+
+function loadLocalData() {
+  try {
+    const playerDataJson = localStorage.getItem("player");
+    if (playerDataJson) {
+      playerData = JSON.parse(playerDataJson);
+    }
+  }
+  catch (e) {
+    if (!localErrors.loadError) {
+      localErrors.loadError = e;
+      alert("Failed to load local data: " + e);
+    }
+  }
 }
 
 function createInputPopup() {
@@ -814,6 +851,7 @@ function loginGuest() {
   playerData.guestMode = true;
   gameData.paused = false;
   userDiv.style.display = 'none';
+  saveLocalData();
 }
 
 function drawCircle(position, radius) {
