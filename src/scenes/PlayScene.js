@@ -281,9 +281,9 @@ class PlayScene extends Scene {
     }
   }
 
-  updateGameInput(position, add) {
+  updateGameInput() {
     initGameInput();
-    for (const [touchId, position] of touchPositions) {
+    const processTouch = (position) => {
       if (testPointRect(position, Vector.subtract(this.backwardButton.position, this.backwardButton.halfSize), Vector.add(this.backwardButton.position, this.backwardButton.halfSize))) {
         gameInput.backward = true;
       }
@@ -293,6 +293,12 @@ class PlayScene extends Scene {
       if (testPointRect(position, Vector.subtract(this.jumpButton.position, this.jumpButton.halfSize), Vector.add(this.jumpButton.position, this.jumpButton.halfSize))) {
         gameInput.jump = true;
       }
+    };
+    if (mouseIsDown) {
+      processTouch(mousePosition);
+    }
+    for (const [touchId, position] of touchPositions) {
+      processTouch(position);
     }
     if (pressedKeys.has('a')) {
       gameInput.backward = true;
