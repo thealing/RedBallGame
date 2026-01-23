@@ -11,10 +11,11 @@ class Platform extends Item {
     if (distanceFromSegment(point, this.start, this.end) < 10) {
       const distanceFromStart = Vector.distance(point, this.start);
       const distanceFromEnd = Vector.distance(point, this.end);
-      if (distanceFromStart < 40 && distanceFromEnd >= 40) {
+      const endTouchRange = Math.min(TOUCH_RANGE, this.getLength() / 3);
+      if (distanceFromStart < endTouchRange && distanceFromEnd >= endTouchRange) {
         this.dragEnd = 1;
       }
-      else if (distanceFromEnd < 40 && distanceFromStart >= 40) {
+      else if (distanceFromEnd < endTouchRange && distanceFromStart >= endTouchRange) {
         this.dragEnd = 2;
       }
       else {

@@ -30,7 +30,7 @@ class Sensor extends Item {
   }
 
   drag(position, delta) {
-    if (!position) {
+    if (!position || this.dragEnd == 0) {
       this.lower.add(delta);
       this.upper.add(delta);
     }
@@ -40,11 +40,6 @@ class Sensor extends Item {
   }
 
   dragTo(location) {
-    if (this.dragEnd == 0) {
-      const delta = Vector.subtract(location, Vector.middle(this.lower, this.upper));
-      this.lower.add(delta);
-      this.upper.add(delta);
-    }
     if (this.dragEnd & 1) {
       this.lower.x = location.x;
       this.lower.x = Math.min(this.lower.x, this.upper.x - 80);
