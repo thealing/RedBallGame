@@ -55,12 +55,12 @@ class MainScene extends Scene {
         onRelease: () => {
           showForm([
             {
-              label: 'Long Press Delay',
+              label: 'Double Click Time',
               type: 'number',
               step: 100,
-              get: () => playerData.longPressDelay,
+              get: () => playerData.doubleClickTime,
               set: (value) => {
-                playerData.longPressDelay = value;
+                playerData.doubleClickTime = value;
               }
             },
             {
