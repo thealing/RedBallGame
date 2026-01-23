@@ -70,14 +70,11 @@ function init() {
   function onMouseUp() {
     if (!clicksCanceled && mouseDownPosition && Vector.distance(mouseDownPosition, mousePosition) <= TOUCH_RANGE) {
       onClick(mouseDownPosition);
-      if (doubleClickPosition && Vector.distance(doubleClickPosition, mousePosition) <= TOUCH_RANGE) {
+      if (doubleClickPosition && performance.now() < doubleClickTimeout && Vector.distance(doubleClickPosition, mousePosition) <= TOUCH_RANGE) {
         onDoubleClick(doubleClickPosition);
       }
     }
-    if (doubleClickTimeout) {
-      clearTimeout(doubleClickTimeout);
-    }
-    doubleClickTimeout = setTimeout(cancelDoubleClick, playerData.doubleClickTime);
+    doubleClickTimeout = performance.now() + playerData.doubleClickTime;
     doubleClickPosition = mouseDownPosition;
     mouseIsDown = false;
     onTouchUp(mousePosition);
@@ -86,7 +83,6 @@ function init() {
     const position = screenToCanvasPosition(pageX, pageY);
     if (mouseIsDown) {
       if (Vector.distance(mouseDownPosition, mousePosition) > TOUCH_RANGE) {
-        clearTimeout(doubleClickTimeout);
         clicksCanceled = true;
       }
       onTouchMove(position, Vector.subtract(position, mousePosition));
@@ -158,10 +154,6 @@ function init() {
   requestAnimationFrame(render);
 }
 
-function cancelDoubleClick() {
-  doubleClickPosition = null;
-}
-
 function setTimeoutIngame(callback, delay, ...args) {
   const timer = { callback, delay, args };
   ingameTimers.add(timer);
@@ -187,6 +179,7 @@ function updateIngameTimers() {
 }
 
 function changeScene(newScene) {
+  doubleClickPosition = null;
   if (playerData.username) {
     syncPlayer();
   }
