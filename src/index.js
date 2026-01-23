@@ -102,6 +102,7 @@ function init() {
   canvas.addEventListener('mouseout', (e) => onMouseUp());
   canvas.addEventListener('mousemove', (e) => onMouseMove(e.pageX, e.pageY));
   canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
     const touch = e.touches[0];
     onMouseMove(touch.pageX, touch.pageY);
     onMouseDown();
@@ -110,6 +111,7 @@ function init() {
     }
   });
   canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
     onMouseUp();
     for (const touch of e.changedTouches) {
       touchPositions.delete(touch.identifier);
@@ -119,6 +121,7 @@ function init() {
     }
   });
   canvas.addEventListener('touchcancel', (e) => {
+    e.preventDefault();
     onMouseUp();
     for (const touch of e.changedTouches) {
       touchPositions.delete(touch.identifier);
@@ -128,6 +131,7 @@ function init() {
     }
   });
   canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
     const touch = e.touches[0];
     onMouseMove(touch.pageX, touch.pageY);
     for (const touch of e.changedTouches) {
@@ -568,7 +572,10 @@ function scaleMenus() {
 function scalePopup(element) {
   const canvasHeight = canvas.offsetHeight;
   const canvasWidth = canvas.offsetWidth;
-  const scale = Math.min(1, Math.min(0.9 * canvasHeight / parseFloat(element.style.height), 0.9 * canvasWidth / parseFloat(element.style.width)));
+  const rect = document.body.getBoundingClientRect();
+  const width = Math.min(rect.width, canvasWidth);
+  const height = Math.min(rect.height, canvasHeight);
+  const scale = Math.min(1, Math.min(0.9 * height / parseFloat(element.style.height), 0.9 * width / parseFloat(element.style.width)));
   element.style.transform = `scale(${scale})`;
   element.style.transformOrigin = 'center';
 }
@@ -744,10 +751,6 @@ function showForm(items, callback) {
   setTimeout(scaleMenus, 0);
   document.body.appendChild(form);
   gameData.paused = true;
-}
-
-function isFormVisible() {
-  return formDiv || userDiv.style.display != 'none' || popupDiv.style.display != 'none';
 }
 
 function uiLogin(callback) {
