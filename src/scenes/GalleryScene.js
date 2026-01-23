@@ -2,15 +2,18 @@ class GalleryScene extends Scene {
   enter() {
     super.enter();
     this.setAnchorToTopLeft();
-    this.levelsOffset ??= 100;
+    this.levelsOffset ??= 0;
     this.selectedLevel ??= -1;
+    this.filter ??= '';
     this.draggingLevels = false;
     this.loading = true;
-    this.levels = globalPublishedLevels;
+    this.rawLevels ??= [];
+    this.levels ??= [];
     getPublicLevels((levels) => {
       this.loading = false;
-      this.levels = levels.reverse();
-      globalPublishedLevels = this.levels;
+      levels.reverse();
+      this.rawLevels = levels;
+      this.filterLevels();
     });
     this.buttons = [
       {
@@ -23,7 +26,43 @@ class GalleryScene extends Scene {
         text: 'BACK',
         font: '30px Arial'
       },
+      {
+        position: new Vector(WIDTH - 90, 670),
+        halfSize: new Vector(80, 40),
+        onRelease: () => {
+          showForm([
+            {
+              label: 'Filter Text',
+              type: 'text',
+              get: () => this.filter,
+              set: (value) => {
+                this.filter = value;
+                this.selectedLevel = -1;
+                this.levelsOffset = 0;
+                this.filterLevels();
+              }
+            }
+          ]);
+        },
+        type: 1,
+        text: 'FILTER',
+        font: '30px Arial'
+      },
     ];
+  }
+
+  getLevelTitle(level) {
+    return level.author + " : " + level.name;
+  }
+
+  filterLevels() {
+    this.levels = [];
+    for (const level of this.rawLevels) {
+      const title = this.getLevelTitle(level);
+      if (title.toLowerCase().includes(this.filter)) {
+        this.levels.push(level);
+      }
+    }
   }
 
   render() {
@@ -41,7 +80,7 @@ class GalleryScene extends Scene {
     context.lineWidth = 2;
     context.lineCap = 'flat';
     context.save();
-    context.translate(0, this.levelsOffset);
+    context.translate(0, this.levelsOffset + 100);
     for (let i = 0; i < this.levels.length; i++) {
       if (i == this.selectedLevel) {
         context.fillStyle = 'darkgray';
@@ -49,7 +88,7 @@ class GalleryScene extends Scene {
         context.fillStyle = 'black';
         drawImage(images.play_level, new Vector(WIDTH - 56, i * 100 + 50), 0);
       }
-      drawText(this.levels[i].author + " : " + this.levels[i].name, new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH - 222);
+      drawText(this.getLevelTitle(this.levels[i]), new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH - 222);
       drawSegment(new Vector(0, (i + 1) * 100), new Vector(WIDTH, (i + 1) * 100));
     }
     context.restore();
@@ -83,8 +122,8 @@ class GalleryScene extends Scene {
     super.onTouchMove(position, delta);
     if (this.draggingLevels) {
       this.levelsOffset += delta.y;
-      this.levelsOffset = Math.max(this.levelsOffset, 100 - (this.levels.length - 5) * 100);
-      this.levelsOffset = Math.min(this.levelsOffset, 100);
+      this.levelsOffset = Math.max(this.levelsOffset, -(this.levels.length - 5) * 100);
+      this.levelsOffset = Math.min(this.levelsOffset, 0);
     }
   }
 
@@ -92,7 +131,7 @@ class GalleryScene extends Scene {
     if (this.uiTouched) {
       return;
     }
-    const touchedLevel = Math.floor((position.y - this.levelsOffset) / 100);
+    const touchedLevel = Math.floor((position.y - this.levelsOffset) / 100 - 1);
     if (touchedLevel == this.selectedLevel) {
       if (position.x < WIDTH - 106) {
         this.selectedLevel = -1;
