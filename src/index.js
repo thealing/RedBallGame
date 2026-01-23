@@ -102,7 +102,6 @@ function init() {
   canvas.addEventListener('mouseout', (e) => onMouseUp());
   canvas.addEventListener('mousemove', (e) => onMouseMove(e.pageX, e.pageY));
   canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
     const touch = e.touches[0];
     onMouseMove(touch.pageX, touch.pageY);
     onMouseDown();
@@ -111,7 +110,6 @@ function init() {
     }
   });
   canvas.addEventListener('touchend', (e) => {
-    e.preventDefault();
     onMouseUp();
     for (const touch of e.changedTouches) {
       touchPositions.delete(touch.identifier);
@@ -121,7 +119,6 @@ function init() {
     }
   });
   canvas.addEventListener('touchcancel', (e) => {
-    e.preventDefault();
     onMouseUp();
     for (const touch of e.changedTouches) {
       touchPositions.delete(touch.identifier);
@@ -131,7 +128,6 @@ function init() {
     }
   });
   canvas.addEventListener('touchmove', (e) => {
-    e.preventDefault();
     const touch = e.touches[0];
     onMouseMove(touch.pageX, touch.pageY);
     for (const touch of e.changedTouches) {
@@ -735,6 +731,7 @@ function showForm(items, callback) {
   button.style.fontSize = '40px';
   button.innerHTML = 'OK';
   button.onclick = () => {
+    formDiv = null;
     document.body.removeChild(form);
     gameData.paused = false;
     if (callback) {
@@ -747,6 +744,10 @@ function showForm(items, callback) {
   setTimeout(scaleMenus, 0);
   document.body.appendChild(form);
   gameData.paused = true;
+}
+
+function isFormVisible() {
+  return formDiv || userDiv.style.display != 'none' || popupDiv.style.display != 'none';
 }
 
 function uiLogin(callback) {
