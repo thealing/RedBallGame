@@ -2,8 +2,8 @@ class GalleryScene extends Scene {
   enter() {
     super.enter();
     this.setAnchorToTopLeft();
-    this.levelsOffset = 100;
-    this.selectedLevel = -1;
+    this.levelsOffset ??= 100;
+    this.selectedLevel ??= -1;
     this.draggingLevels = false;
     this.loading = true;
     this.levels = globalPublishedLevels;
@@ -89,6 +89,9 @@ class GalleryScene extends Scene {
   }
 
   onClick(position) {
+    if (this.uiTouched) {
+      return;
+    }
     const touchedLevel = Math.floor((position.y - this.levelsOffset) / 100);
     if (touchedLevel == this.selectedLevel) {
       if (position.x < WIDTH - 106) {
