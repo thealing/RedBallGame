@@ -74,6 +74,7 @@ class PlayScene extends Scene {
     this.terrainBodies = PhysicsUtil.createTerrainBodies(this.physics, this.level.terrain);
     this.gadgetBodies = this.level.gadgets.flatMap((gadget) => gadget.createBodies(this.physics));
     this.onSurfaceNow = false;
+    this.onSurfaceDirection = 0;
     this.onSurface = false;
     this.onSurfaceTimeout = null;
     this.canJump = true;
@@ -92,6 +93,10 @@ class PlayScene extends Scene {
         return;
       }
       this.onSurfaceNow ||= this.physics.gravity.y > 0 ? collision.point.y >= this.playerBody.position.y + 10 : collision.point.y <= this.playerBody.position.y - 10;
+      this.onSurfaceDirection = Math.sign(collision.point.y - this.playerBody.position.y);
+      if (this.onSurfaceDirection != Math.sign(this.physics.gravity.y)) {
+        this.onSurfaceDirection = 0;
+      }
     };
     for (const gadgetBody of this.gadgetBodies) {
       gadgetBody.onPhysicsCollision = (otherBody, collision) => {
@@ -121,13 +126,17 @@ class PlayScene extends Scene {
       this.started = true;
     }
     if (this.started && !this.ended) {
+      this.playerBody.staticFriction = 0.5;
+      this.playerBody.dynamicFriction = 0.5;
       if (gameInput.forward && gameInput.backward) {
-        this.playerBody.staticFriction = 0.99;
-        this.playerBody.dynamicFriction = 0.99;
+        if (this.playerBody.linearVelocity.x < 0) {
+          this.playerBody.applyForceAtCenter({ x: 2000000, y: 0 });
+        }
+        if (this.playerBody.linearVelocity.x > 0) {
+          this.playerBody.applyForceAtCenter({ x: -2000000, y: 0 });
+        }
       }
       else {
-        this.playerBody.staticFriction = 0.5;
-        this.playerBody.dynamicFriction = 0.5;
         if (gameInput.forward) {
           if (this.playerBody.linearVelocity.x < 400) {
             this.playerBody.applyForceAtCenter({ x: 4000000, y: 0 });
@@ -182,9 +191,12 @@ class PlayScene extends Scene {
         const radius = this.playerBody.colliders.first.item.worldShape.radius;
         const velocity = this.playerBody.linearVelocity;
         const angularVelocity = this.playerBody.angularVelocity;
-        let difference = velocity.x - angularVelocity * radius;
-        this.playerBody.linearVelocity.copy({ x: velocity.x - difference * 0.3, y: velocity.y });
-        this.playerBody.angularVelocity = angularVelocity + difference / radius;
+        const sign = this.onSurfaceDirection;
+        if (sign != 0) {
+          const difference = velocity.x - angularVelocity * radius * sign;
+          this.playerBody.linearVelocity.copy({ x: velocity.x - difference * 0.3, y: velocity.y });
+          this.playerBody.angularVelocity = angularVelocity + difference / radius * sign;
+        }
       }
       if (gameInput.jump && this.canJump && this.onSurface) {
         this.playerBody.linearVelocity.copy({ x: this.playerBody.linearVelocity.x, y: this.physics.gravity.y > 0 ? Math.min(this.playerBody.linearVelocity.y, -440) : Math.max(this.playerBody.linearVelocity.y, 440) });
