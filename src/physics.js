@@ -57,6 +57,10 @@ class Circle {
   getAngularMassFactor() {
     return this.radius ** 2 / 2;
   }
+
+  containsPoint(point) {
+    return Vector.distanceSquared(this.center, point) <= this.radius ** 2;
+  }
 }
 
 class Polygon {
@@ -142,6 +146,17 @@ class Polygon {
       denom += Vector.cross(a, b) * 6;
     }
     return numer / denom - this.getCentroid().length();
+  }
+
+  containsPoint(point) {
+    for (let i = this.points.length - 1, j = 0; j < this.points.length; i = j, j++) {
+      const edge = Vector.subtract(this.points[j], this.points[i]);
+      const d  = Vector.subtract(point, this.points[i]);
+      if (Vector.cross(edge, d) < 0) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 

@@ -12,9 +12,10 @@ class Windmill extends PowerItem {
 
   testPoint(point) {
     let result = false;
-    for (let i = 0; i < this.blades; i++) {
-      const angle = this.angle + Math.PI * 2 / this.blades * i;
-      result ||= distanceFromSegment(point, this.center, Vector.add(this.center, Vector.polar(angle).multiply(this.size * 0.8))) <= this.size / 10;
+    const localPoint = Vector.subtract(point, this.center).rotate(-this.angle);
+    const shapes = this.createShapes();
+    for (const shape of shapes) {
+      result ||= shape.containsPoint(localPoint);
     }
     return result;
   }
@@ -85,22 +86,9 @@ class Windmill extends PowerItem {
 
   createBodies(world) {
     const body = world.createBody(PhysicsBodyType.KINEMATIC);
-    body.createCollider(new Circle(new Vector(0, 0), 20), 1);
-    for (let i = 0; i < this.blades; i++) {
-      const angle = Math.PI * 2 / this.blades * i;
-      const points = [
-        new Vector(0, 0),
-        new Vector(0, -0.01),
-        new Vector(0.448, -0.01),
-        new Vector(0.437, 0.036),
-      ];
-      for (let point of points) {
-        point.rotate(angle).multiply(2 * this.size);
-        if (this.reversed) {
-          point.y *= -1;
-        }
-      }
-      body.createCollider(new Polygon(points), 1);
+    const shapes = this.createShapes();
+    for (const shape of shapes) {
+      body.createCollider(shape, 1);
     }
     body.position.copy(this.center);
     body.angle = this.angle;
@@ -120,5 +108,27 @@ class Windmill extends PowerItem {
     };
     super.extendBody(body);
     return [body];
+  }
+
+  createShapes() {
+    const shapes = [];
+    shapes.push(new Circle(new Vector(0, 0), 20));
+    for (let i = 0; i < this.blades; i++) {
+      const angle = Math.PI * 2 / this.blades * i;
+      const points = [
+        new Vector(0, 0),
+        new Vector(0, -0.01),
+        new Vector(0.448, -0.01),
+        new Vector(0.437, 0.036),
+      ];
+      for (let point of points) {
+        point.rotate(angle).multiply(2 * this.size);
+        if (this.reversed) {
+          point.y *= -1;
+        }
+      }
+      shapes.push(new Polygon(points));
+    }
+    return shapes;
   }
 }
