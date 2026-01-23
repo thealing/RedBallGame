@@ -68,7 +68,7 @@ class Scene {
   onClick(position) {
   }
   
-  onLongClick(position) {
+  onDoubleClick(position) {
   }
   
   updateButtons() {

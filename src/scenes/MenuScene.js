@@ -96,7 +96,7 @@ class MenuScene extends Scene {
     super.onTouchMove(position, delta);
     if (this.draggingLevels == 'drafts') {
       this.draftLevelsOffset += delta.y;
-      this.draftLevelsOffset = Math.max(this.draftLevelsOffset, 200 - playerData.draftLevels.length * 100);
+      this.draftLevelsOffset = Math.max(this.draftLevelsOffset, 300 - playerData.draftLevels.length * 100);
       this.draftLevelsOffset = Math.min(this.draftLevelsOffset, 200);
     }
     if (this.draggingLevels == 'published') {
@@ -109,7 +109,7 @@ class MenuScene extends Scene {
   onClick(position) {
     if (position.x < WIDTH / 2) {
       const touchedDraftLevel = Math.floor((position.y - this.draftLevelsOffset) / 100);
-      if (touchedDraftLevel == playerData.draftLevels.length) {
+      if (touchedDraftLevel == playerData.draftLevels.length && position.x < WIDTH / 4 + 125 && position.x > WIDTH / 4 - 125) {
         playerData.levelsCreated++;
         playerData.draftLevels.push({
           id: generateRandomId(),
@@ -128,9 +128,6 @@ class MenuScene extends Scene {
       }
       else if (touchedDraftLevel >= 0) {
         if (touchedDraftLevel == this.selectedDraftLevel) {
-          if (position.x < WIDTH / 2 - 206) {
-            this.selectedDraftLevel = -1;
-          }
           if (position.x >= WIDTH / 2 - 206 && position.x < WIDTH / 2 - 106) {
             gameData.currentLevel = playerData.draftLevels[this.selectedDraftLevel];
             changeScene(scenes.editor);
@@ -144,14 +141,15 @@ class MenuScene extends Scene {
           this.selectedDraftLevel = touchedDraftLevel;
           this.selectedPublishedLevel = -1;
         }
+        else {
+          this.selectedPublishedLevel = -1;
+          this.selectedDraftLevel = -1;
+        }
       }
     }
     else {
       const touchedPublishedLevel = Math.floor((position.y - this.publishedLevelsOffset) / 100);
       if (touchedPublishedLevel >= 0 && touchedPublishedLevel == this.selectedPublishedLevel) {
-        if (position.x < WIDTH - 106) {
-          this.selectedPublishedLevel = -1;
-        }
         if (position.x >= WIDTH - 206 && position.x < WIDTH - 106) {
           gameData.currentLevel = playerData.publishedLevels[touchedPublishedLevel];
           gameData.onLevelExit = () => {
@@ -164,10 +162,18 @@ class MenuScene extends Scene {
         this.selectedPublishedLevel = touchedPublishedLevel;
         this.selectedDraftLevel = -1;
       }
+      else {
+        this.selectedPublishedLevel = -1;
+        this.selectedDraftLevel = -1;
+      }
+    }
+    if (position.y <= 200 || position.y >= HEIGHT - 100) {
+      this.selectedPublishedLevel = -1;
+      this.selectedDraftLevel = -1;
     }
   }
   
-  onLongClick(position) {
+  onDoubleClick(position) {
     if (position.x < WIDTH / 2) {
       const touchedDraftLevel = Math.floor((position.y - this.draftLevelsOffset) / 100);
       if (touchedDraftLevel == this.selectedDraftLevel) {

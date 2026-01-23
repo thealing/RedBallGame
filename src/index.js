@@ -4,7 +4,6 @@ const WIDTH = Math.max(Math.max(MIN_WIDTH, window.innerWidth), window.innerWidth
 const HEIGHT = Math.max(Math.max(MIN_HEIGHT, window.innerHeight), window.innerHeight / window.innerWidth * MIN_WIDTH);
 const DELTA_TIME = 0.01;
 const TOUCH_RANGE = 20;
-const LONG_PRESS_RADIUS = 4;
 const SERVER_URL = 'https://classy-creponne-dc941b.netlify.app/.netlify/functions/api';
 
 let canvas;
@@ -30,7 +29,8 @@ let previousScene;
 let mousePosition;
 let mouseDownPosition;
 let mouseIsDown;
-let mouseLongPressTimeout;
+let doubleClickPosition;
+let doubleClickTimeout;
 let clicksCanceled;
 let pressedKeys;
 let touchPositions;
@@ -64,23 +64,29 @@ function init() {
   function onMouseDown() {
     mouseDownPosition = mousePosition.clone();
     mouseIsDown = true;
-    mouseLongPressTimeout = setTimeoutIngame(onLongClick, playerData.longPressDelay, mousePosition);
     clicksCanceled = false;
     onTouchDown(mousePosition);
   };
   function onMouseUp() {
-    if (!clicksCanceled && mouseDownPosition && Vector.distance(mouseDownPosition, mousePosition) <= LONG_PRESS_RADIUS) {
+    if (!clicksCanceled && mouseDownPosition && Vector.distance(mouseDownPosition, mousePosition) <= TOUCH_RANGE) {
       onClick(mouseDownPosition);
+      if (doubleClickPosition && Vector.distance(doubleClickPosition, mousePosition) <= TOUCH_RANGE) {
+        onDoubleClick(doubleClickPosition);
+      }
     }
-    clearTimeoutIngame(mouseLongPressTimeout);
+    if (doubleClickTimeout) {
+      clearTimeout(doubleClickTimeout);
+    }
+    doubleClickTimeout = setTimeout(cancelDoubleClick, playerData.doubleClickTime);
+    doubleClickPosition = mouseDownPosition;
     mouseIsDown = false;
     onTouchUp(mousePosition);
   };
   function onMouseMove(pageX, pageY) {
     const position = screenToCanvasPosition(pageX, pageY);
     if (mouseIsDown) {
-      if (Vector.distance(mouseDownPosition, mousePosition) > LONG_PRESS_RADIUS) {
-        clearTimeoutIngame(mouseLongPressTimeout);
+      if (Vector.distance(mouseDownPosition, mousePosition) > TOUCH_RANGE) {
+        clearTimeout(doubleClickTimeout);
         clicksCanceled = true;
       }
       onTouchMove(position, Vector.subtract(position, mousePosition));
@@ -152,6 +158,10 @@ function init() {
   requestAnimationFrame(render);
 }
 
+function cancelDoubleClick() {
+  doubleClickPosition = null;
+}
+
 function setTimeoutIngame(callback, delay, ...args) {
   const timer = { callback, delay, args };
   ingameTimers.add(timer);
@@ -216,6 +226,7 @@ function render() {
   context.clearRect(0, 0, canvas.width, canvas.height);
   currentScene.render();
   context.restore();
+  scaleMenus();
   requestAnimationFrame(render);
 }
 
@@ -247,11 +258,11 @@ function onClick(position) {
   currentScene.onClick(position);
 }
 
-function onLongClick(position) {
+function onDoubleClick(position) {
   if (gameData.paused) {
     return;
   }
-  currentScene.onLongClick(position);
+  currentScene.onDoubleClick(position);
 }
 
 function screenToCanvasPosition(x, y) {
@@ -270,7 +281,7 @@ function createPlayerData() {
     levelsCreated: 0,
     deathCount: 0,
     finishedLevelIds: [],
-    longPressDelay: 800,
+    doubleClickTime: 800,
     ballColor: '#ff2222',
   };
 }
@@ -549,9 +560,6 @@ function createUserPopup() {
   userDiv.appendChild(guestButton);
   userDiv.style.transform = 'scale(0)';
   document.body.appendChild(userDiv);
-  window.addEventListener('resize', scaleMenus);
-  window.addEventListener('orientationchange', scaleMenus);
-  setTimeout(scaleMenus, 0);
 }
 
 function scaleMenus() {

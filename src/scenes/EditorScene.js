@@ -943,8 +943,8 @@ class EditorScene extends Scene {
     }
   }
 
-  onLongClick(position) {
-    super.onLongClick(position);
+  onDoubleClick(position) {
+    super.onDoubleClick(position);
     const worldPosition = this.screenToWorldPosition(position);
     if (!this.uiTouched) {
       if (this.currentMode == 'navigate' && this.draggedObject) {
