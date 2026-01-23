@@ -102,4 +102,14 @@ class Teleport extends Item {
     body2.gadgetType = 1;
     return [body, body2];
   }
+
+  getCenter(point) {
+    if (point != undefined) {
+      this.testPoint(point);
+      if (this.dragEnd == 1) {
+        return this.center2;
+      }
+    }
+    return this.center;
+  }
 }

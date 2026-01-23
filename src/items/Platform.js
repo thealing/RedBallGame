@@ -100,7 +100,16 @@ class Platform extends Item {
     return Vector.distance(this.start, this.end);
   }
 
-  getCenter() {
+  getCenter(point) {
+    if (point != undefined) {
+      this.testPoint(point);
+      if (this.dragEnd == 1) {
+        return this.start;
+      }
+      if (this.dragEnd == 2) {
+        return this.end;
+      }
+    }
     return Vector.middle(this.start, this.end);
   }
 

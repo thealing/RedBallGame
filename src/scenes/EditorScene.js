@@ -948,36 +948,27 @@ class EditorScene extends Scene {
     const worldPosition = this.screenToWorldPosition(position);
     if (!this.uiTouched) {
       if (this.currentMode == 'navigate' && this.draggedObject) {
-        let x = worldPosition.x;
-        let y = worldPosition.y;
+        let editOrigin = this.draggedObject.getCenter?.(worldPosition) ?? this.draggedObject.center ?? this.draggedObject;
+        let editLocation = editOrigin.clone();
         showForm([
           {
             label: 'X',
             type: 'number',
-            get: () => x,
-            set: (value) => x = value
+            get: () => editLocation.x,
+            set: (value) => editLocation.x = value
           },
           {
             label: 'Y',
             type: 'number',
-            get: () => y,
-            set: (value) => y = value
+            get: () => editLocation.y,
+            set: (value) => editLocation.y = value
           }
         ], () => {
-          if (!isNaN(x) && !isNaN(y)) {
-            if (this.draggedObject == this.origin) {
-              this.origin.set(x, y);
-            }
-            else {
-              const worldDelta = new Vector(x, y).subtract(worldPosition);
-              if (this.draggedObject instanceof Item) {
-                this.draggedObject.drag(Vector.subtract(worldPosition, worldDelta), worldDelta);
-              }
-              else {
-                this.draggedObject.add(worldDelta);
-              }
-              this.level.verified = false;
-            }
+          if (editOrigin == this.draggedObject) {
+            this.draggedObject.copy(editLocation);
+          }
+          else {
+            this.draggedObject.drag?.(editOrigin, Vector.subtract(editLocation, editOrigin));
           }
         });
       }

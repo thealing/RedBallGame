@@ -107,4 +107,10 @@ class Sensor extends Item {
     super.extendBody(body);
     return [body];
   }
+
+  getCenter() {
+    const center = Vector.middle(this.lower, this.upper);
+    this.testPoint(center);
+    return center;
+  }
 }

@@ -122,4 +122,14 @@ class Saw extends PowerItem {
     super.extendBody(body);
     return [body];
   }
+
+  getCenter(point) {
+    if (point != undefined) {
+      this.testPoint(point);
+      if (this.dragEnd == 1) {
+        return this.center2;
+      }
+    }
+    return this.center;
+  }
 }
