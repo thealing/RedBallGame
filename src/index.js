@@ -20,9 +20,7 @@ let userErrorLabel;
 let userLoginButton;
 let userSignupButton;
 let playAsGuestButton;
-let editorDiv;
-let editorTextArea;
-let editorButton;
+let formDiv;
 let images;
 let scenes;
 let currentScene;
@@ -551,13 +549,38 @@ function createUserPopup() {
   userDiv.appendChild(userErrorLabel);
   userDiv.appendChild(userLoginButton);
   userDiv.appendChild(userSignupButton);
+  userDiv.style.transform = 'scale(0)';
   canvasContainer.appendChild(playAsGuestButton);
   document.body.appendChild(userDiv);
+  window.addEventListener('resize', scaleMenus);
+  window.addEventListener('orientationchange', scaleMenus);
+  setTimeout(scaleMenus, 0);
+}
+
+function scaleMenus() {
+  if (userDiv) {
+    scalePopup(userDiv);
+  }
+  if (popupDiv) {
+    scalePopup(popupDiv);
+  }
+  if (formDiv) {
+    scalePopup(formDiv);
+  }
+}
+
+function scalePopup(element) {
+  const canvasHeight = canvas.offsetHeight;
+  const canvasWidth = canvas.offsetWidth;
+  const scale = Math.min(1, Math.min(0.9 * canvasHeight / parseFloat(element.style.height), 0.9 * canvasWidth / parseFloat(element.style.width)));
+  element.style.transform = `scale(${scale})`;
+  element.style.transformOrigin = 'center';
 }
 
 function showInputPopup(text, callback) {
   gameData.paused = true;
   popupDiv.style.display = 'flex';
+  popupDiv.style.transform = 'scale(0)';
   popupInput.value = text;
   popupInput.focus();
   popupButton.onclick = () => {
@@ -567,6 +590,7 @@ function showInputPopup(text, callback) {
       callback(popupInput.value);
     }
   };
+  setTimeout(scaleMenus, 0);
 }
 
 function showUserPopup() {
@@ -718,6 +742,9 @@ function showForm(items, callback) {
     }
   }
   form.appendChild(button);
+  formDiv = form;
+  formDiv.style.transform = 'scale(0)';
+  setTimeout(scaleMenus, 0);
   document.body.appendChild(form);
   gameData.paused = true;
 }
