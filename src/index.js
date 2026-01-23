@@ -37,7 +37,6 @@ let touchPositions;
 let playerData;
 let gameData;
 let gameInput;
-let globalPublishedLevels;
 let ingameTimers;
 
 init();
@@ -57,7 +56,6 @@ function init() {
   document.body.appendChild(canvasContainer);
   context = canvas.getContext('2d');
   context.textBaseline = 'middle';
-  globalPublishedLevels = [];
   ingameTimers = new Set();
   mousePosition = new Vector(0, 0);
   mouseIsDown = false;
