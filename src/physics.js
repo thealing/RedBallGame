@@ -107,19 +107,15 @@ class Polygon {
   }
 
   getCentroid() {
-    if (this.points.length == 2) {
-      return Vector.middle(this.points[0], this.points[1]);
-    }
-    let centroid = this.points[0].clone();
+    let centroid = new Vector(0, 0);
     let weight = 0;
-    for (let i = 1; i + 1 < this.points.length; i++) {
-      const a = Vector.subtract(this.points[i], this.points[0]);
-      const b = Vector.subtract(this.points[i + 1], this.points[0]);
-      const d = Vector.cross(a, b);
-      centroid.add(Vector.add(a, b).multiply(d));
+     for (let i = this.points.length - 1, j = 0; j < this.points.length; i = j, j++) {
+      const a = this.points[i];
+      const b = this.points[j];
+      const d = Vector.distance(a, b);
+      centroid.add(Vector.middle(a, b).multiply(d));
       weight += d;
     }
-    weight *= 3;
     return centroid.divide(weight);
   }
 
@@ -269,9 +265,6 @@ class PhysicsWorld {
       body._updateWorldTransform();
     }
     for (const body of this.bodies) {
-      body.position.add(Vector.rotate(body.centerOfMass, body.angle));
-    }
-    for (const body of this.bodies) {
       switch (body.type) {
         case PhysicsBodyType.DYNAMIC: {
           body.linearVelocity.addScaled(this.gravity, deltaTime);
@@ -333,7 +326,7 @@ class PhysicsWorld {
         }
         this.counters.shapesTested++;
         const collision = Physics.collide(collider1, collider2);
-        if (collision?.collision == null || !isFinite(collision.collision.depth)) {
+        if (collision == null) {
           continue;
         }
         this.counters.collisionsDetected++;
@@ -410,9 +403,6 @@ class PhysicsWorld {
       body.position.add(Vector.multiply(body.linearVelocity, deltaTime));
       body.angle += body.angularVelocity * deltaTime;
       body.worldTransformIsDirty = true;
-    }
-    for (const body of this.bodies) {
-      body.position.subtract(Vector.rotate(body.centerOfMass, body.angle));
       body._updateWorldTransform();
     }
     this._inStep = false;
@@ -767,6 +757,9 @@ class Geometry {
         collisionNormal = axis;
       }
     }
+    if (collisionPoint == null) {
+      return null;
+    }
     return {
       point: collisionPoint,
       normal: collisionNormal,
@@ -832,6 +825,9 @@ class Geometry {
           collisionNormal = axis;
         }
       }
+    }
+    if (collisionPoint == null) {
+      return null;
     }
     return {
       point: collisionPoint,
