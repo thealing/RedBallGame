@@ -674,6 +674,7 @@ class EditorScene extends Scene {
 
   onTouchDown(position) {
     super.onTouchDown(position);
+    this.clickDisabled = false;
     if (!this.uiTouched) {
       const worldPosition = this.screenToWorldPosition(position);
       switch (this.currentMode) {
@@ -841,9 +842,13 @@ class EditorScene extends Scene {
           const dragAngle = Math.atan2(worldPosition.y - center.y, worldPosition.x - center.x);
           if (this.dragAngleOffset == null) {
             this.dragAngleOffset = gadget.angle - dragAngle;
+            this.previousAngle = gadget.angle;
           }
           else {
             gadget.angle = dragAngle + this.dragAngleOffset;
+            if (Math.abs(this.previousAngle - gadget.angle) >= Math.PI / 9) {
+              this.clickDisabled = true;
+            }
           }
         }
       }
@@ -854,7 +859,7 @@ class EditorScene extends Scene {
     super.onClick(position);
     const worldPosition = this.screenToWorldPosition(position);
     const coverTouched = position.y >= HEIGHT - 100 || (this.currentMode == 'gadgets' || this.currentMode == 'decor') && position.y >= HEIGHT - 220 && position.x <= 640;
-    if (!this.uiTouched && !coverTouched) {
+    if (!this.uiTouched && !coverTouched && !this.clickDisabled) {
       let type;
       if (this.currentMode == 'gadgets' && (type = this.currentGadgetType) < 0 || this.currentMode == 'decor' && (type = this.currentDecorType) < 0) {
         const i = this.getSelectedGadgetIndex(worldPosition);
