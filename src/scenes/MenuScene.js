@@ -2,10 +2,13 @@ class MenuScene extends Scene {
   enter() {
     super.enter();
     this.setAnchorToTopLeft();
-    this.draftLevelsOffset = 200;
-    this.publishedLevelsOffset = 200;
-    this.selectedDraftLevel = -1;
-    this.selectedPublishedLevel = -1;
+    if (this.currentUsername != playerData.username) {
+      this.currentUsername = playerData.username;
+      this.draftLevelsOffset = 200;
+      this.publishedLevelsOffset = 200;
+      this.selectedDraftLevel = -1;
+      this.selectedPublishedLevel = -1;
+    }
     this.draggingLevels = false;
     this.buttons = [
       {
