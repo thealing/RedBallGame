@@ -46,12 +46,13 @@ class MenuScene extends Scene {
         context.fillStyle = 'darkgray';
         context.fillRect(0, i * 100 + 1, WIDTH / 2, 100 - 1);
         context.fillStyle = 'black';
-        drawImage(images.edit_level, new Vector(WIDTH / 2 - 156, i * 100 + 50), 0);
-        drawImage(images.delete_level, new Vector(WIDTH / 2 - 56, i * 100 + 50), 0);
-        drawText(playerData.draftLevels[i].name, new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH / 2 - 222);
       }
-      else {
-        drawText(playerData.draftLevels[i].name, new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH / 2 - 22);
+      drawText(playerData.draftLevels[i].name, new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH / 2 - 22);
+      if (i == this.selectedDraftLevel) {
+        context.fillStyle = 'darkgray';
+        drawOpaqueLevelImage(images.edit_level, new Vector(WIDTH / 2 - 156, i * 100 + 50), 0);
+        drawOpaqueLevelImage(images.delete_level, new Vector(WIDTH / 2 - 56, i * 100 + 50), 0);
+        context.fillStyle = 'black';
       }
       drawSegment(new Vector(0, (i + 1) * 100), new Vector(WIDTH / 2, (i + 1) * 100));
     }
@@ -64,12 +65,13 @@ class MenuScene extends Scene {
         context.fillStyle = 'darkgray';
         context.fillRect(WIDTH / 2, i * 100 + 1, WIDTH, 100 - 1);
         context.fillStyle = 'black';
-        drawImage(images.play_level, new Vector(WIDTH - 156, i * 100 + 50), 0);
-        drawImage(images.download_level, new Vector(WIDTH - 256, i * 100 + 50), 0);
-        drawText(playerData.publishedLevels[i].name, new Vector(WIDTH / 2 + 10, i * 100 + 50), '40px Arial', 'left', WIDTH / 2 - 322);
       }
-      else {
-        drawText(playerData.publishedLevels[i].name, new Vector(WIDTH / 2 + 10, i * 100 + 50), '40px Arial', 'left', WIDTH / 2 - 122);
+      drawText(playerData.publishedLevels[i].name, new Vector(WIDTH / 2 + 10, i * 100 + 50), '40px Arial', 'left', WIDTH / 2 - 122);
+      if (i == this.selectedPublishedLevel) {
+        context.fillStyle = 'darkgray';
+        drawOpaqueLevelImage(images.play_level, new Vector(WIDTH - 156, i * 100 + 50), 0);
+        drawOpaqueLevelImage(images.download_level, new Vector(WIDTH - 256, i * 100 + 50), 0);
+        context.fillStyle = 'black';
       }
       drawImage(playerData.publishedLevels[i].sentToServer ? images.level_synced : images.level_dirty, new Vector(WIDTH - 56, i * 100 + 50), 0);
       drawSegment(new Vector(WIDTH / 2, (i + 1) * 100), new Vector(WIDTH, (i + 1) * 100));

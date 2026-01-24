@@ -988,6 +988,14 @@ function drawImage(image, position, angle, scale) {
   context.restore();
 }
 
+function drawOpaqueLevelImage(image, position, angle, scale) {
+  if (!image) {
+    return;
+  }
+  context.fillRect(position.x - image.width / 2 + 6, position.y - image.width / 2 + 6, image.width - 12, image.height - 12);
+  drawImage(image, position, angle, scale);
+}
+
 function drawText(text, position, font, alignment, maxWidth) {
   context.font = font;
   context.textAlign = alignment || 'center';

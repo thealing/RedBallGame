@@ -87,12 +87,13 @@ class GalleryScene extends Scene {
         context.fillStyle = 'darkgray';
         context.fillRect(0, i * 100 + 1, WIDTH, 100 - 1);
         context.fillStyle = 'black';
-        drawImage(images.play_level, new Vector(WIDTH - 56, i * 100 + 50), 0);
-        drawImage(images.download_level, new Vector(WIDTH - 156, i * 100 + 50), 0);
-        drawText(this.getLevelTitle(this.levels[i]), new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH - 222);
       }
-      else {
-        drawText(this.getLevelTitle(this.levels[i]), new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH - 22);
+      drawText(this.getLevelTitle(this.levels[i]), new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH - 22);
+      if (i == this.selectedLevel) {
+        context.fillStyle = 'darkgray';
+        drawOpaqueLevelImage(images.play_level, new Vector(WIDTH - 56, i * 100 + 50), 0);
+        drawOpaqueLevelImage(images.download_level, new Vector(WIDTH - 156, i * 100 + 50), 0);
+        context.fillStyle = 'black';
       }
       drawSegment(new Vector(0, (i + 1) * 100), new Vector(WIDTH, (i + 1) * 100));
     }
