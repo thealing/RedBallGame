@@ -1178,8 +1178,8 @@ function loadImages() {
   images.ui.icon_cross = loadImage('images/ui/icon_cross.png', 70, 70);
   images.ui.icon_polyline = loadImage('images/ui/icon_polyline.png', 70, 70);
   images.ui.icon_eraser = loadImage('images/ui/icon_eraser.png', 70, 70);
-  images.ui.icon_gadgets = loadImage('images/ui/icon_gadgets.png', 70, 70);
-  images.ui.icon_decorations = loadImage('images/ui/icon_decorations.png', 70, 70);
+  images.ui.icon_gadgets = loadImage('images/ui/icon_gadgets.png', 62, 62);
+  images.ui.icon_decorations = loadImage('images/ui/icon_decorations.png', 62, 62);
   images.ui.icon_grid = loadImage('images/ui/icon_grid.png', 50, 50);
   images.ui.icon_zoom_in = loadImage('images/ui/icon_zoom_in.png', 70, 70);
   images.ui.icon_zoom_out = loadImage('images/ui/icon_zoom_out.png', 70, 70);
