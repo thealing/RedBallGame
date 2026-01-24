@@ -678,10 +678,10 @@ class EditorScene extends Scene {
       const worldPosition = this.screenToWorldPosition(position);
       switch (this.currentMode) {
         case 'navigate': {
-          if (Vector.distance(worldPosition, this.level.player) < 50) {
+          if (Vector.distance(worldPosition, this.level.player) < 30) {
             this.draggedObject = this.level.player;
           }
-          else if (Vector.distance(worldPosition, this.level.goal) < 50) {
+          else if (Vector.distance(worldPosition, this.level.goal) < 30) {
             this.draggedObject = this.level.goal;
           }
           else {
@@ -891,10 +891,10 @@ class EditorScene extends Scene {
               break;
             }
             case -3: {
-              if (Vector.distance(worldPosition, this.level.player) < 50) {
+              if (Vector.distance(worldPosition, this.level.player) < 30) {
                 break;
               }
-              else if (Vector.distance(worldPosition, this.level.goal) < 50) {
+              else if (Vector.distance(worldPosition, this.level.goal) < 30) {
                 break;
               }
               else {
