@@ -333,7 +333,7 @@ class PhysicsWorld {
         }
         this.counters.shapesTested++;
         const collision = Physics.collide(collider1, collider2);
-        if (collision == null) {
+        if (collision?.collision == null || !isFinite(collision.collision.depth)) {
           continue;
         }
         this.counters.collisionsDetected++;
