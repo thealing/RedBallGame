@@ -118,8 +118,10 @@ class MenuScene extends Scene {
   
   onClick(position) {
     if (position.y <= 200 || position.y >= HEIGHT - 100) {
-      this.selectedPublishedLevel = -1;
-      this.selectedDraftLevel = -1;
+      if (!this.uiTouched) {
+        this.selectedPublishedLevel = -1;
+        this.selectedDraftLevel = -1;
+      }
       return;
     }
     if (position.x < WIDTH / 2) {
@@ -194,8 +196,10 @@ class MenuScene extends Scene {
   
   onDoubleClick(position) {
     if (position.y <= 200 || position.y >= HEIGHT - 100) {
-      this.selectedPublishedLevel = -1;
-      this.selectedDraftLevel = -1;
+      if (!this.uiTouched) {
+        this.selectedPublishedLevel = -1;
+        this.selectedDraftLevel = -1;
+      }
       return;
     }
     if (position.x < WIDTH / 2) {

@@ -71,9 +71,11 @@ function init() {
   };
   function onMouseUp() {
     if (!clicksCanceled && mouseDownPosition && Vector.distance(mouseDownPosition, mousePosition) <= TOUCH_RANGE) {
-      onClick(mouseDownPosition);
       if (doubleClickPosition && performance.now() < doubleClickTimeout && Vector.distance(doubleClickPosition, mousePosition) <= TOUCH_RANGE) {
         onDoubleClick(doubleClickPosition);
+      }
+      else {
+        onClick(mouseDownPosition);
       }
     }
     doubleClickTimeout = performance.now() + playerData.doubleClickTime;
