@@ -9,6 +9,10 @@ class MenuScene extends Scene {
       this.selectedDraftLevel = -1;
       this.selectedPublishedLevel = -1;
     }
+    if (this.addedLevels) {
+      this.addedLevels = false;
+      this.draftLevelsOffset = HEIGHT - 200 - playerData.draftLevels.length * 100;
+    }
     this.draggingLevels = false;
     this.buttons = [
       {

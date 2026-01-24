@@ -155,7 +155,7 @@ class GalleryScene extends Scene {
       if (position.x >= WIDTH - 206 && position.x < WIDTH - 106) {
         downloadLevel(this.levels[touchedLevel]);
         this.downloadedLevelName = this.levels[touchedLevel].name;
-        scenes.menu.draftLevelsOffset = HEIGHT - 200 - playerData.draftLevels.length * 100;
+        scenes.menu.addedLevels = true;
       }
     }
     else if (touchedLevel >= 0 && touchedLevel < this.levels.length) {

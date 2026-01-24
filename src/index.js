@@ -427,6 +427,7 @@ function loadPlayer(callback) {
           for (let level of serverData.draftLevels) {
             if (!playerData.draftLevels.some(l => l.id == level.id)) {
               playerData.draftLevels.push(level);
+              scenes.menu.addedLevels = true;
             }
           }
           for (let level of serverData.publishedLevels) {
@@ -439,8 +440,8 @@ function loadPlayer(callback) {
               playerData.finishedLevelIds.push(id);
             }
           }
-          playerData.levelsCreated = Math.max(serverData.levelsCreated, serverData.levelsCreated);
-          playerData.deathCount += serverData.deathCount;
+          playerData.levelsCreated = Math.max(playerData.levelsCreated, serverData.levelsCreated);
+          playerData.deathCount = Math.max(playerData.deathCount, serverData.deathCount);
         }
       }
       else {
