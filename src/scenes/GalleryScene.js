@@ -9,6 +9,7 @@ class GalleryScene extends Scene {
     this.loading = true;
     this.rawLevels ??= [];
     this.levels ??= [];
+    this.downloadedLevelName = null;
     getPublicLevels((levels) => {
       this.loading = false;
       levels.reverse();
@@ -107,6 +108,9 @@ class GalleryScene extends Scene {
     drawSegment(new Vector(0, HEIGHT - 100), new Vector(WIDTH, HEIGHT - 100));
     context.fillStyle = 'black';
     drawText('Public Levels', new Vector(WIDTH / 2, 50), '50px Arial');
+    if (this.downloadedLevelName) {
+      drawText('Downloaded "' + this.downloadedLevelName + '"', new Vector(WIDTH / 2, HEIGHT - 50), '30px Arial', 'center', WIDTH - 400);
+    }
     this.renderButtons();
   }
 
@@ -150,6 +154,8 @@ class GalleryScene extends Scene {
       }
       if (position.x >= WIDTH - 206 && position.x < WIDTH - 106) {
         downloadLevel(this.levels[touchedLevel]);
+        this.downloadedLevelName = this.levels[touchedLevel].name;
+        scenes.menu.draftLevelsOffset = HEIGHT - 200 - playerData.draftLevels.length * 100;
       }
     }
     else if (touchedLevel >= 0 && touchedLevel < this.levels.length) {
