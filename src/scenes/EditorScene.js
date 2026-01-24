@@ -278,7 +278,7 @@ class EditorScene extends Scene {
           changeScene(scenes.menu);
         },
         type: 1,
-        text: 'EXIT',
+        text: 'BACK',
         font: '30px Arial'
       },
       {

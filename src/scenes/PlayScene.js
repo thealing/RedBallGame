@@ -45,7 +45,7 @@ class PlayScene extends Scene {
         halfSize: new Vector(80, 40),
         onRelease: gameData.onLevelExit,
         type: 1,
-        text: 'EXIT',
+        text: 'BACK',
         font: '30px Arial'
       },
       {
