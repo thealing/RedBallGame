@@ -40,6 +40,7 @@ let gameInput;
 let ingameTimers;
 let localErrors;
 let serverDataMerged;
+let playerScale;
 
 init();
 
@@ -1070,8 +1071,9 @@ function loadImages() {
     loadImage('images/ice.png', 50, 50),
     loadImage('images/invisible.png', 50, 50)
   ]
-  images.ball_background = loadImage('images/ball_background.png', 64, 64);
-  images.ball_foreground = loadImage('images/ball_foreground.png', 64, 64);
+  playerScale = 64 / 100;
+  images.ball_background = loadImage('images/ball_background.png', 100, 100);
+  images.ball_foreground = loadImage('images/ball_foreground.png', 100, 100);
   images.goal = loadImage('images/goal.png', 64, 64);
   images.box = loadImage('images/box.png', 100, 100);
   images.boulder = loadImage('images/boulder.png', 150, 150);

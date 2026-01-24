@@ -627,8 +627,8 @@ class EditorScene extends Scene {
         }
       }
     }
-    drawImage(this.ballImage, this.level.player, 0);
-    drawImage(images.ball_foreground, this.level.player, 0);
+    drawImage(this.ballImage, this.level.player, 0, playerScale);
+    drawImage(images.ball_foreground, this.level.player, 0, playerScale);
     drawImage(images.goal, this.level.goal, 0);
     for (let i = 101; i <= 200; i++) {
       if (zMap[i]) {
