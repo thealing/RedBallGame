@@ -41,6 +41,7 @@ let ingameTimers;
 let localErrors;
 let serverDataMerged;
 let playerScale;
+let lastFrameTime;
 
 init();
 
@@ -155,7 +156,7 @@ function init() {
   initGameInput();
   loadLocalData();
   changeScene(scenes.main);
-  setInterval(update, DELTA_TIME * 1000);
+  setInterval(update, 1);
   requestAnimationFrame(render);
 }
 
@@ -202,11 +203,18 @@ function changeScene(newScene) {
 }
 
 function update() {
-  if (gameData.paused) {
+  const frameTime = performance.now() / 1000;
+  if (!lastFrameTime || gameData.paused) {
+    lastFrameTime = frameTime;
     return;
   }
-  updateIngameTimers();
-  currentScene.update();
+  const maxSkipCount = 5;
+  lastFrameTime = Math.max(lastFrameTime, frameTime - maxSkipCount * DELTA_TIME);
+  while (lastFrameTime < frameTime) {
+    updateIngameTimers();
+    currentScene.update();
+    lastFrameTime += DELTA_TIME;
+  }
 }
 
 function render() {
