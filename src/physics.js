@@ -110,11 +110,11 @@ class Polygon {
     if (this.points.length == 2) {
       return Vector.middle(this.points[0], this.points[1]);
     }
-    let centroid = new Vector(0, 0);
+    let centroid = this.points[0].clone();
     let weight = 0;
-    for (let i = this.points.length - 1, j = 0; j < this.points.length; i = j, j++) {
-      const a = this.points[i];
-      const b = this.points[j];
+    for (let i = 1; i + 1 < this.points.length; i++) {
+      const a = Vector.subtract(this.points[i], this.points[0]);
+      const b = Vector.subtract(this.points[i + 1], this.points[0]);
       const d = Vector.cross(a, b);
       centroid.add(Vector.add(a, b).multiply(d));
       weight += d;
