@@ -1,10 +1,10 @@
-## Custom Ball
+# Red Ball Game
 
-This is a Red Ball clone game, but instead of limited amount of pre-made levels, here you have a **level editor** so you can **create and publish unlimited number of levels**. You can also play levels published by other players. You can sign-up with only a username and password, or play as a guest.
+This is an online Red Ball clone game with a level editor. Design, play and publish your own levels, or play levels created by other players. Sign-up with a username and password, or play as a guest.
 
 Hosted at: <https://redballgame.netlify.app>
 
-**How To Play**
+## How to play
 
 - Keyboard Controls
   - A – go left
@@ -13,15 +13,16 @@ Hosted at: <https://redballgame.netlify.app>
 - My Levels
   - Click the + button to create a new empty level
   - Click a level to edit or delete it
-  - Long click a level to change it's name
+  - Double click a level to change it's name
 - Public Levels
-  - The levels are sorted by publish date (the latest is on the top)
-  - The names of the levels along with the username of their author are displayed
+  - The levels are sorted by publish date
+  - The name and author of each level is displayed
+  - Levels be downloaded and edited by anyone
 - Editor
   - Moving
     - Drag objects to move them
     - Drag the background to move the camera
-    - Long click to set coordinates
+    - Double click to set coordinates
   - Drawing
     - Materials: grass, lava, ice, invisible
     - Shapes: free-form, line, rectangle, oval
@@ -29,28 +30,28 @@ Hosted at: <https://redballgame.netlify.app>
   - Erasing
     - Click on a shape to erase it
   - Objects and Decorations
-    - Placed stars will have to be collected before finishing to complete the level
+    - All stars have to be collected to complete the level
     - Gear icon
       - Click to configure the object
-      - Long click to see or change the name of the object
     - Brush icon
-      - Click to change skin (only for some decorations)
+      - Double click to change skin (only for some decorations)
+      - Double click background to change the colors
       - Drag to rotate objects
     - Duplicate icon
       - Click to duplicate objects
     - Bin icon
       - Click to delete objects
   - Power Objects
-    - Some objects can be turned on and off (like the windmill, booster, elevator...)
-    - You can set a controller for these, which has to be the name of a button, switch or sensor
+    - Some objects can be turned on and off (windmill, booster, elevator...)
+    - The controller of these can be a button, switch or sensor
   - Grid
-    - Possible to snap center of objects to grid while dragging
+    - Allows alignment of the center of objects to a grid while dragging
   - Zoom
     - Hold down the buttons to zoom in or out
 
-**About**
+## About
 
 - No game engines, no libraries, no frameworks
-- Playable in any browser with ES6
-- Variable aspect ratio (min. 4:3)
-- All levels, stats, preferences are saved on the server
+- Playable in any browser with ES2020
+- Supports any aspect ratio
+- The game data is saved locally and on the server
