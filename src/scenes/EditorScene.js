@@ -945,7 +945,7 @@ class EditorScene extends Scene {
 
   onDoubleClick(position) {
     super.onDoubleClick(position);
-    const worldPosition = this.screenToWorldPosition(position);
+    const worldPosition = this.screenToWorldPosition(mousePosition);
     const coverTouched = position.y >= HEIGHT - 100 || (this.currentMode == 'gadgets' || this.currentMode == 'decor') && position.y >= HEIGHT - 220 && position.x <= 640;
     if (!this.uiTouched && !coverTouched) {
       if (this.currentMode == 'navigate' && this.draggedObject) {
