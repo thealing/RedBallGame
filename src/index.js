@@ -471,6 +471,41 @@ function loadLocalData() {
   }
 }
 
+function downloadLevel(level) {
+  const clonedLevel = JSON.parse(JSON.stringify(level));
+  clonedLevel.authors ??= [];
+  clonedLevel.authors.push(clonedLevel.author);
+  clonedLevel.author = playerData.username;
+  if (hasLevelWithName(clonedLevel.name + " (copy)")) {
+    for (let i = 2;; i++) {
+      const name = clonedLevel.name + " (copy " + i + ")";
+      if (!hasLevelWithName(name)) {
+        clonedLevel.name = name;
+        break;
+      }
+    }
+  }
+  else {
+    clonedLevel.name += " (copy)";
+  }
+  clonedLevel.verified = false;
+  clonedLevel.sentToServer = false;
+  clonedLevel.id = generateRandomId();
+  playerData.levelsCreated++;
+  playerData.draftLevels.push(clonedLevel);
+  saveLocalData();
+}
+
+function hasLevelWithName(name) {
+  if (playerData.draftLevels.some(l => l.name == name)) {
+    return true;
+  }
+  if (playerData.publishedLevels.some(l => l.name == name)) {
+    return true;
+  }
+  return false;
+}
+
 function createInputPopup() {
   popupDiv = document.createElement('div');
   popupDiv.style.background = 'lightgray';
@@ -984,6 +1019,7 @@ function loadImages() {
   images.delete_level = loadImage('images/delete_level.png', 100, 100);
   images.edit_level = loadImage('images/edit_level.png', 100, 100);
   images.play_level = loadImage('images/play_level.png', 100, 100);
+  images.download_level = loadImage('images/download_level.png', 100, 100);
   images.level_dirty = loadImage('images/level_dirty.png', 100, 100);
   images.level_synced = loadImage('images/level_synced.png', 100, 100);
   images.terrains = [

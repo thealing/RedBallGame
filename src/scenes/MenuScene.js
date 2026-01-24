@@ -41,8 +41,11 @@ class MenuScene extends Scene {
         context.fillStyle = 'black';
         drawImage(images.edit_level, new Vector(WIDTH / 2 - 156, i * 100 + 50), 0);
         drawImage(images.delete_level, new Vector(WIDTH / 2 - 56, i * 100 + 50), 0);
+        drawText(playerData.draftLevels[i].name, new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH / 2 - 222);
       }
-      drawText(playerData.draftLevels[i].name, new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH / 2 - 222);
+      else {
+        drawText(playerData.draftLevels[i].name, new Vector(10, i * 100 + 50), '40px Arial', 'left', WIDTH / 2 - 22);
+      }
       drawSegment(new Vector(0, (i + 1) * 100), new Vector(WIDTH / 2, (i + 1) * 100));
     }
     drawImage(images.new_level, new Vector(WIDTH / 4, playerData.draftLevels.length * 100 + 50), 0);
@@ -55,9 +58,13 @@ class MenuScene extends Scene {
         context.fillRect(WIDTH / 2, i * 100 + 1, WIDTH, 100 - 1);
         context.fillStyle = 'black';
         drawImage(images.play_level, new Vector(WIDTH - 156, i * 100 + 50), 0);
+        drawImage(images.download_level, new Vector(WIDTH - 256, i * 100 + 50), 0);
+        drawText(playerData.publishedLevels[i].name, new Vector(WIDTH / 2 + 10, i * 100 + 50), '40px Arial', 'left', WIDTH / 2 - 322);
+      }
+      else {
+        drawText(playerData.publishedLevels[i].name, new Vector(WIDTH / 2 + 10, i * 100 + 50), '40px Arial', 'left', WIDTH / 2 - 122);
       }
       drawImage(playerData.publishedLevels[i].sentToServer ? images.level_synced : images.level_dirty, new Vector(WIDTH - 56, i * 100 + 50), 0);
-      drawText(playerData.publishedLevels[i].name, new Vector(WIDTH / 2 + 10, i * 100 + 50), '40px Arial', 'left', WIDTH / 2 - 222);
       drawSegment(new Vector(WIDTH / 2, (i + 1) * 100), new Vector(WIDTH, (i + 1) * 100));
     }
     context.restore();
@@ -130,7 +137,9 @@ class MenuScene extends Scene {
           lowerColor: '#00008b'
         });
         this.selectedDraftLevel = playerData.draftLevels.length - 1;
+        this.selectedPublishedLevel = -1;
         doubleClickPosition = null;
+        saveLocalData();
       }
       else if (touchedDraftLevel >= 0) {
         if (touchedDraftLevel == this.selectedDraftLevel) {
@@ -141,6 +150,7 @@ class MenuScene extends Scene {
           if (position.x >= WIDTH / 2 - 106 && position.x < WIDTH / 2 - 6) {
             playerData.draftLevels.splice(this.selectedDraftLevel, 1);
             this.selectedDraftLevel = -1;
+            saveLocalData();
           }
         }
         else if (touchedDraftLevel < playerData.draftLevels.length) {
@@ -162,6 +172,10 @@ class MenuScene extends Scene {
             changeScene(scenes.menu);
           }
           changeScene(scenes.play);
+        }
+        if (position.x >= WIDTH - 306 && position.x < WIDTH - 206) {
+          downloadLevel(playerData.publishedLevels[touchedPublishedLevel]);
+          this.draftLevelsOffset = HEIGHT - 200 - playerData.draftLevels.length * 100;
         }
       }
       else if (touchedPublishedLevel >= 0 && touchedPublishedLevel < playerData.publishedLevels.length) {
