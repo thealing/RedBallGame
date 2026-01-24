@@ -11,7 +11,7 @@ class MenuScene extends Scene {
     }
     if (this.addedLevels) {
       this.addedLevels = false;
-      this.draftLevelsOffset = HEIGHT - 200 - playerData.draftLevels.length * 100;
+      this.draftLevelsOffset = Math.min(200, HEIGHT - 200 - playerData.draftLevels.length * 100);
     }
     this.draggingLevels = false;
     this.buttons = [
@@ -186,7 +186,7 @@ class MenuScene extends Scene {
         }
         if (position.x >= WIDTH - 306 && position.x < WIDTH - 206) {
           downloadLevel(playerData.publishedLevels[touchedPublishedLevel]);
-          this.draftLevelsOffset = HEIGHT - 200 - playerData.draftLevels.length * 100;
+          this.draftLevelsOffset = Math.min(HEIGHT - 200 - playerData.draftLevels.length * 100, 200);
         }
       }
       else if (touchedPublishedLevel >= 0 && touchedPublishedLevel < playerData.publishedLevels.length) {
