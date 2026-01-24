@@ -29,10 +29,6 @@ class EditorScene extends Scene {
 
   static gadgetTypes = [
     {
-      name: 'Star',
-      class: Star
-    },
-    {
       name: 'Box',
       class: Box
     },
@@ -103,6 +99,10 @@ class EditorScene extends Scene {
   ];
 
   static decorTypes = [
+    {
+      name: 'Star',
+      class: Star
+    },
     {
       name: 'Sign',
       class: Sign

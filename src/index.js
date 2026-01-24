@@ -1192,7 +1192,6 @@ function loadImages() {
   images.ui.icon_polyline_rectangle = loadImage('images/ui/icon_polyline_rectangle.png', 70, 70);
   images.ui.icon_polyline_ellipse = loadImage('images/ui/icon_polyline_ellipse.png', 70, 70);
   images.ui.gadgets = [
-    loadImage('images/star.png', 50, 50),
     loadImage('images/box.png', 50, 50),
     loadImage('images/boulder.png', 50, 50),
     loadImage('images/button.png', 50, 50),
@@ -1212,6 +1211,7 @@ function loadImages() {
     colorizeImage(loadImage('images/key.png', 50, 50), 'orange'),
   ];
   images.ui.decors = [
+    loadImage('images/star.png', 50, 50),
     loadImage('images/sign_icon.png', 50, 50),
     loadImage('images/fence.png', 70, 35),
     loadImage('images/text.png', 50, 50),
