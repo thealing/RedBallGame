@@ -39,6 +39,7 @@ let gameData;
 let gameInput;
 let ingameTimers;
 let localErrors;
+let serverDataMerged;
 
 init();
 
@@ -74,9 +75,7 @@ function init() {
       if (doubleClickPosition && performance.now() < doubleClickTimeout && Vector.distance(doubleClickPosition, mousePosition) <= TOUCH_RANGE) {
         onDoubleClick(doubleClickPosition);
       }
-      else {
-        onClick(mouseDownPosition);
-      }
+      onClick(mouseDownPosition);
     }
     doubleClickTimeout = performance.now() + playerData.doubleClickTime;
     doubleClickPosition = mouseDownPosition;
@@ -378,6 +377,10 @@ function syncPlayer(callback) {
     }
     return;
   }
+  if (!serverDataMerged) {
+    loadPlayer(syncPlayer);
+    return;
+  }
   const playerDataJson = JSON.stringify({ playerData });
   compressJson(playerDataJson).then((compressedPayload) => {
     console.log("Compressed player size: " + compressedPayload.byteLength + " bytes");
@@ -417,7 +420,32 @@ function loadPlayer(callback) {
     .then((response) => response.text())
     .then((text) => JSON.parse(text))
     .then((data) => {
-      setRecursively(playerData, data.playerData);
+      const serverData = data.playerData;
+      if (!serverDataMerged) {
+        serverDataMerged = true;
+        if (playerData.username == serverData.username) {
+          for (let level of serverData.draftLevels) {
+            if (!playerData.draftLevels.some(l => l.id == level.id)) {
+              playerData.draftLevels.push(level);
+            }
+          }
+          for (let level of serverData.publishedLevels) {
+            if (!playerData.publishedLevels.some(l => l.id == level.id)) {
+              playerData.publishedLevels.push(level);
+            }
+          }
+          for (let id of serverData.finishedLevelIds) {
+            if (!playerData.finishedLevelIds.includes(id)) {
+              playerData.finishedLevelIds.push(id);
+            }
+          }
+          playerData.levelsCreated = Math.max(serverData.levelsCreated, serverData.levelsCreated);
+          playerData.deathCount += serverData.deathCount;
+        }
+      }
+      else {
+        setRecursively(playerData, serverData);
+      }
       extendRecursively(playerData, createPlayerData());
       saveLocalData();
       if (callback) {
@@ -493,7 +521,6 @@ function downloadLevel(level) {
   clonedLevel.verified = false;
   clonedLevel.sentToServer = false;
   clonedLevel.id = generateRandomId();
-  playerData.levelsCreated++;
   playerData.draftLevels.push(clonedLevel);
   saveLocalData();
 }
