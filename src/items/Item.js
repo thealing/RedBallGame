@@ -26,6 +26,14 @@ class Item {
   }
 
   showOptions() {
+    showForm([
+      {
+        label: 'Name',
+        type: 'text',
+        get: () => this.name,
+        set: (value) => this.name = value
+      }
+    ]);
   }
 
   extendBody(obj) {
@@ -34,8 +42,8 @@ class Item {
   }
 
   unproject(point, centerOfProjection) {
-    centerOfProjection |= this.center;
-    return Vector.subtract(point, this.center).rotate(-this.angle).add(this.center);
+    centerOfProjection ??= this.center;
+    return Vector.subtract(point, centerOfProjection).rotate(-this.angle).add(centerOfProjection);
   }
 }
 

@@ -30,6 +30,12 @@ class Booster extends PowerItem {
   showOptions() {
     showForm([
       {
+        label: 'Name',
+        type: 'text',
+        get: () => this.name,
+        set: (value) => this.name = value
+      },
+      {
         label: 'Length',
         type: 'range',
         min: 0,

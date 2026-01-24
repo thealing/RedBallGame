@@ -15,6 +15,12 @@ class Door extends Item {
   showOptions() {
     showForm([
       {
+        label: 'Name',
+        type: 'text',
+        get: () => this.name,
+        set: (value) => this.name = value
+      },
+      {
         label: 'Color',
         type: 'color',
         get: () => this.color,

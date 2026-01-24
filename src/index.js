@@ -730,6 +730,10 @@ function showForm(items, callback) {
     label.style.display = 'flex';
     label.style.alignItems = 'center';
     label.style.justifyContent = 'left';
+    if (items[i].type == 'title') {
+      label.style.width = '90%';
+      label.style.justifyContent = 'center';
+    }
     form.appendChild(label);
     function setAttributes(element) {
       element.style.position = 'absolute';

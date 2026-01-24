@@ -29,6 +29,12 @@ class Fence extends Item {
   showOptions() {
     showForm([
       {
+        label: 'Name',
+        type: 'text',
+        get: () => this.name,
+        set: (value) => this.name = value
+      },
+      {
         label: 'Position',
         type: 'list',
         values: [

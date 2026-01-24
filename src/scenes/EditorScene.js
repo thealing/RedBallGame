@@ -674,7 +674,6 @@ class EditorScene extends Scene {
 
   onTouchDown(position) {
     super.onTouchDown(position);
-    this.clickDisabled = false;
     if (!this.uiTouched) {
       const worldPosition = this.screenToWorldPosition(position);
       switch (this.currentMode) {
@@ -842,13 +841,9 @@ class EditorScene extends Scene {
           const dragAngle = Math.atan2(worldPosition.y - center.y, worldPosition.x - center.x);
           if (this.dragAngleOffset == null) {
             this.dragAngleOffset = gadget.angle - dragAngle;
-            this.previousAngle = gadget.angle;
           }
           else {
             gadget.angle = dragAngle + this.dragAngleOffset;
-            if (Math.abs(this.previousAngle - gadget.angle) >= Math.PI / 9) {
-              this.clickDisabled = true;
-            }
           }
         }
       }
@@ -859,7 +854,7 @@ class EditorScene extends Scene {
     super.onClick(position);
     const worldPosition = this.screenToWorldPosition(position);
     const coverTouched = position.y >= HEIGHT - 100 || (this.currentMode == 'gadgets' || this.currentMode == 'decor') && position.y >= HEIGHT - 220 && position.x <= 640;
-    if (!this.uiTouched && !coverTouched && !this.clickDisabled) {
+    if (!this.uiTouched && !coverTouched) {
       let type;
       if (this.currentMode == 'gadgets' && (type = this.currentGadgetType) < 0 || this.currentMode == 'decor' && (type = this.currentDecorType) < 0) {
         const i = this.getSelectedGadgetIndex(worldPosition);
@@ -878,7 +873,6 @@ class EditorScene extends Scene {
               break;
             }
             case -3: {
-              this.level.gadgets[i].click(worldPosition);
               break;
             }
             case -4: {
@@ -897,9 +891,6 @@ class EditorScene extends Scene {
               break;
             }
             case -3: {
-              break;
-            }
-            case -4: {
               if (Vector.distance(worldPosition, this.level.player) < 50) {
                 break;
               }
@@ -922,6 +913,9 @@ class EditorScene extends Scene {
                   }
                 ]);
               }
+              break;
+            }
+            case -4: {
               break;
             }
           }
@@ -956,7 +950,11 @@ class EditorScene extends Scene {
       if (this.currentMode == 'navigate' && this.draggedObject) {
         let editOrigin = this.draggedObject.getCenter?.(worldPosition) ?? this.draggedObject.center ?? this.draggedObject;
         let editLocation = editOrigin.clone();
-        showForm([
+        let options = [
+          {
+            label: this.draggedObject.name,
+            type: 'title'
+          },
           {
             label: 'X',
             type: 'number',
@@ -969,7 +967,34 @@ class EditorScene extends Scene {
             get: () => editLocation.y,
             set: (value) => editLocation.y = value
           }
-        ], () => {
+        ];
+        if (this.draggedObject == this.origin) {
+          options = [
+            {
+              label: 'Origin',
+              type: 'title'
+            },
+            {
+              label: 'X',
+              type: 'number',
+              get: () => -editLocation.x,
+              set: (value) => editLocation.x = -value
+            },
+            {
+              label: 'Y',
+              type: 'number',
+              get: () => -editLocation.y,
+              set: (value) => editLocation.y = -value
+            }
+          ];
+        }
+        if (this.draggedObject == this.level.player) {
+          options[0].label = 'Player';
+        }
+        if (this.draggedObject == this.level.goal) {
+          options[0].label = 'Goal';
+        }
+        showForm(options, () => {
           if (editOrigin == this.draggedObject) {
             this.draggedObject.copy(editLocation);
           }
@@ -978,13 +1003,8 @@ class EditorScene extends Scene {
           }
         });
       }
-      if (this.currentMode == 'gadgets' && this.currentGadgetType == -4 || this.currentMode == 'decor' && this.currentDecorType == -4) {
-        const i = this.getSelectedGadgetIndex(worldPosition);
-        if (i >= 0) {
-          showInputPopup(this.level.gadgets[i].name, (text) => {
-            this.level.gadgets[i].name = text;
-          });
-        }
+      if (this.currentMode == 'gadgets' && this.currentGadgetType == -3 || this.currentMode == 'decor' && this.currentDecorType == -3) {
+        this.draggedObject?.click(worldPosition);
       }
     }
   }

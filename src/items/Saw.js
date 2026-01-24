@@ -11,6 +11,12 @@ class Saw extends PowerItem {
   showOptions() {
     showForm([
       {
+        label: 'Name',
+        type: 'text',
+        get: () => this.name,
+        set: (value) => this.name = value
+      },
+      {
         label: 'On By Default',
         type: 'check',
         get: () => this.onByDefault,

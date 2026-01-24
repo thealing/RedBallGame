@@ -39,6 +39,12 @@ class Text extends Item {
   showOptions() {
     showForm([
       {
+        label: 'Name',
+        type: 'text',
+        get: () => this.name,
+        set: (value) => this.name = value
+      },
+      {
         label: 'Text',
         type: 'text',
         get: () => this.text,

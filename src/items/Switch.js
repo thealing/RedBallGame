@@ -28,6 +28,12 @@ class Switch extends Item {
   showOptions() {
     showForm([
       {
+        label: 'Name',
+        type: 'text',
+        get: () => this.name,
+        set: (value) => this.name = value
+      },
+      {
         label: 'Weight',
         type: 'number',
         step: 50,

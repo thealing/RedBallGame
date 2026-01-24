@@ -7,6 +7,12 @@ class Vanisher extends Platform {
   showOptions() {
     showForm([
       {
+        label: 'Name',
+        type: 'text',
+        get: () => this.name,
+        set: (value) => this.name = value
+      },
+      {
         label: 'Delay',
         type: 'number',
         step: 100,
