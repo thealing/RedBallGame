@@ -141,7 +141,7 @@ class PhysicsWorld {
       const combinedDynamicFriction = Math.sqrt(collider1.dynamicFriction * collider2.dynamicFriction);
       const tangentInverseMass1 = body1._inverseLinearMass + body1._inverseAngularMass * Vector.dot(collisionTangent, tangent1) ** 2;
       const tangentInverseMass2 = body2._inverseLinearMass + body2._inverseAngularMass * Vector.dot(collisionTangent, tangent2) ** 2;
-      let frictionImpulse = -tangentVelocity * combinedStaticFriction / (tangentInverseMass1 + tangentInverseMass2);
+      let frictionImpulse = -tangentVelocity / (tangentInverseMass1 + tangentInverseMass2);
       if (Math.abs(frictionImpulse) > Math.abs(collisionImpulse) * combinedStaticFriction) {
         const maxImpulseMagnitude = Math.abs(collisionImpulse) * combinedDynamicFriction;
         frictionImpulse = Math.clamp(frictionImpulse, -maxImpulseMagnitude, maxImpulseMagnitude);
