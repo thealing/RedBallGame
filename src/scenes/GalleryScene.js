@@ -53,7 +53,7 @@ class GalleryScene extends Scene {
   }
 
   getLevelTitle(level) {
-    return level.author + " : " + level.name;
+    return level.author + ' - ' + level.name;
   }
 
   filterLevels() {
@@ -110,7 +110,7 @@ class GalleryScene extends Scene {
     context.fillStyle = 'black';
     drawText('Public Levels', new Vector(WIDTH / 2, 50), '50px Arial');
     if (this.downloadedLevelName) {
-      drawText('Downloaded "' + this.downloadedLevelName + '"', new Vector(WIDTH / 2, HEIGHT - 50), '30px Arial', 'center', WIDTH - 400);
+      drawText('Downloaded: ' + this.downloadedLevelName, new Vector(WIDTH / 2, HEIGHT - 50), '30px Arial', 'center', WIDTH - 400);
     }
     this.renderButtons();
   }

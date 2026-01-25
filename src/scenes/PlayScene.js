@@ -155,7 +155,9 @@ class PlayScene extends Scene {
     this.updateGameInput();
     this.updateButtons();
     if (gameInput.forward || gameInput.backward || gameInput.jump) {
-      this.started = true;
+      if (!this.levelPaused) {
+        this.started = true;
+      }
     }
     if (this.started && !this.ended && !this.levelPaused) {
       this.playerBody.staticFriction = 0.5;
@@ -322,7 +324,7 @@ class PlayScene extends Scene {
   
   onClick(position) {
     super.onClick(position);
-    if (!this.uiTouched) {
+    if (!this.levelPaused && !this.uiTouched) {
       this.started = true;
     }
     if (this.ended && !this.uiTouched) {
