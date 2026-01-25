@@ -1,6 +1,6 @@
 # Red Ball Game
 
-This is an online Red Ball clone game with a level editor. Design, play and publish your own levels, or play levels created by other players. Sign-up with a username and password, or play as a guest.
+This is an online Red Ball clone game with a level editor. Design, play and publish your own levels, or play levels created by other people. Sign-up with a username and password, or play as a guest.
 
 Hosted at: <https://redballgame.netlify.app>
 
@@ -55,3 +55,11 @@ Hosted at: <https://redballgame.netlify.app>
 - Playable in any browser with ES2020
 - Supports any aspect ratio
 - The game data is saved locally and on the server
+
+## Screenshots
+
+<img width="1801" height="952" alt="red ball 1" src="https://github.com/user-attachments/assets/f7d836ef-3b5f-49f1-90b7-d6d9aedd79bd" />
+<img width="1801" height="952" alt="red ball 4" src="https://github.com/user-attachments/assets/9a1c7850-3a7f-4c65-9bf0-c82dbc1d3351" />
+<img width="1801" height="952" alt="red ball 5" src="https://github.com/user-attachments/assets/cf882535-a42b-4d59-9bef-c65acd65da55" />
+<img width="1801" height="952" alt="red ball 6" src="https://github.com/user-attachments/assets/eb1e7e9d-e2e6-4cbc-b6a4-4a9ae6a49782" />
+
