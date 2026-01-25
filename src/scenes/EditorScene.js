@@ -897,22 +897,6 @@ class EditorScene extends Scene {
               else if (Vector.distance(worldPosition, this.level.goal) < 30) {
                 break;
               }
-              else {
-                showForm([
-                  {
-                    label: 'Upper Color',
-                    type: 'color',
-                    get: () => this.level.upperColor,
-                    set: (value) => this.level.upperColor = value
-                  },
-                  {
-                    label: 'Lower Color',
-                    type: 'color',
-                    get: () => this.level.lowerColor,
-                    set: (value) => this.level.lowerColor = value
-                  }
-                ]);
-              }
               break;
             }
             case -4: {
@@ -1005,6 +989,22 @@ class EditorScene extends Scene {
       }
       if (this.currentMode == 'gadgets' && this.currentGadgetType == -3 || this.currentMode == 'decor' && this.currentDecorType == -3) {
         this.draggedObject?.click(worldPosition);
+        if (this.draggedObject == null) {
+          showForm([
+            {
+              label: 'Upper Color',
+              type: 'color',
+              get: () => this.level.upperColor,
+              set: (value) => this.level.upperColor = value
+            },
+            {
+              label: 'Lower Color',
+              type: 'color',
+              get: () => this.level.lowerColor,
+              set: (value) => this.level.lowerColor = value
+            }
+          ]);
+        }
       }
     }
   }
