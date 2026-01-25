@@ -486,10 +486,16 @@ function getPublicLevels(callback) {
   })
   .then((response) => response.text())
   .then((text) => {
+    if (currentScene != scenes.gallery) {
+      return null;
+    }
     console.log(`Public level storage size: ${text.length} characters`);
     return JSON.parse(text);
   })
   .then((data) => {
+    if (data == null) {
+      return;
+    }
     console.log(`Got ${data.levels.length} public levels!`);
     callback(data.levels);
   })
