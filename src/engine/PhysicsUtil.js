@@ -52,16 +52,6 @@ class PhysicsUtil {
           Object.assign(collider, EditorScene.terrainTypes[polyline.index]);
         }
       }
-      if (polyline.filled && polyline.length == 5) {
-        const circles = [];
-        for (let i = 0; i < polyline.length - 1; i++) {
-          circles.push(Geometry.createCircle(polyline[i].x, polyline[i].y, polyline.width / 2));
-        }
-        for (const circle of circles) {
-          const collider = bodies[polyline.index].createCollider(circle, 1);
-          Object.assign(collider, EditorScene.terrainTypes[polyline.index]);
-        }
-      }
     }
     const result = [];
     for (const body of bodies) {
