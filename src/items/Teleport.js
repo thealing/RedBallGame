@@ -46,10 +46,11 @@ class Teleport extends Item {
   }
 
   updateImages() {
-    this.teleport = colorizeImage(images.teleport, this.color);
+    this.teleport ??= colorizeImage(images.teleport, this.color);
   }
 
   render() {
+    this.updateImages();
     drawImage(this.teleport, this.center, 0);
     drawImage(this.teleport, this.center2, 0);
   }
@@ -88,6 +89,7 @@ class Teleport extends Item {
       currentContacts = new Set();
     };
     body.renderProc = () => {
+      this.updateImages();
       drawImage(this.teleport, body.position, 0);
       drawImage(this.teleport, body2.position, 0);
     };

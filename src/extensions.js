@@ -112,6 +112,10 @@ function setRecursively(target, source) {
   }
   for (const key in source) {
     if (typeof source[key] === 'object' && source[key] !== null && typeof target[key] === 'object' && target[key] !== null) {
+      if (isNonCopyable(source[key])) {
+        delete target[key];
+        continue;
+      }
       setRecursively(target[key], source[key]);
     }
     else {
@@ -133,6 +137,9 @@ function extendRecursively(target, source) {
 
 function isNonCopyable(value) {
   if (value instanceof HTMLImageElement) {
+    return true;
+  }
+  if (value instanceof HTMLCanvasElement) {
     return true;
   }
   return false;
