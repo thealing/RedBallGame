@@ -66,21 +66,35 @@ function init() {
   pressedKeys = new Set();
   touchPositions = new Map();
   localErrors = {};
-  function onMouseDown() {
+  function onMouseDown(e) {
+    if (e?.button) {
+      return;
+    }
+    mousePosition = screenToCanvasPosition(e.pageX, e.pageY);
     mouseDownPosition = mousePosition.clone();
     mouseIsDown = true;
     clicksCanceled = false;
     onTouchDown(mousePosition);
   };
-  function onMouseUp() {
+  function onMouseUp(e) {
+    if (e?.button) {
+      return;
+    }
+    let doubleClicked = false;
     if (!clicksCanceled && mouseDownPosition && Vector.distance(mouseDownPosition, mousePosition) <= TOUCH_RANGE) {
       if (doubleClickPosition && performance.now() < doubleClickTimeout && Vector.distance(doubleClickPosition, mousePosition) <= TOUCH_RANGE) {
         onDoubleClick(doubleClickPosition);
+        doubleClicked = true;
       }
       onClick(mouseDownPosition);
     }
-    doubleClickTimeout = performance.now() + playerData.doubleClickTime;
-    doubleClickPosition = mouseDownPosition;
+    if (doubleClicked) {
+      doubleClickPosition = null;
+    }
+    else {
+      doubleClickTimeout = performance.now() + playerData.doubleClickTime;
+      doubleClickPosition = mouseDownPosition;
+    }
     mouseIsDown = false;
     onTouchUp(mousePosition);
   };
@@ -106,9 +120,9 @@ function init() {
     }
     pressedKeys.delete(e.key);
   });
-  canvas.addEventListener('mousedown', (e) => onMouseDown());
-  canvas.addEventListener('mouseup', (e) => onMouseUp());
-  canvas.addEventListener('mouseout', (e) => onMouseUp());
+  canvas.addEventListener('mousedown', (e) => onMouseDown(e));
+  canvas.addEventListener('mouseup', (e) => onMouseUp(e));
+  canvas.addEventListener('mouseout', (e) => onMouseUp(e));
   canvas.addEventListener('mousemove', (e) => onMouseMove(e.pageX, e.pageY));
   canvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
