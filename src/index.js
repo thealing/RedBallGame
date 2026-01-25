@@ -994,6 +994,7 @@ function drawPolyline(polyline) {
     context.lineTo(polyline[i].x, polyline[i].y);
   }
   if (polyline.filled) {
+    context.lineTo(polyline[0].x, polyline[0].y);
     context.fillStyle = style;
     context.fill();
   }
