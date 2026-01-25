@@ -8,6 +8,7 @@ class MenuScene extends Scene {
       this.publishedLevelsOffset = 200;
       this.selectedDraftLevel = -1;
       this.selectedPublishedLevel = -1;
+      this.draftLevelsOffset = Math.min(200, Math.round(HEIGHT / 100) * 100 - 300 - playerData.draftLevels.length * 100);
     }
     if (this.addedLevels) {
       this.addedLevels = false;
