@@ -182,8 +182,10 @@ class PlayScene extends Scene {
       }
       this.physics.step(DELTA_TIME);
     }
-    const target = Vector.negate(this.playerBody.position);
-    this.origin.add(target.subtract(this.origin).multiply(10 * DELTA_TIME));
+    if (!this.levelPaused) {
+      const target = Vector.negate(this.playerBody.position);
+      this.origin.add(target.subtract(this.origin).multiply(10 * DELTA_TIME));
+    }
     if (this.started && !this.ended && !this.levelPaused) {
       for (const gadgetBody of this.gadgetBodies) {
         switch (gadgetBody.gadgetType) {
@@ -307,6 +309,14 @@ class PlayScene extends Scene {
     }
     if (this.ended) {
       drawText((this.goalReached ? 'Level Completed' : this.starsLeft ? 'There Are Stars Left' : 'Game Over').toUpperCase(), new Vector(WIDTH / 2, HEIGHT - 220), '30px Arial');
+    }
+  }
+
+  onTouchMove(position, delta) {
+    super.onTouchMove(position, delta);
+    const worldDelta = this.screenToWorldDelta(delta);
+    if (this.levelPaused) {
+      this.origin.add(worldDelta);
     }
   }
   
