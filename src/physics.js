@@ -771,32 +771,32 @@ class Geometry {
     let collisionDepth = Number.POSITIVE_INFINITY;
     let collisionPoint = null;
     let collisionNormal = null;
-    let collidedPerpendicularly = false;
+    let onClosestEdge = false;
     for (let i = polygon.points.length - 1, j = 0; j < polygon.points.length; i = j, j++) {
       const a = polygon.points[i];
       const b = polygon.points[j];
       if (Vector.equal(a, b)) {
         continue;
       }
-      const centerProjected = Geometry.projectOntoLine(a, b, circle.center);
-      if (Vector.equal(centerProjected, circle.center)) {
-        continue;
-      }
-      if (Vector.equal(centerProjected, Geometry.projectOntoSegment(a, b, circle.center))) {
-        collidedPerpendicularly = true;
-      }
+      const ab = Vector.subtract(b, a);
+      const t = Vector.dot(ab, Vector.subtract(circle.center, a)) / ab.lengthSquared();
+      const centerProjected = ab.multiply(t).add(a);
       const axis = Vector.subtract(b, a).rotateLeft().normalize();
       const depth = circle.radius + Vector.dot(circle.center, axis) - Vector.dot(centerProjected, axis);
-      if (depth < 0) {
-        return null;
-      }
       if (depth < collisionDepth) {
+        if (depth < 0) {
+          return null;
+        }
         collisionDepth = depth;
         collisionPoint = centerProjected;
         collisionNormal = axis;
+        onClosestEdge = t >= 0 && t <= 1;
       }
     }
-    if (!collidedPerpendicularly) {
+    if (!onClosestEdge) {
+      collisionDepth = Number.NEGATIVE_INFINITY;
+      collisionPoint = null;
+      collisionNormal = null;
       for (let i = polygon.points.length - 1, j = 0; j < polygon.points.length; i = j, j++) {
         const a = polygon.points[i];
         const b = polygon.points[j];
@@ -804,26 +804,17 @@ class Geometry {
           continue;
         }
         const centerProjected = Geometry.projectOntoSegment(a, b, circle.center);
-        if (Vector.equal(centerProjected, circle.center)) {
-          continue;
-        }
-        const axis = Vector.subtract(b, a).rotateLeft();
-        if (Vector.dot(circle.center, axis) >= Vector.dot(centerProjected, axis)) {
-          axis.copy(circle.center).subtract(centerProjected);
-        }
-        else {
-          axis.copy(centerProjected).subtract(circle.center);
-        }
+        const axis = Vector.subtract(centerProjected, circle.center);
         axis.normalize();
         const depth = circle.radius + Vector.dot(circle.center, axis) - Vector.dot(centerProjected, axis);
-        if (depth < 0) {
-          return null;
-        }
-        if (depth < collisionDepth) {
+        if (depth > collisionDepth) {
           collisionDepth = depth;
           collisionPoint = centerProjected;
           collisionNormal = axis;
         }
+      }
+      if (collisionDepth < 0) {
+        return null;
       }
     }
     if (collisionPoint == null) {
