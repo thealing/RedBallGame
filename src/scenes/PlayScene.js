@@ -6,7 +6,7 @@ class PlayScene extends Scene {
   enter() {
     super.enter();
     this.setAnchorToCenter();
-    this.zoom = 0.75;
+    this.zoom = gameData.currentLevel?.savedZoom ?? 0.075;
     this.levelPaused = false;
     this.pauseButton = {
       position: new Vector(WIDTH - 270, HEIGHT - 50),
@@ -40,6 +40,24 @@ class PlayScene extends Scene {
       }
     }
     this.buttons = [
+      {
+        position: new Vector(WIDTH - 160, 60),
+        halfSize: new Vector(40, 40),
+        onHold: () => {
+          this.zoom *= 1 + DELTA_TIME;
+        },
+        type: 0,
+        icon: images.ui.icon_zoom_in
+      },
+      {
+        position: new Vector(WIDTH - 60, 60),
+        halfSize: new Vector(40, 40),
+        onHold: () => {
+          this.zoom /= 1 + DELTA_TIME;
+        },
+        type: 0,
+        icon: images.ui.icon_zoom_out
+      },
       {
         position: new Vector(90, HEIGHT - 50),
         halfSize: new Vector(80, 40),
@@ -135,6 +153,7 @@ class PlayScene extends Scene {
 
   update() {
     this.updateGameInput();
+    this.updateButtons();
     if (gameInput.forward || gameInput.backward || gameInput.jump) {
       this.started = true;
     }
