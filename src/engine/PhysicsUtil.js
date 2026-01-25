@@ -30,7 +30,8 @@ class PhysicsUtil {
           const ny =  dx / len;
           points.push(new Vector(a.x + nx * half, a.y + ny * half), new Vector(b.x + nx * half, b.y + ny * half));
         }
-        bodies[polyline.index].createCollider(new Polygon(points), 1);
+        const collider = bodies[polyline.index].createCollider(new Polygon(points), 1);
+        Object.assign(collider, EditorScene.terrainTypes[polyline.index]);
       }
       else {
         for (let i = 0; i + 1 < polyline.length; i++) {
