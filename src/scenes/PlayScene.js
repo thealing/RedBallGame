@@ -182,7 +182,12 @@ class PlayScene extends Scene {
           }
         }
       }
-      this.physics.step(DELTA_TIME);
+      if (playerData.debugSlowMotion) {
+        this.physics.step(DELTA_TIME / playerData.debugSlowMotion);
+      }
+      else {
+        this.physics.step(DELTA_TIME);
+      }
     }
     if (!this.levelPaused) {
       const target = Vector.negate(this.playerBody.position);
@@ -295,6 +300,30 @@ class PlayScene extends Scene {
         }
       }
     }
+    if (playerData.debugDrawColliders) {
+      context.save();
+      context.strokeStyle = 'red';
+      context.lineCap = 'round';
+      context.lineJoin = 'round';
+      context.lineWidth = 1;
+      for (let node = currentScene.physics.colliders.first; node != null; node = node.next) {
+        let s = node.item.worldShape;
+        if (s.points) {
+          context.beginPath();
+          context.moveTo(s.points[s.points.length - 1].x, s.points[s.points.length - 1].y);
+          for (let i = 0; i < s.points.length; i++) {
+            context.lineTo(s.points[i].x, s.points[i].y);
+          }
+          context.stroke();
+        }
+        if (s.center) {
+          context.beginPath();
+          context.arc(s.center.x, s.center.y, s.radius, 0, Math.PI * 2);
+          context.stroke();
+        }
+      }
+      context.restore();
+    }
   }
   
   renderUI() {
@@ -377,33 +406,59 @@ class PhysicsUtil {
         Object.assign(bodies[polyline.index], EditorScene.terrainTypes[polyline.index]);
       }
       if (polyline.filled) {
-        const center = new Vector(0, 0);
-        let weight = 0;
+        const points = [];
+        const half = polyline.width / 2;
+        let orderedPolyline = [];
+        for (let i = 0; i < polyline.length; i++) {
+          orderedPolyline[i] = polyline[i].clone();
+        }
+        const polygon = new Polygon(orderedPolyline);
+        if (polygon.getLinearMassFactor() > 0) {
+          orderedPolyline.reverse();
+        }
+        for (let i = 0; i + 1 < orderedPolyline.length; i++) {
+          const a = orderedPolyline[i];
+          const b = orderedPolyline[i + 1];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const len = Math.hypot(dx, dy);
+          if (len == 0) {
+            continue;
+          }
+          const nx = -dy / len;
+          const ny =  dx / len;
+          points.push(new Vector(a.x + nx * half, a.y + ny * half), new Vector(b.x + nx * half, b.y + ny * half));
+        }
+        bodies[polyline.index].createCollider(new Polygon(points), 1);
+      }
+      else {
         for (let i = 0; i + 1 < polyline.length; i++) {
           const a = polyline[i];
           const b = polyline[i + 1];
-          center.add(Vector.middle(a, b));
-          weight += Vector.distance(a, b);
+          const middle = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+          const distance = Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
+          const angle = Math.atan2(b.y - a.y, b.x - a.x);
+          const rectangle = Geometry.createRotatedRectangle(middle.x, middle.y, distance, polyline.width, angle);
+          const collider = bodies[polyline.index].createCollider(rectangle, 1);
+          Object.assign(collider, EditorScene.terrainTypes[polyline.index]);
         }
-        center.divide(weight);
-        bodies[polyline.index].createCollider(new Polygon(Util.cloneArray(polyline)), 1);
+        const circles = [];
+        circles.push(Geometry.createCircle(polyline[0].x, polyline[0].y, polyline.width / 2));
+        circles.push(Geometry.createCircle(polyline[polyline.length - 1].x, polyline[polyline.length - 1].y, polyline.width / 2));
+        for (const circle of circles) {
+          const collider = bodies[polyline.index].createCollider(circle, 1);
+          Object.assign(collider, EditorScene.terrainTypes[polyline.index]);
+        }
       }
-      for (let i = 0; i + 1 < polyline.length; i++) {
-        const a = polyline[i];
-        const b = polyline[i + 1];
-        const middle = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-        const distance = Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
-        const angle = Math.atan2(b.y - a.y, b.x - a.x);
-        const rectangle = Geometry.createRotatedRectangle(middle.x, middle.y, distance, polyline.width, angle);
-        const collider = bodies[polyline.index].createCollider(rectangle, 1);
-        Object.assign(collider, EditorScene.terrainTypes[polyline.index]);
-      }
-      for (const circle of [
-        Geometry.createCircle(polyline[0].x, polyline[0].y, polyline.width / 2),
-        Geometry.createCircle(polyline[polyline.length - 1].x, polyline[polyline.length - 1].y, polyline.width / 2)
-      ]) {
-        const collider = bodies[polyline.index].createCollider(circle, 1);
-        Object.assign(collider, EditorScene.terrainTypes[polyline.index]);
+      if (polyline.filled && polyline.length == 5) {
+        const circles = [];
+        for (let i = 0; i < polyline.length - 1; i++) {
+          circles.push(Geometry.createCircle(polyline[i].x, polyline[i].y, polyline.width / 2));
+        }
+        for (const circle of circles) {
+          const collider = bodies[polyline.index].createCollider(circle, 1);
+          Object.assign(collider, EditorScene.terrainTypes[polyline.index]);
+        }
       }
     }
     const result = [];
