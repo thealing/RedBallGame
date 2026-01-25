@@ -42,7 +42,7 @@ class Geometry {
 
   static projectOntoSegment(a, b, p) {
     const ab = Vector.subtract(b, a);
-    const t = Util.clamp(Vector.dot(ab, Vector.subtract(p, a)) / ab.lengthSquared(), 0, 1);
+    const t = Math.clamp(Vector.dot(ab, Vector.subtract(p, a)) / ab.lengthSquared(), 0, 1);
     return ab.multiply(t).add(a);
   }
 

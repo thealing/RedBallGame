@@ -5,7 +5,7 @@ class Polygon {
   }
 
   clone() {
-    return new Polygon(Util.cloneArray(this.points));
+    return new Polygon(this.points.map((item) => item.clone()));
   }
 
   set(points) {
