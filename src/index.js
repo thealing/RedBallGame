@@ -401,7 +401,10 @@ function syncPlayer(callback) {
     return;
   }
   if (!serverDataMerged) {
-    loadPlayer(syncPlayer);
+    if (serverDataMerged == null) {
+      serverDataMerged = 0;
+      loadPlayer(syncPlayer);
+    }
     return;
   }
   const playerDataJson = JSON.stringify({ playerData });
