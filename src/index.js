@@ -70,7 +70,9 @@ function init() {
     if (e?.button) {
       return;
     }
-    mousePosition = screenToCanvasPosition(e.pageX, e.pageY);
+    if (e) {
+      mousePosition = screenToCanvasPosition(e.pageX, e.pageY);
+    }
     mouseDownPosition = mousePosition.clone();
     mouseIsDown = true;
     clicksCanceled = false;
