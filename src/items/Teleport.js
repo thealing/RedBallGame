@@ -69,6 +69,7 @@ class Teleport extends Item {
         get: () => this.color,
         set: (value) => {
           this.color = value;
+          this.teleport = null;
           this.updateImages();
         }
       }
