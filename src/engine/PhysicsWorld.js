@@ -9,6 +9,7 @@ class PhysicsWorld {
     this._inStep = false;
     this._bodiesToDestroy = [];
     this._collidersToDestroy = [];
+    this._collisions = [];
   }
 
   destroy() {
@@ -68,6 +69,7 @@ class PhysicsWorld {
       body.angularForce = 0;
     }
     let collisions = [];
+    this._collisions = collisions;
     for (let colliderNode = this.colliders.first, next; colliderNode != null; colliderNode = next) {
       next = colliderNode.next;
       while (colliderNode.prev != null && colliderNode.item.worldBoundingRect.min.x < colliderNode.prev.item.worldBoundingRect.min.x) {
@@ -131,7 +133,7 @@ class PhysicsWorld {
         }
       }
     }
-    for (let it = 0; it < 2; it++) {
+    for (let it = 0; it < 4; it++) {
       for (const {collider1, collider2, collision} of collisions) {
         const body1 = collider1.body;
         const body2 = collider2.body;

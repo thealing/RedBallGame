@@ -324,6 +324,19 @@ class PlayScene extends Scene {
       }
       context.restore();
     }
+    if (playerData.debugDrawCollisions) {
+      context.save();
+      context.strokeStyle = 'blue';
+      context.lineCap = 'round';
+      context.lineJoin = 'round';
+      context.lineWidth = 1;
+      for (const c of this.physics._collisions) {
+        context.beginPath();
+        context.arc(c.collision.point.x, c.collision.point.y, 5, 0, Math.PI * 2);
+        context.stroke();
+      }
+      context.restore();
+    }
   }
   
   renderUI() {
