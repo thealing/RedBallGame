@@ -87,6 +87,8 @@ class Geometry {
     let collisionDepth = Number.POSITIVE_INFINITY;
     let collisionPoint = null;
     let collisionNormal = null;
+    let point2 = null;
+    let depth2 = null;
     for (let t = 0; t < 2; t++) {
       for (let i = polygon1.points.length - 1, j = 0; j < polygon1.points.length; i = j, j++) {
         const a = polygon1.points[i];
@@ -95,16 +97,22 @@ class Geometry {
           continue;
         }
         const axis = Vector.subtract(b, a).rotateRight().normalize();
+        const offset = Vector.dot(a, axis);
         let depthMax = Number.NEGATIVE_INFINITY;
+        let depthMax2 = Number.NEGATIVE_INFINITY;
         let deepestPoint = new Vector();
+        let deepestPoint2 = new Vector();
         for (const point of polygon2.points) {
-          const depth = Vector.dot(a, axis) - Vector.dot(point, axis);
+          const depth = offset - Vector.dot(point, axis);
           if (depth > depthMax) {
+            depthMax2 = depthMax;
+            deepestPoint2.copy(deepestPoint);
             depthMax = depth;
             deepestPoint.copy(point);
           }
-          else if (depth == depthMax) {
-            deepestPoint = deepestPoint.add(point).divide(2);
+          else if (depth > depthMax2) {
+            depthMax2 = depth;
+            deepestPoint2.copy(point);
           }
         }
         if (depthMax < 0) {
@@ -114,6 +122,15 @@ class Geometry {
           collisionDepth = depthMax;
           collisionPoint = deepestPoint;
           collisionNormal = axis;
+          if (depthMax2 < 0) {
+            point2 = null;
+            depth2 = null;
+          }
+          else
+          {
+            point2 = deepestPoint2;
+            depth2 = depthMax2;
+          }
         }
       }
       [polygon1, polygon2] = [polygon2, polygon1];
@@ -121,6 +138,20 @@ class Geometry {
     }
     if (collisionPoint == null) {
       return null;
+    }
+    if (point2 && typeof oldPhysics == "undefined") {
+      if (collisionDepth == depth2) {
+        collisionPoint = Vector.middle(collisionPoint, point2);
+      }
+      else {
+        return {
+          point: collisionPoint,
+          normal: collisionNormal,
+          depth: collisionDepth,
+          point2,
+          depth2
+        };
+      }
     }
     return {
       point: collisionPoint,

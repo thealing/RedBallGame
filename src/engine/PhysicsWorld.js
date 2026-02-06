@@ -111,64 +111,82 @@ class PhysicsWorld {
         collision.collision.normal.negate();
         if (!collider1.sensor && !collider2.sensor && !skip) {
           this.counters.collisionsHandled++;
-          collisions.push(collision);
+          const innerCollision = collision.collision;
+          if (innerCollision.point2) {
+            collisions.push(collision);
+            const collision2 = {
+              collider1: collision.collider1,
+              collider2: collision.collider2,
+              collision: {
+                point: innerCollision.point2,
+                normal: innerCollision.normal,
+                depth: innerCollision.depth2,
+              }
+            }
+            collisions.push(collision2);
+          }
+          else {
+            collisions.push(collision);
+          }
         }
       }
     }
-    for (const {collider1, collider2, collision} of collisions) {
-      const body1 = collider1.body;
-      const body2 = collider2.body;
-      const tangent1 = Vector.subtract(collision.point, body1.position).rotateLeft();
-      const tangent2 = Vector.subtract(collision.point, body2.position).rotateLeft();
-      const contactVelocity1 = Vector.multiply(tangent1, body1.angularVelocity).add(body1.linearVelocity);
-      const contactVelocity2 = Vector.multiply(tangent2, body2.angularVelocity).add(body2.linearVelocity);
-      const relativeVelocity = Vector.subtract(contactVelocity2, contactVelocity1);
-      const normalVelocity = Vector.dot(collision.normal, relativeVelocity);
-      if (normalVelocity >= 0) {
-        continue;
+    for (let it = 0; it < 2; it++) {
+      for (const {collider1, collider2, collision} of collisions) {
+        const body1 = collider1.body;
+        const body2 = collider2.body;
+        const tangent1 = Vector.subtract(collision.point, body1.position).rotateLeft();
+        const tangent2 = Vector.subtract(collision.point, body2.position).rotateLeft();
+        const contactVelocity1 = Vector.multiply(tangent1, body1.angularVelocity).add(body1.linearVelocity);
+        const contactVelocity2 = Vector.multiply(tangent2, body2.angularVelocity).add(body2.linearVelocity);
+        const relativeVelocity = Vector.subtract(contactVelocity2, contactVelocity1);
+        const normalVelocity = Vector.dot(collision.normal, relativeVelocity);
+        if (normalVelocity >= 0) {
+          continue;
+        }
+        const combinedRestitution = Math.max(collider1.restitution, collider2.restitution);
+        const normalInverseMass1 = body1._inverseLinearMass + body1._inverseAngularMass * Vector.dot(collision.normal, tangent1) ** 2;
+        const normalInverseMass2 = body2._inverseLinearMass + body2._inverseAngularMass * Vector.dot(collision.normal, tangent2) ** 2;
+        const collisionImpulse = -normalVelocity * (1 + combinedRestitution) / (normalInverseMass1 + normalInverseMass2);
+        body1.linearVelocity.subtractScaled(collision.normal, collisionImpulse * body1._inverseLinearMass);
+        body2.linearVelocity.addScaled(collision.normal, collisionImpulse * body2._inverseLinearMass);
+        body1.angularVelocity -= Vector.dot(collision.normal, tangent1) * collisionImpulse * body1._inverseAngularMass;
+        body2.angularVelocity += Vector.dot(collision.normal, tangent2) * collisionImpulse * body2._inverseAngularMass;
+        const collisionTangent = collision.normal.clone().rotateRight();
+        const tangentVelocity = Vector.dot(collisionTangent, relativeVelocity);
+        const combinedStaticFriction = Math.sqrt(collider1.staticFriction * collider2.staticFriction);
+        const combinedDynamicFriction = Math.sqrt(collider1.dynamicFriction * collider2.dynamicFriction);
+        const tangentInverseMass1 = body1._inverseLinearMass + body1._inverseAngularMass * Vector.dot(collisionTangent, tangent1) ** 2;
+        const tangentInverseMass2 = body2._inverseLinearMass + body2._inverseAngularMass * Vector.dot(collisionTangent, tangent2) ** 2;
+        let frictionImpulse = -tangentVelocity / (tangentInverseMass1 + tangentInverseMass2);
+        if (Math.abs(frictionImpulse) > Math.abs(collisionImpulse) * combinedStaticFriction) {
+          const maxImpulseMagnitude = Math.abs(collisionImpulse) * combinedDynamicFriction;
+          frictionImpulse = Math.clamp(frictionImpulse, -maxImpulseMagnitude, maxImpulseMagnitude);
+        }
+        body1.linearVelocity.subtractScaled(collisionTangent, frictionImpulse * body1._inverseLinearMass);
+        body2.linearVelocity.addScaled(collisionTangent, frictionImpulse * body2._inverseLinearMass);
+        body1.angularVelocity -= Vector.dot(collisionTangent, tangent1) * frictionImpulse * body1._inverseAngularMass;
+        body2.angularVelocity += Vector.dot(collisionTangent, tangent2) * frictionImpulse * body2._inverseAngularMass;
       }
-      const combinedRestitution = Math.max(collider1.restitution, collider2.restitution);
-      const normalInverseMass1 = body1._inverseLinearMass + body1._inverseAngularMass * Vector.dot(collision.normal, tangent1) ** 2;
-      const normalInverseMass2 = body2._inverseLinearMass + body2._inverseAngularMass * Vector.dot(collision.normal, tangent2) ** 2;
-      const collisionImpulse = -normalVelocity * (1 + combinedRestitution) / (normalInverseMass1 + normalInverseMass2);
-      body1.linearVelocity.subtractScaled(collision.normal, collisionImpulse * body1._inverseLinearMass);
-      body2.linearVelocity.addScaled(collision.normal, collisionImpulse * body2._inverseLinearMass);
-      body1.angularVelocity -= Vector.dot(collision.normal, tangent1) * collisionImpulse * body1._inverseAngularMass;
-      body2.angularVelocity += Vector.dot(collision.normal, tangent2) * collisionImpulse * body2._inverseAngularMass;
-      const collisionTangent = collision.normal.clone().rotateRight();
-      const tangentVelocity = Vector.dot(collisionTangent, relativeVelocity);
-      const combinedStaticFriction = Math.sqrt(collider1.staticFriction * collider2.staticFriction);
-      const combinedDynamicFriction = Math.sqrt(collider1.dynamicFriction * collider2.dynamicFriction);
-      const tangentInverseMass1 = body1._inverseLinearMass + body1._inverseAngularMass * Vector.dot(collisionTangent, tangent1) ** 2;
-      const tangentInverseMass2 = body2._inverseLinearMass + body2._inverseAngularMass * Vector.dot(collisionTangent, tangent2) ** 2;
-      let frictionImpulse = -tangentVelocity / (tangentInverseMass1 + tangentInverseMass2);
-      if (Math.abs(frictionImpulse) > Math.abs(collisionImpulse) * combinedStaticFriction) {
-        const maxImpulseMagnitude = Math.abs(collisionImpulse) * combinedDynamicFriction;
-        frictionImpulse = Math.clamp(frictionImpulse, -maxImpulseMagnitude, maxImpulseMagnitude);
+      for (const {collider1, collider2, collision} of collisions) {
+        const body1 = collider1.body;
+        const body2 = collider2.body;
+        const tangent1 = Vector.subtract(collision.point, body1.position).rotateLeft();
+        const tangent2 = Vector.subtract(collision.point, body2.position).rotateLeft();
+        const contactVelocity1 = Vector.multiply(tangent1, body1.angularVelocity).add(body1.linearVelocity);
+        const contactVelocity2 = Vector.multiply(tangent2, body2.angularVelocity).add(body2.linearVelocity);
+        const relativeVelocity = Vector.subtract(contactVelocity2, contactVelocity1);
+        const normalVelocity = Vector.dot(collision.normal, relativeVelocity);
+        let correctionInpulse = collision.depth / deltaTime * 0.3 - normalVelocity;
+        if (correctionInpulse <= 0) {
+          continue;
+        }
+        const inverseMass1 = body1._inverseLinearMass + body1._inverseAngularMass * Vector.dot(collision.normal, tangent1) ** 2;
+        const inverseMass2 = body2._inverseLinearMass + body2._inverseAngularMass * Vector.dot(collision.normal, tangent2) ** 2;
+        correctionInpulse /= inverseMass1 + inverseMass2;
+        body1._applyCorrectionImpulse(collision.point, Vector.multiply(collision.normal, -correctionInpulse));
+        body2._applyCorrectionImpulse(collision.point, Vector.multiply(collision.normal, correctionInpulse));
       }
-      body1.linearVelocity.subtractScaled(collisionTangent, frictionImpulse * body1._inverseLinearMass);
-      body2.linearVelocity.addScaled(collisionTangent, frictionImpulse * body2._inverseLinearMass);
-      body1.angularVelocity -= Vector.dot(collisionTangent, tangent1) * frictionImpulse * body1._inverseAngularMass;
-      body2.angularVelocity += Vector.dot(collisionTangent, tangent2) * frictionImpulse * body2._inverseAngularMass;
-    }
-    for (const {collider1, collider2, collision} of collisions) {
-      const body1 = collider1.body;
-      const body2 = collider2.body;
-      const tangent1 = Vector.subtract(collision.point, body1.position).rotateLeft();
-      const tangent2 = Vector.subtract(collision.point, body2.position).rotateLeft();
-      const contactVelocity1 = Vector.multiply(tangent1, body1.angularVelocity).add(body1.linearVelocity);
-      const contactVelocity2 = Vector.multiply(tangent2, body2.angularVelocity).add(body2.linearVelocity);
-      const relativeVelocity = Vector.subtract(contactVelocity2, contactVelocity1);
-      const normalVelocity = Vector.dot(collision.normal, relativeVelocity);
-      let correctionInpulse = collision.depth / deltaTime * 0.3 - normalVelocity;
-      if (correctionInpulse <= 0) {
-        continue;
-      }
-      const inverseMass1 = body1._inverseLinearMass + body1._inverseAngularMass * Vector.dot(collision.normal, tangent1) ** 2;
-      const inverseMass2 = body2._inverseLinearMass + body2._inverseAngularMass * Vector.dot(collision.normal, tangent2) ** 2;
-      correctionInpulse /= inverseMass1 + inverseMass2;
-      body1._applyCorrectionImpulse(collision.point, Vector.multiply(collision.normal, -correctionInpulse));
-      body2._applyCorrectionImpulse(collision.point, Vector.multiply(collision.normal, correctionInpulse));
     }
     for (const body of this.bodies) {
       if (body.type == PhysicsBodyType.STATIC) {
