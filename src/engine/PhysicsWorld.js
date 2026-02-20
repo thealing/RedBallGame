@@ -179,7 +179,7 @@ class PhysicsWorld {
         const contactVelocity2 = Vector.multiply(tangent2, body2.angularVelocity).add(body2.linearVelocity);
         const relativeVelocity = Vector.subtract(contactVelocity2, contactVelocity1);
         const normalVelocity = Vector.dot(collision.normal, relativeVelocity);
-        let correctionInpulse = collision.depth / deltaTime * 0.3 - normalVelocity;
+        let correctionInpulse = Math.min(collision.depth / deltaTime * 0.3, 200) - normalVelocity;
         if (correctionInpulse <= 0) {
           continue;
         }
