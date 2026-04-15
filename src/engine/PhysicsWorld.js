@@ -10,6 +10,7 @@ class PhysicsWorld {
     this._bodiesToDestroy = [];
     this._collidersToDestroy = [];
     this._collisions = [];
+    this._stepCount = 0;
   }
 
   destroy() {
@@ -32,6 +33,7 @@ class PhysicsWorld {
   }
 
   step(deltaTime) {
+    this._stepCount++;
     this.counters.reset();
     this.counters.bodies = this.bodies.size;
     this.counters.colliders = this.colliders.size;
@@ -132,6 +134,9 @@ class PhysicsWorld {
           }
         }
       }
+    }
+    if (this._stepCount % 2 == 1) {
+      collisions.reverse();
     }
     for (let it = 0; it < 4; it++) {
       for (const {collider1, collider2, collision} of collisions) {

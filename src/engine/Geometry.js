@@ -152,7 +152,10 @@ class Geometry {
       return null;
     }
     if (point2 && typeof oldPhysics == "undefined") {
-      return {
+      if (collisionDepth == depth2) {
+        collisionPoint = Vector.middle(collisionPoint, point2);
+      }
+      else return {
         point: collisionPoint,
         normal: collisionNormal,
         depth: collisionDepth,
