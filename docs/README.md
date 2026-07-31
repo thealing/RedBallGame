@@ -11,13 +11,13 @@ Hosted at: <https://redballgame.netlify.app>
   - D – go right
   - W – jump
 - My Levels
-  - Click the + button to create a new empty level
+  - Click the + button to create a new level
   - Click a level to edit or delete it
   - Double click a level to change it's name
 - Public Levels
   - The levels are sorted by publish date
   - The name and author of each level is displayed
-  - Levels be downloaded and edited by anyone
+  - Public levels can be downloaded and edited by anyone
 - Editor
   - Moving
     - Drag objects to move them
@@ -45,7 +45,8 @@ Hosted at: <https://redballgame.netlify.app>
     - Some objects can be turned on and off (windmill, booster, elevator...)
     - The controller of these can be a button, switch or sensor
   - Grid
-    - Allows alignment of the center of objects to a grid while dragging
+    - Align the center of objects to a grid while dragging
+    - Customize the grid color, opacity, and cell size
   - Zoom
     - Hold down the buttons to zoom in or out
 
