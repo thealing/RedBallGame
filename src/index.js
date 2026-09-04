@@ -680,7 +680,7 @@ function createUserPopup() {
   guestButton.style.width = '100%';
   guestButton.style.height = '60px';
   guestButton.style.fontSize = '40px';
-  guestButton.innerHTML = 'Play as Guest';
+  guestButton.innerHTML = 'Join as Guest';
   canvasContainer.style.position = 'relative';
   userDiv.appendChild(usernameLabel);
   userDiv.appendChild(usernameInput);
