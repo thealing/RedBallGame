@@ -1,6 +1,6 @@
 # Red Ball Game
 
-An online Red Ball clone game with a level editor. Design, play and publish your own levels, or play levels created by other people. Sign-up with a username and password, or play as a guest.
+An online Red Ball clone game with a level editor. Design, play and publish your own levels, or play levels created by other people. Sign up with a username and password, or join as a guest.
 
 Hosted at: <https://redballgame.netlify.app>
 
